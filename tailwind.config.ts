@@ -1,7 +1,8 @@
 import type { Config } from 'tailwindcss';
-const { fontFamily } = require('tailwindcss/defaultTheme');
+import tailwindcssAnimate from 'tailwindcss-animate';
+import defaultTheme from 'tailwindcss/defaultTheme';
 
-const config = {
+const config: Config = {
   darkMode: 'class',
   content: [
     './src/app/**/*.{ts,tsx}',
@@ -19,7 +20,7 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', ...fontFamily.sans],
+        sans: ['var(--font-sans)', ...defaultTheme.fontFamily.sans],
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -30,7 +31,7 @@ const config = {
       animation: {},
     },
   },
-  plugins: [require('tailwindcss-animate')],
-} satisfies Config;
+  plugins: [tailwindcssAnimate],
+};
 
 export default config;
