@@ -6,11 +6,10 @@ import api from '@/lib/api';
 export default function HomePage() {
   const [backendStatus, setBackendStatus] = useState<string>('Đang kiểm tra kết nối...');
   const [error, setError] = useState<string | null>(null);
-  const [apiUrl, setApiUrl] = useState<string>('');
+
+  const apiUrl = api.defaults.baseURL || 'N/A';
 
   useEffect(() => {
-    setApiUrl(api.defaults.baseURL || 'N/A');
-
     const checkBackendHealth = async () => {
       try {
         setError(null);
@@ -20,13 +19,12 @@ export default function HomePage() {
         } else {
           setBackendStatus(`Trạng thái không mong đợi (${response.status})`);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Health check failed:', err);
+
         let msg = 'Kết nối tới backend thất bại.';
-        if (err.request) {
-          msg += ' Backend chưa chạy hoặc lỗi CORS.';
-        } else if (err.response) {
-          msg += ` Status: ${err.response.status}`;
+        if (err instanceof Error) {
+          msg += ` ${err.message}`;
         }
         setError(msg);
         setBackendStatus('Kết nối thất bại ❌');

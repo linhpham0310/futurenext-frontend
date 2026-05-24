@@ -1,13 +1,21 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import '../styles/globals.css'; //  Đảm bảo import file CSS global ở đây
+import { Inter as FontSans } from 'next/font/google';
+import '@/styles/globals.css'; // Import global styles (includes Shadcn theme variables)
+import { ThemeProvider } from '@/components/providers/theme-provider'; // Import ThemeProvider
+import { cn } from '@/lib/utils';
 
-const inter = Inter({ subsets: ['latin'] });
+// Cấu hình font Roboto
+const fontSans = FontSans({
+  subsets: ['latin', 'vietnamese'], // Thêm subset tiếng Việt
+  weight: ['300', '400', '500', '700'], // Chọn các weight cần dùng
+  variable: '--font-sans', // Giữ nguyên tên variable nếu chỉ thay font sans
+});
 
 export const metadata: Metadata = {
-  title: 'FutureNext.ai',
-  description: 'AI-Powered Learning Platform',
+  title: 'FutureNext.ai | Nền tảng học lập trình AI', // Descriptive title
+  description: 'FutureNext.ai - Nền tảng học lập trình trực tuyến AI-First thế hệ mới.',
+  // Add other metadata: icons, openGraph, etc.
 };
 
 export default function RootLayout({
@@ -16,8 +24,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    // suppressHydrationWarning is crucial for next-themes compatibility
+    <html lang="vi" suppressHydrationWarning>
+      <head /> {/* Next.js manages head content */}
+      <body
+        className={cn(
+          'min-h-screen bg-background font-sans antialiased', // Base styles from Shadcn theme
+          fontSans.variable // Apply font variable class to body
+        )}
+      >
+        {/* Wrap the entire application content with ThemeProvider */}
+        <ThemeProvider>
+          <main className="flex-grow">{children}</main>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

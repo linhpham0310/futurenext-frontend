@@ -1,28 +1,37 @@
-// tailwind.config.ts
 import type { Config } from 'tailwindcss';
+import tailwindcssAnimate from 'tailwindcss-animate';
+import defaultTheme from 'tailwindcss/defaultTheme';
 
 const config: Config = {
+  darkMode: 'class',
   content: [
-    //  Đảm bảo bao gồm tất cả các file trong 'src/app' nơi bạn sẽ viết JSX/TSX
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-    //  Đảm bảo bao gồm tất cả các file trong 'src/components'
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    //  Dòng './src/pages/**/*.{js,ts,jsx,tsx,mdx}' có thể xóa nếu bạn chỉ dùng App Router
+    './src/app/**/*.{ts,tsx}',
+    './src/components/**/*.{ts,tsx}',
+    './src/styles/**/*.{css}',
+    './src/lib/**/*.{ts,tsx}',
   ],
   theme: {
+    container: {
+      center: true,
+      padding: '2rem',
+      screens: {
+        '2xl': '1400px',
+      },
+    },
     extend: {
-      // --- (Tùy chọn) Thêm các tùy chỉnh theme sau này ---
-      // Ví dụ:
-      // colors: {
-      //   primary: '#...',
-      //   secondary: '#...',
-      // },
-      // backgroundImage: {
-      //   'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-      //   'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-      // },
+      fontFamily: {
+        sans: ['var(--font-sans)', ...defaultTheme.fontFamily.sans],
+      },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
+      },
+      keyframes: {},
+      animation: {},
     },
   },
-  plugins: [], // Thêm các plugin Tailwind (vd: @tailwindcss/forms) sau này nếu cần
+  plugins: [tailwindcssAnimate],
 };
+
 export default config;
