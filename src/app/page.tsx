@@ -1,19 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import api from '@/lib/api';
+import { apiClient } from '@/lib/api';
 
 export default function HomePage() {
   const [backendStatus, setBackendStatus] = useState<string>('Đang kiểm tra kết nối...');
   const [error, setError] = useState<string | null>(null);
 
-  const apiUrl = api.defaults.baseURL || 'N/A';
+  const apiUrl = apiClient.defaults.baseURL || 'N/A';
 
   useEffect(() => {
     const checkBackendHealth = async () => {
       try {
         setError(null);
-        const response = await api.get('/health');
+        const response = await apiClient.get('/health');
         if (response.status === 200 && response.data?.status === 'ok') {
           setBackendStatus('Backend đang hoạt động! ✅');
         } else {
