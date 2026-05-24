@@ -5,10 +5,11 @@ import '@/styles/globals.css'; // Import global styles (includes Shadcn theme va
 import { ThemeProvider } from '@/components/providers/theme-provider'; // Import ThemeProvider
 import { cn } from '@/lib/utils';
 
-// Setup font according to Shadcn docs
+// Cấu hình font Roboto
 const fontSans = FontSans({
-  subsets: ['latin', 'vietnamese'], // Include subsets as needed
-  variable: '--font-sans', // Define CSS variable for the font family
+  subsets: ['latin', 'vietnamese'], // Thêm subset tiếng Việt
+  weight: ['300', '400', '500', '700'], // Chọn các weight cần dùng
+  variable: '--font-sans', // Giữ nguyên tên variable nếu chỉ thay font sans
 });
 
 export const metadata: Metadata = {

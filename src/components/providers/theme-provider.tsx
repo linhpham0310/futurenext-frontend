@@ -5,8 +5,7 @@
 
 import * as React from 'react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
-import type { ThemeProviderProps } from 'next-themes/dist/types';
-
+import type { ThemeProviderProps } from 'next-themes';
 /**
  * Wraps the application with next-themes provider.
  * Configured to manage themes by adding/removing the 'dark' class on the HTML element,
