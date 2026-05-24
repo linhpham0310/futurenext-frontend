@@ -40,7 +40,6 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       accessToken: null,
 
-      /** ✅ NEW */
       hasHydrated: false,
       setHasHydrated: () => {
         set({ hasHydrated: true });
