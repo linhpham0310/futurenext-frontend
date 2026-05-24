@@ -24,9 +24,11 @@ export const registerSchema = z
       }),
     // Thêm confirmPassword
     confirmPassword: z.string().min(1, { message: 'Vui lòng xác nhận mật khẩu.' }),
-    role: z.enum(['student', 'teacher']),
     consentAccepted: z.boolean().refine((val) => val === true, {
       message: 'Bạn phải đồng ý với điều khoản để tiếp tục.',
+    }),
+    role: z.enum(['student', 'teacher'], {
+      message: 'Vui lòng chọn vai trò của bạn',
     }),
   })
   // refine() để kiểm tra confirmPassword khớp với password
@@ -45,3 +47,20 @@ export const verifyEmailSchema = z.object({
 });
 // Type chỉ cần chứa OTP
 export type VerifyEmailFormData = z.infer<typeof verifyEmailSchema>;
+
+// Schema cho form đăng nhập
+export const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: 'Email không được để trống.' })
+    .email({ message: 'Email không đúng định dạng.' })
+    .max(255)
+    .transform((val) => val.toLowerCase().trim()), // Chuẩn hóa
+  password: z
+    .string()
+    .min(1, { message: 'Mật khẩu không được để trống.' }) // Chỉ cần check trống
+    .max(100, { message: 'Mật khẩu không được vượt quá 100 ký tự.' }),
+});
+
+// Type được suy ra từ schema
+export type LoginFormData = z.infer<typeof loginSchema>;
