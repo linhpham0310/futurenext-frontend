@@ -7,7 +7,6 @@ import { useRegistration } from '@/hooks/useRegistration';
 import { RegisterForm } from '@/components/features/auth/RegisterForm';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form } from '@/components/ui/form';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { GraduationCap } from 'lucide-react';

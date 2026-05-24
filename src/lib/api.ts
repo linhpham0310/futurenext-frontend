@@ -1,6 +1,5 @@
 // src/lib/api.ts
 import axios from 'axios';
-import { RegisterFormData } from '@/lib/schemas/auth.schema';
 import { RegisterRequest, RegisterResponse } from '@/types/auth.api';
 // ... (VerifyEmailFormData import...)
 

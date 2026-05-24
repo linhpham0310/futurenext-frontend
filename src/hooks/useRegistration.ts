@@ -8,6 +8,12 @@ import { registerSchema, RegisterFormData } from '@/lib/schemas/auth.schema';
 import { authApi } from '@/lib/api';
 import { useRouter } from 'next/navigation'; // Thường không cần chuyển hướng ngay sau register
 
+interface ApiError {
+  message?: string;
+  statusCode?: number;
+  // Các field khác nếu có
+}
+
 /**
  * Custom hook to manage the state and logic for the registration form.
  * @returns {object} Form control methods, loading state, API error, and success state.
@@ -58,21 +64,24 @@ export function useRegistration() {
       setTimeout(() => {
         router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
       }, 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Registration API Failed:', error);
+
+      const apiError = error as ApiError;
+
       // Handle specific API errors
-      if (error?.statusCode === 409) {
+      if (apiError?.statusCode === 409) {
         // Conflict - Email exists
         form.setError('email', {
           type: 'server',
-          message: error.message || 'Email này đã tồn tại.',
+          message: apiError.message || 'Email này đã tồn tại.',
         });
-      } else if (error?.statusCode === 429) {
+      } else if (apiError?.statusCode === 429) {
         // Too Many Requests
         setApiError('Bạn đã thực hiện quá nhiều yêu cầu. Vui lòng thử lại sau vài phút.');
       } else {
         // Other errors (validation from server, 500, network error)
-        setApiError(error.message || 'Đã xảy ra lỗi không mong muốn trong quá trình đăng ký.');
+        setApiError(apiError.message || 'Đã xảy ra lỗi không mong muốn trong quá trình đăng ký.');
       }
     }
   };
