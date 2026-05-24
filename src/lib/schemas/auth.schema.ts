@@ -38,4 +38,10 @@ export const registerSchema = z
 // Type được suy ra từ schema
 export type RegisterFormData = z.infer<typeof registerSchema>;
 
-// ... (verifyEmailSchema và các schema khác...)
+export const verifyEmailSchema = z.object({
+  // Email không còn là field trong form này vì đọc từ URL
+  // email: z.string().email().optional(),
+  otp: z.string().length(6, { message: 'Mã OTP phải có đúng 6 chữ số.' }),
+});
+// Type chỉ cần chứa OTP
+export type VerifyEmailFormData = z.infer<typeof verifyEmailSchema>;

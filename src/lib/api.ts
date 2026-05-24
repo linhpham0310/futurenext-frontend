@@ -1,7 +1,7 @@
 // src/lib/api.ts
 import axios from 'axios';
 import { RegisterRequest, RegisterResponse } from '@/types/auth.api';
-// ... (VerifyEmailFormData import...)
+import { VerifyEmailFormData } from './schemas/auth.schema';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3001';
 
@@ -22,9 +22,15 @@ export const authApi = {
     return response.data;
   },
 
-  //verifyEmail: async (data: any /* VerifyEmailFormData */): Promise<{ message: string }> => { /* ... */ }, // Sẽ dùng ở S1-FE-03
+  verifyEmail: async (data: VerifyEmailFormData): Promise<{ message: string }> => {
+    const response = await apiClient.post('/auth/verify-email', data);
+    return response.data;
+  },
 
-  // login: async (data: any): Promise<any> => { /* ... */ }, // Sẽ dùng ở sprint sau
+  resendOtp: async (data: { email: string }): Promise<{ message: string }> => {
+    const response = await apiClient.post('/auth/resend-otp', data);
+    return response.data;
+  },
 };
 
 // ... (usersApi...)
