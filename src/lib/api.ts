@@ -1,50 +1,31 @@
 // src/lib/api.ts
 import axios from 'axios';
+import { RegisterFormData } from '@/lib/schemas/auth.schema';
+import { RegisterRequest, RegisterResponse } from '@/types/auth.api';
+// ... (VerifyEmailFormData import...)
 
-// --- Đọc Base URL từ Biến Môi trường ---
-// Biến này sẽ được định nghĩa trong .env.local (Task SO-FE-04)
-const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
-// Cảnh báo nếu thiếu Base URL
-if (!baseURL) {
-  console.warn(
-    '[API Client] NEXT_PUBLIC_API_BASE_URL is not defined. Falling back to: http://localhost:3000'
-  );
-}
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3001';
 
 /**
- * Axios instance được cấu hình sẵn để giao tiếp với backend API (Core Service).
- * Bao gồm baseURL đọc từ biến môi trường.
- * Interceptors (để xử lý token, lỗi tập trung) sẽ được thêm ở Sprint 1 (Task S1-FE-06).
+ * Axios instance dùng chung cho toàn app
  */
-const api = axios.create({
-  //  Sử dụng baseURL đã đọc, với fallback an toàn cho local dev.
-  baseURL: baseURL || 'http://localhost:3000',
-  //  Đặt header mặc định cho các request (nếu cần).
-  headers: {
-    'Content-Type': 'application/json', // Mặc định gửi JSON
-    Accept: 'application/json', // Mặc định chấp nhận JSON response
-  },
-  //  (Quan trọng cho Cookie Refresh Token sau này - Sẽ thêm ở Sprint 1)
-  // withCredentials: true, // Cho phép trình duyệt tự động gửi/nhận cookie cross-site (nếu backend CORS cấu hình đúng)
-  //  Timeout (Tùy chọn): Ngăn request treo quá lâu (ví dụ: 30 giây)
-  // timeout: 30000,
+export const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true, // BẮT BUỘC cho refresh token (HttpOnly cookie)
+  timeout: 10000,
 });
 
-// --- (Nơi thêm Interceptors ở Sprint 1) ---
-// api.interceptors.request.use( async (config) => { ... });
-// api.interceptors.response.use( (response) => { ... }, async (error) => { ... });
+// --- Auth API Calls ---
+export const authApi = {
+  register: async (data: RegisterRequest): Promise<RegisterResponse> => {
+    const response = await apiClient.post('/auth/register', data);
+    return response.data;
+  },
 
-console.log(`[API Client] Initialized with baseURL: ${api.defaults.baseURL}`);
+  //verifyEmail: async (data: any /* VerifyEmailFormData */): Promise<{ message: string }> => { /* ... */ }, // Sẽ dùng ở S1-FE-03
 
-// Xuất instance để các hooks/components khác có thể import và sử dụng
-export default api;
+  // login: async (data: any): Promise<any> => { /* ... */ }, // Sẽ dùng ở sprint sau
+};
 
-// --- (Tùy chọn) Định nghĩa Logger class đơn giản ---
-// Có thể đặt trong src/lib/logger.ts
-// class Logger {
-//   constructor(private context: string = '') {}
-//   log(...args: any[]) { console.log(this.context, ...args); }
-//   warn(...args: any[]) { console.warn(this.context, ...args); }
-//   error(...args: any[]) { console.error(this.context, ...args); }
-// }
+// ... (usersApi...)
