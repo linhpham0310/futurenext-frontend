@@ -1,131 +1,80 @@
-/**
- * @file Zustand store for managing authentication state globally.
- * Includes persistence to localStorage.
- */
+// src/store/authStore.ts
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware'; // Import persist middleware
-import { AuthUser } from '@/types'; // Import user type
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { AuthUser } from '@/types/auth.api';
 
-/**
- * Interface defining the structure of the authentication state.
- */
 interface AuthState {
-  isAuthenticated: boolean; // Flag indicating if user is logged in
-  user: AuthUser | null; // Logged-in user information (null if not logged in)
-  accessToken: string | null; // JWT Access Token (null if not logged in)
-  // Actions to update the state
+  user: AuthUser | null;
+  accessToken: string | null;
+  isAuthenticated: boolean;
 
-  /** ✅ NEW */
-  hasHydrated: boolean;
-  setHasHydrated: () => void;
-
-  setAuthData: (token: string, userData: AuthUser) => void; // Action on successful login/refresh
-  clearAuthData: () => void; // Action on logout or session expiry
-  setUser: (userData: AuthUser | null) => void; // Action to update user info (e.g., after profile update)
-  setAccessToken: (token: string | null) => void; // Action to update token (e.g., after refresh)
+  // Actions
+  setAuth: (user: AuthUser, token: string) => void;
+  clearAuth: () => void;
+  updateUser: (userData: Partial<AuthUser>) => void;
+  setAccessToken: (token: string | null) => void;
 }
 
-/**
- * Creates the Zustand store for authentication state.
- * Uses the `persist` middleware to save state to localStorage.
- */
 export const useAuthStore = create<AuthState>()(
-  // 1. Persist Middleware Configuration
   persist(
-    // 2. Store Definition Function (receives `set` function)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (set, get) => ({
-      // --- Initial State ---
-      isAuthenticated: false,
+    (set) => ({
       user: null,
       accessToken: null,
+      isAuthenticated: false,
 
-      hasHydrated: false,
-      setHasHydrated: () => {
-        set({ hasHydrated: true });
+      setAuth: (user, token) => {
+        // Sync với localStorage
+        localStorage.setItem('accessToken', token);
+        set({ user, accessToken: token, isAuthenticated: true });
       },
 
-      // --- Actions ---
-
-      /**
-       * Updates the store upon successful login or token refresh.
-       * Sets isAuthenticated to true, stores user data and access token.
-       */
-      setAuthData: (token: string, userData: AuthUser) => {
-        console.log('AuthStore: Setting auth data', { token: '***', userData }); // Log for debugging
-        set({
-          isAuthenticated: true,
-          user: userData,
-          accessToken: token,
-        });
+      clearAuth: () => {
+        // Xóa cả localStorage
+        localStorage.removeItem('accessToken');
+        set({ user: null, accessToken: null, isAuthenticated: false });
       },
 
-      /**
-       * Clears all authentication data from the store (logout or session expiry).
-       * Sets isAuthenticated to false and nullifies user/token.
-       */
-      clearAuthData: () => {
-        console.log('AuthStore: Clearing auth data');
-        set({
-          isAuthenticated: false,
-          user: null,
-          accessToken: null,
-        });
-        // Optional: Clear other related storage if needed
-        // localStorage.removeItem('some-other-key');
-      },
-
-      /**
-       * Updates only the user information in the store.
-       * Useful after updating the user profile.
-       */
-      setUser: (userData: AuthUser | null) => {
-        console.log('AuthStore: Updating user data', userData);
-        // Ensure isAuthenticated remains true if user data is updated while logged in
+      updateUser: (updatedData) =>
         set((state) => ({
-          user: userData,
-          isAuthenticated: userData ? state.isAuthenticated : false, // Logout if user becomes null
-        }));
-      },
+          user: state.user ? { ...state.user, ...updatedData } : null,
+        })),
 
-      /**
-       * Updates only the access token.
-       * Useful after token refresh via interceptor.
-       */
-      setAccessToken: (token: string | null) => {
-        console.log('AuthStore: Updating access token');
+      setAccessToken: (token) => {
+        if (token) {
+          localStorage.setItem('accessToken', token);
+        } else {
+          localStorage.removeItem('accessToken');
+        }
         set({ accessToken: token });
       },
     }),
-    // 3. Persist Options
     {
-      name: 'auth-storage', // Key used in localStorage
-      storage: createJSONStorage(() => localStorage), // Use localStorage (can switch to sessionStorage if needed)
-      // Optional: Choose which parts of the state to persist
-      // partialize: (state) => ({
-      //   isAuthenticated: state.isAuthenticated,
-      //   user: state.user,
-      //   accessToken: state.accessToken, // Persist token for session continuity
-      // }),
-      // Optional: Handle migration if state structure changes
-      // version: 1,
-      // migrate: (persistedState, version) => { ... }
-      // Optional: Called after rehydration is complete
-      // onRehydrateStorage: (state) => {
-      //   console.log("AuthStore: Hydration finished");
-      //   return (state, error) => {
-      //     if (error) {
-      //       console.error("AuthStore: An error happened during hydration", error);
-      //       // Optionally clear storage on error
-      //       // useAuthStore.persist.clearStorage();
-      //     } else {
-      //       console.log("AuthStore: Rehydration successful");
-      //     }
-      //   }
-      // }
+      name: 'auth-storage', // Key trong localStorage
+      storage: createJSONStorage(() => localStorage),
+      // Chỉ persist user và accessToken
+      partialize: (state) => ({
+        user: state.user,
+        accessToken: state.accessToken,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 );
 
-// Optional: Export helper function to get state outside React components (use carefully)
-// export const getAuthState = () => useAuthStore.getState();
+// Export hook để dùng dễ dàng
+
+export const useAuth = () => {
+  const { user, accessToken, isAuthenticated, setAuth, clearAuth, updateUser, setAccessToken } =
+    useAuthStore();
+
+  return {
+    user,
+    accessToken,
+    isAuthenticated,
+    setAuth,
+    clearAuth,
+    updateUser,
+    setAccessToken,
+    setUser: (userData: AuthUser | null) => updateUser(userData || {}),
+  };
+};

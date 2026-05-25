@@ -1,65 +1,49 @@
 // src/types/index.ts
 
-// Dựa trên response của API /auth/login và /users/me/profile
-// Có thể import UserRole từ entity backend nếu muốn đồng bộ
-export enum UserRole {
-  STUDENT = 'student',
-  TEACHER = 'teacher',
-  ADMIN = 'admin',
-}
+// Import auth types nếu cần dùng lại
+import type { User } from './auth.api';
+export * from './auth.api';
 
-export enum UserStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-}
-
-export interface User {
-  id: string;
-  fullName: string;
-  email: string;
-  role: UserRole;
-  status: UserStatus;
-  createdAt: string;
-  avatar?: string;
-}
-
-export interface AuthUser {
-  id: string;
-  fullName: string;
-  email?: string; // Email có thể có hoặc không tùy context
-  role: UserRole;
-  avatarUrl?: string | null;
-  // Thêm các trường cần thiết khác lấy từ API profile
-  createdAt?: string; // Dạng ISO string
-  updatedAt?: string; // Dạng ISO string
-  teacherProfile?: {
-    id: string;
-    bio: string;
-    expertise: string[];
-    status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  };
-}
-
-// Thêm các types khác nếu cần
-
+// ========== Course Types ==========
 export interface Course {
   id: string;
   title: string;
   description: string;
-  instructor: string;
+  thumbnail: string;
+  instructor: {
+    id: string;
+    name: string;
+    avatar: string;
+  };
+  category: string;
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  price: number;
+  originalPrice?: number;
+  rating: number;
+  totalRatings: number;
+  totalStudents: number;
+  duration: string;
+  lessons: number;
+  lastUpdated: string;
+  tags: string[];
+  bestseller?: boolean;
+  featured?: boolean;
   instructorId: string;
   students: number;
-  rating: number;
-  price: string;
-  thumbnail?: string;
-  tags: string[];
-  duration: string;
-  lessons: Lesson[];
   assignments: Assignment[];
   isEnrolled?: boolean;
   progress?: number;
 }
 
+export interface CourseFilters {
+  search: string;
+  category: string;
+  level: string;
+  priceRange: string;
+  rating: string;
+}
+
+// ========== Learning Types ==========
 export interface Lesson {
   id: string;
   title: string;
@@ -92,16 +76,7 @@ export interface Question {
   points: number;
 }
 
-export interface NavigationProps {
-  onNavigate: (page: string, courseId?: string) => void;
-}
-
-export interface UserAuthProps {
-  user: User | null;
-  onLogin: (user: User) => void;
-  onLogout: () => void;
-}
-
+// ========== UI/Navigation Types ==========
 export type PageName =
   | 'landing'
   | 'student-dashboard'
@@ -123,8 +98,18 @@ export type PageName =
   | 'order-complete';
 
 export interface AppState {
-  user: User | null;
+  user: import('./auth.api').User | null;
   currentPage: PageName;
   selectedCourse: string | null;
   showAIAssistant: boolean;
+}
+
+export interface NavigationProps {
+  onNavigate: (page: string, courseId?: string) => void;
+}
+
+export interface UserAuthProps {
+  user: import('./auth.api').User | null;
+  onLogin: (user: import('./auth.api').User) => void;
+  onLogout: () => void;
 }

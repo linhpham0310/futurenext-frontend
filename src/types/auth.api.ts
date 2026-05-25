@@ -1,45 +1,110 @@
-// Payload gửi lên backend
+// src/types/auth.api.ts
+
+// ========== User Entity từ BE ==========
+export interface User {
+  id: string;
+  fullName: string;
+  email: string;
+  role: 'STUDENT' | 'TEACHER' | 'ADMIN';
+  avatarUrl?: string | null;
+  status: 'PENDING_EMAIL_VERIFY' | 'ACTIVE' | 'LOCKED';
+  locale: string;
+  timezone: string;
+  lastLoginAt?: string;
+  lockedUntil?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ========== Auth Request Types ==========
 export interface RegisterRequest {
   fullName: string;
   email: string;
   password: string;
   agreeTerms: boolean;
-  role: 'student' | 'teacher'; //  thêm
+  role: 'student' | 'teacher';
 }
 
-// Response trả về
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface VerifyEmailRequest {
+  otp: string;
+}
+
+export interface ResendOtpRequest {
+  email: string;
+}
+
+export interface UpdateProfileRequest {
+  fullName?: string;
+  avatarUrl?: string | null;
+  updatedAt: string; // Optimistic lock
+}
+
+// ========== Auth Response Types ==========
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: Omit<
+    User,
+    'status' | 'locale' | 'timezone' | 'lastLoginAt' | 'lockedUntil' | 'createdAt' | 'updatedAt'
+  >;
+}
+
+export interface RefreshTokenResponse {
+  accessToken: string;
+}
+
 export interface RegisterResponse {
   message: string;
 }
-export interface Course {
-  id: string;
-  title: string;
-  description: string;
-  thumbnail: string;
-  instructor: {
-    id: string;
-    name: string;
-    avatar: string;
-  };
-  category: string;
-  level: 'Beginner' | 'Intermediate' | 'Advanced';
-  price: number;
-  originalPrice?: number;
-  rating: number;
-  totalRatings: number;
-  totalStudents: number;
-  duration: string;
-  lessons: number;
-  lastUpdated: string;
-  tags: string[];
-  bestseller?: boolean;
-  featured?: boolean;
+
+export interface VerifyEmailResponse {
+  message: string;
 }
 
-export interface CourseFilters {
-  search: string;
-  category: string;
-  level: string;
-  priceRange: string;
-  rating: string;
+export interface LogoutResponse {
+  message: string;
+}
+
+export type ProfileResponse = User;
+
+// ========== Error Type ==========
+export interface ApiError {
+  message: string;
+  statusCode: number;
+  error?: string;
+}
+
+// ========== Frontend Helper Types ==========
+// src/types/auth.api.ts
+export interface AuthUser {
+  id: string;
+  fullName: string;
+  email: string;
+  role: 'STUDENT' | 'TEACHER' | 'ADMIN';
+  avatarUrl?: string | null;
+  updatedAt?: string;
+  teacherProfile?: {
+    id: string;
+    bio: string;
+    expertise: string[];
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  };
+}
+
+// ========== Enums nếu cần ==========
+export enum UserRole {
+  STUDENT = 'STUDENT',
+  TEACHER = 'TEACHER',
+  ADMIN = 'ADMIN',
+}
+
+export enum UserStatus {
+  PENDING_EMAIL_VERIFY = 'PENDING_EMAIL_VERIFY',
+  ACTIVE = 'ACTIVE',
+  LOCKED = 'LOCKED',
 }
