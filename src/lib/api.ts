@@ -1,23 +1,20 @@
-// src/lib/api.ts
+// src/lib/api.ts (Phiên bản hoàn chỉnh)
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { RegisterRequest, RegisterResponse } from '@/types/auth.api';
+import { AuthUser, RegisterRequest, RegisterResponse } from '@/types/auth.api';
 import { LoginFormData, VerifyEmailFormData } from './schemas/auth.schema';
-import { AuthUser } from '@/types'; // Import AuthUser type
 import { useAuthStore } from '@/store/authStore';
+import { UpdateProfileFormData } from './schemas/user.schema';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3001';
 
-/**
- * Axios instance dùng chung cho toàn app
- */
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: true, // BẮT BUỘC cho refresh token (HttpOnly cookie)
+  withCredentials: true, //  Giữ lại - quan trọng cho refresh token cookie
   timeout: 10000,
 });
 
-// --- Auth API Response Types ---
+// Types
 interface LoginSuccessResponse {
   accessToken: string;
   user: AuthUser;
@@ -34,13 +31,27 @@ interface QueueItem {
   reject: (reason?: Error | AxiosError) => void;
 }
 
+//  Thêm function lấy token từ localStorage
+const getAccessToken = (): string | null => {
+  // Ưu tiên lấy từ Zustand store trước
+  const storeToken = useAuthStore.getState().accessToken;
+  if (storeToken) return storeToken;
+
+  // Fallback sang localStorage
+  return localStorage.getItem('accessToken');
+};
+
+//  Thêm function lưu token (sync cả Zustand và localStorage)
+const setAccessToken = (token: string) => {
+  useAuthStore.getState().setAccessToken(token);
+};
+
 // --- Axios Request Interceptor ---
-// Tự động thêm Access Token vào header Authorization
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Lấy token từ Zustand store
-    const accessToken = useAuthStore.getState().accessToken;
-    // Không thêm token cho các route public (login, register, forgot, reset, verify)
+    //  Dùng function mới
+    const accessToken = getAccessToken();
+
     const publicRoutes = [
       '/auth/login',
       '/auth/register',
@@ -48,7 +59,6 @@ apiClient.interceptors.request.use(
       '/auth/reset-password',
       '/auth/verify-email',
     ];
-    // Không thêm token cho chính request refresh
     const isRefreshRequest = config.url === '/auth/refresh';
 
     if (
@@ -58,7 +68,7 @@ apiClient.interceptors.request.use(
       !isRefreshRequest
     ) {
       config.headers.Authorization = `Bearer ${accessToken}`;
-      console.debug('[API Request] Added Authorization header.'); // Log khi dev
+      console.debug('[API Request] Added Authorization header.');
     }
     return config;
   },
@@ -69,8 +79,7 @@ apiClient.interceptors.request.use(
 );
 
 // --- Axios Response Interceptor ---
-// Xử lý lỗi 401 và tự động refresh token
-let isRefreshing = false; // Cờ để tránh gọi refresh lặp lại
+let isRefreshing = false;
 let failedQueue: QueueItem[] = [];
 
 const processQueue = (error: AxiosError | null, token: string | null = null) => {
@@ -85,21 +94,16 @@ const processQueue = (error: AxiosError | null, token: string | null = null) => 
 };
 
 apiClient.interceptors.response.use(
-  (response) => {
-    // Nếu response thành công, trả về
-    return response;
-  },
+  (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }; // Thêm cờ _retry
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
     const status = error.response?.status;
     const url = originalRequest.url;
 
     console.debug(`[API Response Error] Status: ${status}, URL: ${url}`);
 
-    // Chỉ xử lý lỗi 401 Unauthorized VÀ không phải từ API refresh VÀ chưa thử retry
     if (status === 401 && url !== '/auth/refresh' && !originalRequest._retry) {
       if (isRefreshing) {
-        // Nếu đang refresh, đẩy request lỗi vào hàng đợi
         console.debug('Token refresh in progress, queueing request:', originalRequest.url);
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -108,56 +112,51 @@ apiClient.interceptors.response.use(
             if (originalRequest.headers) {
               originalRequest.headers['Authorization'] = 'Bearer ' + newToken;
             }
-            return apiClient(originalRequest); // Thử lại request với token mới từ queue
+            return apiClient(originalRequest);
           })
-          .catch((err) => {
-            return Promise.reject(err); // Propagate error if refresh failed
-          });
+          .catch((err) => Promise.reject(err));
       }
 
-      // Đánh dấu đang refresh và đánh dấu request này đã thử retry
       originalRequest._retry = true;
       isRefreshing = true;
       console.log('Access token expired or invalid. Attempting refresh...');
 
       try {
-        // Gọi API refresh token (không cần try-catch ở đây vì authApi.refreshToken đã xử lý)
         const refreshResponse = await authApi.refreshToken();
         const newAccessToken = refreshResponse.accessToken;
         console.log('Token refresh successful!');
 
-        // Cập nhật token mới vào Zustand store
-        useAuthStore.getState().setAccessToken(newAccessToken);
+        //  Dùng function mới để sync
+        setAccessToken(newAccessToken);
 
-        // Cập nhật header của request gốc
         if (originalRequest.headers) {
           originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
         }
 
-        // Thực thi lại các request trong hàng đợi với token mới
         processQueue(null, newAccessToken);
-
-        // Thử lại request gốc với token mới
         return apiClient(originalRequest);
       } catch (refreshError: unknown) {
         console.error('Token refresh failed:', refreshError);
-        // Nếu refresh thất bại (lỗi 401 hoặc lỗi khác)
-        // Thực thi queue với lỗi
         processQueue(refreshError as AxiosError, null);
-        // Logout người dùng
-        useAuthStore.getState().clearAuthData(); // Xóa state
-        // Chuyển hướng về trang login (cần thực hiện ở component hoặc global handler)
-        // window.location.href = '/sign-in'; // Cách đơn giản nhất, hoặc dùng router nếu có thể truy cập
+
+        //  Clear cả Zustand và localStorage
+        useAuthStore.getState().clearAuth();
+        localStorage.removeItem('accessToken');
+
         console.error('User logged out due to refresh failure.');
-        // Ném lỗi gốc hoặc lỗi refresh để component cha xử lý (nếu cần)
+
+        //  Chuyển hướng về login
+        if (typeof window !== 'undefined') {
+          window.location.href = '/sign-in';
+        }
+
         return Promise.reject(refreshError || error);
       } finally {
-        isRefreshing = false; // Reset cờ sau khi hoàn tất
+        isRefreshing = false;
       }
     }
 
     const responseData = error.response?.data as ErrorResponse | undefined;
-    // Trích xuất lỗi từ response data nếu có
     const simplifiedError = error.response?.data
       ? {
           statusCode: error.response.status,
@@ -190,23 +189,40 @@ export const authApi = {
 
   login: async (data: LoginFormData): Promise<LoginSuccessResponse> => {
     const response = await apiClient.post<LoginSuccessResponse>('/auth/login', data);
+    //  Lưu token sau khi login thành công
+    if (response.data.accessToken) {
+      setAccessToken(response.data.accessToken);
+    }
     return response.data;
   },
 
   logout: async (): Promise<{ message: string }> => {
     const response = await apiClient.post('/auth/logout');
+    //  Clear token khi logout
+    localStorage.removeItem('accessToken');
+    useAuthStore.getState().clearAuth();
     return response.data;
   },
 
-  /**
-   * Refresh Access Token (dùng HttpOnly cookie)
-   */
   refreshToken: async (): Promise<{ accessToken: string }> => {
     const response = await apiClient.post<{ accessToken: string }>(
       '/auth/refresh',
       {},
       { withCredentials: true }
     );
+    return response.data;
+  },
+};
+
+// --- Users API ---
+export const usersApi = {
+  getProfile: async (): Promise<AuthUser> => {
+    const response = await apiClient.get<AuthUser>('/me/profile');
+    return response.data;
+  },
+
+  updateProfile: async (data: UpdateProfileFormData): Promise<AuthUser> => {
+    const response = await apiClient.put<AuthUser>('/me/profile', data);
     return response.data;
   },
 };

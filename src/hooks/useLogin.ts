@@ -8,7 +8,7 @@ import { loginSchema, LoginFormData } from '@/lib/schemas/auth.schema';
 import { authApi } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth'; // Import useAuth hook to access store actions
 import { useRouter } from 'next/navigation';
-import { UserRole } from '@/types';
+import { UserRole } from '@/types/auth.api';
 
 /**
  * Custom hook to manage the state and logic for the login form.
