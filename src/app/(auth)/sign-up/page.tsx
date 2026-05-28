@@ -3,7 +3,7 @@
  */
 'use client';
 
-import { useRegistration } from '@/hooks/useRegistration';
+import { useRegistration } from '@/hooks/auth/useRegistration';
 import { RegisterForm } from '@/components/features/auth/RegisterForm';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

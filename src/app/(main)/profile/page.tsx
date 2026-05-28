@@ -3,8 +3,8 @@
 
 import { Form } from '@/components/ui/form';
 import { ProfileForm } from '@/components/features/profile/ProfileForm';
-import { useProfile } from '@/hooks/useProfile';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useProfile } from '@/hooks/auth/useProfile';
 
 export default function ProfilePage() {
   //  Lấy onSubmit từ useProfile
