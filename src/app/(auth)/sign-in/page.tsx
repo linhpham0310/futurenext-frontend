@@ -3,7 +3,6 @@
  */
 'use client';
 
-import { useLogin } from '@/hooks/useLogin'; // Import login hook
 import { LoginForm } from '@/components/features/auth/LoginForm'; // Import login form component
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +10,7 @@ import Link from 'next/link';
 // import { Icons } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { GraduationCap } from 'lucide-react';
+import { useLogin } from '@/hooks/auth/useLogin';
 
 export default function LoginPage() {
   const { form, onSubmit, isLoading, apiError } = useLogin();

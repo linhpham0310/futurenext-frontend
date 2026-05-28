@@ -64,3 +64,13 @@ export const loginSchema = z.object({
 
 // Type được suy ra từ schema
 export type LoginFormData = z.infer<typeof loginSchema>;
+
+// [SPRINT 2 - THÊM MỚI]
+export const ForgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: 'Email không được để trống' })
+    .email({ message: 'Địa chỉ email không hợp lệ' }),
+});
+
+export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>;

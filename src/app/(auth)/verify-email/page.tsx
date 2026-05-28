@@ -5,7 +5,7 @@
 'use client';
 
 import React from 'react'; // Import React for Suspense
-import { useEmailVerification } from '@/hooks/useEmailVerification'; // Import the hook
+import { useEmailVerification } from '@/hooks/auth/useEmailVerification'; // Import the hook
 import { VerificationForm } from '@/components/features/auth/VerificationForm'; // Import the form
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

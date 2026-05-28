@@ -6,7 +6,7 @@
  */
 'use client'; // Required for hooks (useAuth) and Radix UI components
 
-import { useAuth } from '@/hooks/useAuth'; // Hook S1-FE-05 (đã cập nhật)
+import { useAuth } from '@/hooks/auth/useAuth'; // Hook S1-FE-05 (đã cập nhật)
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'; // Component S1-FE-01
 import { Button } from '@/components/ui/button';
 import {

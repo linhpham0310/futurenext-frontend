@@ -8,7 +8,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateProfileSchema, UpdateProfileFormData } from '@/lib/schemas/user.schema';
 import { usersApi } from '@/lib/api';
-import { useAuth } from '@/hooks/useAuth'; // (S1-FE-05) Để cập nhật user state
+import { useAuth } from '@/hooks/auth/useAuth'; // (S1-FE-05) Để cập nhật user state
 import { AuthUser } from '@/types/auth.api';
 
 /**

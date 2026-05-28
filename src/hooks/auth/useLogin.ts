@@ -6,7 +6,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginFormData } from '@/lib/schemas/auth.schema';
 import { authApi } from '@/lib/api';
-import { useAuth } from '@/hooks/useAuth'; // Import useAuth hook to access store actions
+import { useAuth } from '@/hooks/auth/useAuth'; // Import useAuth hook to access store actions
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/types/auth.api';
 

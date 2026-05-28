@@ -1,7 +1,7 @@
 // src/app/page.tsx
 'use client';
 
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { Button } from '@/components/ui/button';
 import { AuthUser, UserRole } from '@/types/auth.api'; //  Import đúng
 
