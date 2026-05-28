@@ -5,7 +5,7 @@ import { LoginFormData, VerifyEmailFormData } from './schemas/auth.schema';
 import { useAuthStore } from '@/store/authStore';
 import { UpdateProfileFormData } from './schemas/user.schema';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,

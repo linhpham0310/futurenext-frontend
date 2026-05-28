@@ -1,47 +1,48 @@
+// src/app/(main)/layout.tsx
 /**
  * @file Layout cho các trang yêu cầu đăng nhập (vd: /dashboard, /profile).
  * Sẽ chứa Header, Sidebar và bảo vệ route.
  */
-'use client'; // Cần client-side để check auth
-import { useAuth } from '@/hooks/useAuth'; // Hook S1-FE-05
+'use client';
+
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Spinner } from '@/components/ui/spinner';
-// Import Header (sẽ tạo ở S1-FE-08)
-// import { SiteHeader } from "@/components/layout/SiteHeader";
+import { SiteHeader } from '@/components/layout/SiteHeader';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+  const [isHydrating, setIsHydrating] = useState(true);
 
-  // (Nghiệp vụ) Bảo vệ Route: Kiểm tra xác thực
   useEffect(() => {
-    // (Giả sử store đã rehydrate)
-    // Nếu chưa rehydrate xong, isAuthenticated có thể là false
-    // Cần 1 state loading từ store, tạm thời check đơn giản
-    if (isAuthenticated === false) {
-      // Chỉ check khi biết chắc là false
-      console.log('[MainLayout] User not authenticated, redirecting to sign-in.');
-      router.replace('/sign-in'); // Chuyển về trang đăng nhập
-    }
-  }, [isAuthenticated, router]);
+    // Giả lập thời gian hydrate
+    setIsHydrating(false);
+  }, []);
 
-  // Hiển thị loading spinner toàn trang nếu state auth chưa chắc chắn
-  if (isAuthenticated === false) {
-    // Hoặc dùng 1 state loading riêng từ store
+  // Bảo vệ Route
+  useEffect(() => {
+    if (!isHydrating && !isAuthenticated) {
+      console.log('[MainLayout] User not authenticated, redirecting to sign-in.');
+      router.replace('/sign-in');
+    }
+  }, [isAuthenticated, isHydrating, router]);
+
+  // Hiển thị loading khi chưa hydrate hoặc chưa xác thực
+  if (isHydrating || !isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <Spinner className="h-10 w-10 text-primary" />
       </div>
     );
   }
 
-  // Nếu đã xác thực, hiển thị layout chính
+  // Hiển thị layout chính với SiteHeader
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* <SiteHeader /> */} {/* Header sẽ chứa UserMenu (S1-FE-08) */}
-      <div className="flex-grow container mx-auto p-4 md:p-8">{children}</div>
-      {/* <SiteFooter /> */}
+    <div className="relative flex min-h-screen flex-col bg-background">
+      <SiteHeader />
+      <main className="flex-grow container mx-auto max-w-5xl px-4 py-8 md:py-12">{children}</main>
     </div>
   );
 }
