@@ -212,6 +212,14 @@ export const authApi = {
     );
     return response.data;
   },
+
+  forgotPassword: (data: { email: string }) => apiClient.post('/auth/forgot-password', data),
+
+  // [SPRINT 2 - RESET PASSWORD]
+  resetPassword: async (data: { email: string; otp: string; newPassword: string }) => {
+    const response = await apiClient.post('/auth/reset-password', data);
+    return response.data;
+  },
 };
 
 // --- Users API ---

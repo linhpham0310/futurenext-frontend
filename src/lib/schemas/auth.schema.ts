@@ -74,3 +74,23 @@ export const ForgotPasswordSchema = z.object({
 });
 
 export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>;
+
+// [SPRINT 2 - THÊM MỚI]
+export const ResetPasswordSchema = z
+  .object({
+    email: z.string().email({ message: 'Email không hợp lệ' }),
+    otp: z.string().length(6, { message: 'Mã xác thực phải đúng 6 chữ số' }),
+    password: z
+      .string()
+      .min(8, { message: 'Mật khẩu phải từ 8 ký tự trở lên' })
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+        message: 'Mật khẩu cần ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt',
+      }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Mật khẩu xác nhận không khớp',
+    path: ['confirmPassword'],
+  });
+
+export type ResetPasswordInput = z.infer<typeof ResetPasswordSchema>;
