@@ -19,7 +19,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'; // Component S1-FE-01
 import { Spinner } from '@/components/ui/spinner'; // Component S1-FE-01
-import { getInitials } from '@/lib/utils'; // Hàm tiện ích (S1-FE-07)
 import { LifeBuoy, LogOut, User as UserIcon, Settings } from 'lucide-react'; // Icons
 import Link from 'next/link';
 
@@ -48,6 +47,15 @@ export function UserMenu() {
       </div>
     );
   }
+
+  const getInitials = (fullName: string): string => {
+    return fullName
+      .split(' ')
+      .map((word) => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   // Render Dropdown Menu khi có thông tin user
   return (

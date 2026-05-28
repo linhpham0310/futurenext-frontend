@@ -17,8 +17,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const [isHydrating, setIsHydrating] = useState(true);
 
   useEffect(() => {
-    // Giả lập thời gian hydrate
-    setIsHydrating(false);
+    const raf = requestAnimationFrame(() => {
+      // Giả lập thời gian hydrate
+      setIsHydrating(false);
+    });
   }, []);
 
   // Bảo vệ Route
