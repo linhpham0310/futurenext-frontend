@@ -2,11 +2,12 @@ import { Table, TableHeader, TableRow, TableCell, TableBody } from '@/components
 import { Button } from '@/components/ui/button';
 import { UserCog } from 'lucide-react';
 import { User, UserRole, UserStatus } from '@/types/auth.api';
+import { UpdateRoleDialog } from './update-role-dialog';
 
 interface UserListTableProps {
   users: User[];
   isLoading: boolean;
-  onUpdateRole: (userId: string, newRole: UserRole) => void;
+  onUpdateRole: (userId: string, newRole: UserRole) => Promise<void>;
 }
 
 const RoleBadge = ({ role }: { role: UserRole }) => {
@@ -82,13 +83,13 @@ export const UserListTable = ({ users, isLoading, onUpdateRole }: UserListTableP
             </TableCell>
 
             <TableCell className="text-right">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onUpdateRole(user.id, UserRole.TEACHER)}
-              >
-                <UserCog className="h-4 w-4" />
-              </Button>
+              <UpdateRoleDialog user={user} onUpdate={onUpdateRole}>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <span className="sr-only">Cập nhật vai trò</span>
+
+                  <UserCog className="h-4 w-4" />
+                </Button>
+              </UpdateRoleDialog>
             </TableCell>
           </TableRow>
         ))}
