@@ -17,21 +17,28 @@ const RoleBadge = ({ role }: { role: UserRole }) => {
     [UserRole.STUDENT]: 'bg-slate-100 text-slate-700 border-slate-200',
   };
 
+  const labels = {
+    [UserRole.ADMIN]: 'Quản trị viên',
+    [UserRole.TEACHER]: 'Giảng viên',
+    [UserRole.STUDENT]: 'Học viên',
+  };
+
   return (
     <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${styles[role]}`}>
-      {role}
+      {labels[role]}
     </span>
   );
 };
 
 const StatusBadge = ({ status }: { status: UserStatus }) => {
   const isActive = status === UserStatus.ACTIVE;
+  const isPending = status === UserStatus.PENDING_EMAIL_VERIFY;
+  const isLocked = status === UserStatus.LOCKED;
 
-  return (
-    <span className={`text-xs font-medium ${isActive ? 'text-green-600' : 'text-slate-400'}`}>
-      ● {isActive ? 'Hoạt động' : 'Khóa'}
-    </span>
-  );
+  if (isActive) return <span className="text-xs font-medium text-green-600">● Hoạt động</span>;
+  if (isPending) return <span className="text-xs font-medium text-yellow-600">● Chờ xác thực</span>;
+  if (isLocked) return <span className="text-xs font-medium text-red-600">● Đã khóa</span>;
+  return <span className="text-xs font-medium text-slate-400">● Không xác định</span>;
 };
 
 export const UserListTable = ({ users, isLoading, onUpdateRole }: UserListTableProps) => {
@@ -65,7 +72,6 @@ export const UserListTable = ({ users, isLoading, onUpdateRole }: UserListTableP
             <TableCell>
               <div className="flex flex-col">
                 <span className="font-medium text-slate-900">{user.fullName}</span>
-
                 <span className="text-xs text-slate-500">{user.email}</span>
               </div>
             </TableCell>
@@ -86,7 +92,6 @@ export const UserListTable = ({ users, isLoading, onUpdateRole }: UserListTableP
               <UpdateRoleDialog user={user} onUpdate={onUpdateRole}>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                   <span className="sr-only">Cập nhật vai trò</span>
-
                   <UserCog className="h-4 w-4" />
                 </Button>
               </UpdateRoleDialog>
