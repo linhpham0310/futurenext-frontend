@@ -108,3 +108,18 @@ export enum UserStatus {
   ACTIVE = 'ACTIVE',
   LOCKED = 'LOCKED',
 }
+
+export type TeacherProfileStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface TeacherProfile {
+  id: string;
+  userId: string;
+  bio: string;
+  expertise?: string[];
+  status: TeacherProfileStatus;
+  rejectionReason?: string;
+  reviewedByUserId?: string;
+  reviewedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}

@@ -9,9 +9,6 @@ import {
   Settings,
   DollarSign,
   MessageSquare,
-  Award,
-  Star,
-  Library,
   UserCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
