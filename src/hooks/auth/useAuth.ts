@@ -29,6 +29,7 @@ export function useAuth() {
   // Helper check role
   const isAdmin = user?.role === 'ADMIN';
   const isTeacher = user?.role === 'TEACHER';
+  const isStudent = user?.role === 'STUDENT';
   const isPendingTeacher = user?.teacherProfile?.status === 'PENDING';
 
   // Simplified login action
@@ -74,14 +75,18 @@ export function useAuth() {
     isAuthenticated,
     user,
     accessToken,
-    isLoading,
-    login,
-    logout,
-    setUser: updateUser,
-    setAccessToken,
     isAdmin,
     isTeacher,
+    isStudent,
     isPendingTeacher,
-    isLoggingOut,
+    isLoading,
+    login,
+    logout: clearAuth,
+    setUser: updateUser,
+    setAccessToken,
+    setAuth,
+    clearAuth,
+    updateUser,
+    isLoggingOut: false,
   };
 }

@@ -23,13 +23,11 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       setAuth: (user, token) => {
-        // Sync với localStorage
         localStorage.setItem('accessToken', token);
         set({ user, accessToken: token, isAuthenticated: true });
       },
 
       clearAuth: () => {
-        // Xóa cả localStorage
         localStorage.removeItem('accessToken');
         set({ user: null, accessToken: null, isAuthenticated: false });
       },
@@ -49,9 +47,8 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'auth-storage', // Key trong localStorage
+      name: 'auth-storage',
       storage: createJSONStorage(() => localStorage),
-      // Chỉ persist user và accessToken
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
@@ -61,16 +58,23 @@ export const useAuthStore = create<AuthState>()(
   )
 );
 
-// Export hook để dùng dễ dàng
-
 export const useAuth = () => {
   const { user, accessToken, isAuthenticated, setAuth, clearAuth, updateUser, setAccessToken } =
     useAuthStore();
+
+  const isAdmin = user?.role === 'ADMIN';
+  const isTeacher = user?.role === 'TEACHER';
+  const isStudent = user?.role === 'STUDENT';
+  const isPendingTeacher = user?.teacherProfile?.status === 'PENDING';
 
   return {
     user,
     accessToken,
     isAuthenticated,
+    isAdmin,
+    isTeacher,
+    isStudent,
+    isPendingTeacher,
     setAuth,
     clearAuth,
     updateUser,
