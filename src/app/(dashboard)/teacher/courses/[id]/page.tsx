@@ -7,36 +7,52 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  KeyboardSensor,
 } from '@dnd-kit/core';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useCourseBuilderStore } from '@/store/use-course-builder-store'; // Task 1.7 cũ
 import { SortableSectionItem } from './_components/sortable-section-item'; // Task 2.4 mới
 import axios from 'axios';
+import { toast } from 'sonner';
+import { apiClient } from '@/lib/api';
 export default function CourseBuilderPage({ params }: { params: { id: string } }) {
-  const { sections, setCourseData, reorderSections } = useCourseBuilderStore();
-  const sensors = useSensors(useSensor(PointerSensor));
-  // Task S2-CM-04: Xử lý khi kết thúc kéo thả
+  const { sections, reorderSections, rollbackSections } = useCourseBuilderStore();
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
   const onDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      // 1. Cập nhật UI ngay lập tức (Optimistic Update từ Task 1.7)
+      // 1. [OPTIMISTIC UPDATE] - Cập nhật UI ngay lập tức
       reorderSections(active.id as string, over.id as string);
-      // 2. Lấy danh sách mới từ store sau khi reorder để gửi API
-      const updatedSections = useCourseBuilderStore.getState().sections;
-      const payload = updatedSections.map((section, index) => ({
-        id: section.id,
-        orderIndex: index + 1,
-      }));
+      // Hiển thị trạng thái đang lưu (không chặn người dùng)
+      const savingToast = toast.loading('Đang lưu thứ tự...');
       try {
-        // Gọi API Reorder (Task 2.2 Backend)
-        await axios.patch(`/api/v1/courses/${params.id}/sections/reorder`, {
+        // Lấy danh sách mới nhất từ Store sau khi vừa reorder xong
+        const updatedSections = useCourseBuilderStore.getState().sections;
+        const payload = updatedSections.map((section, index) => ({
+          id: section.id,
+          orderIndex: index + 1, // Cập nhật lại index theo vị trí mới
+        }));
+        // 2. [API CALL] - Gửi yêu cầu lưu ngầm xuống Backend
+        await apiClient.patch(`/courses/${params.id}/sections/reorder`, {
           orders: payload,
         });
+        toast.success('Đã cập nhật thứ tự', { id: savingToast });
       } catch (error) {
-        console.error('Lỗi đồng bộ thứ tự:', error);
-        // Nếu lỗi, bạn nên fetch lại dữ liệu từ server để reset UI
-        alert('Không thể lưu thứ tự mới, vui lòng thử lại.');
+        // 3. [ROLLBACK] - Nếu Backend lỗi, trả giao diện về trạng thái cũ
+        rollbackSections();
+        toast.error('Lỗi kết nối. Thứ tự đã được khôi phục.', { id: savingToast });
+        console.error('Optimistic Update Error:', error);
       }
     }
   };
