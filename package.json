@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:e2e": "playwright test",
+    "test:e2e:staging": "cross-env BASE_URL=https://staging.futurenext.ai playwright test tests/e2e/auth-regression.spec.ts",
     "test:e2e": "start-server-and-test start http://localhost:3001 'playwright test --project=chromium'"
   },
   "dependencies": {
