@@ -18,6 +18,7 @@ export const useUserManagement = () => {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [filters, setFilters] = useState({
     page: 1,
@@ -29,6 +30,8 @@ export const useUserManagement = () => {
 
   const fetchUsers = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
+
     try {
       const response = await apiClient.get<FetchUsersResponse>('/admin/users', { params: filters });
       setUsers(response.data.items);

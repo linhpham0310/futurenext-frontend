@@ -43,7 +43,11 @@ const StatusBadge = ({ status }: { status: UserStatus }) => {
 
 export const UserListTable = ({ users, isLoading, onUpdateRole }: UserListTableProps) => {
   if (isLoading) {
-    return <div className="p-8 text-center text-slate-500">Đang tải dữ liệu người dùng...</div>;
+    return (
+      <div className="p-8 text-center text-slate-500 bg-white rounded-lg border">
+        <div className="animate-pulse">Đang tải dữ liệu người dùng...</div>
+      </div>
+    );
   }
 
   if (users.length === 0) {
@@ -54,6 +58,24 @@ export const UserListTable = ({ users, isLoading, onUpdateRole }: UserListTableP
     );
   }
 
+  if (!users || users.length === 0) {
+    return (
+      <div className="p-12 text-center bg-white rounded-lg border">
+        <svg
+          className="w-12 h-12 text-gray-300 mx-auto mb-3"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <p className="text-lg font-medium text-gray-600">Không tìm thấy người dùng nào</p>
+        <p className="text-sm text-gray-400 mt-1">
+          Vui lòng thử thay đổi bộ lọc hoặc từ khóa tìm kiếm.
+        </p>
+      </div>
+    );
+  }
   return (
     <Table>
       <TableHeader>
