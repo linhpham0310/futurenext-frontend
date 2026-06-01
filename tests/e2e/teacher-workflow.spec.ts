@@ -13,9 +13,6 @@ const ADMIN_CREDENTIALS = {
   password: 'admin123',
 };
 
-// Tăng timeout cho toàn bộ test
-test.describe.configure({ timeout: 120000 });
-
 test.describe.serial('Teacher Workflow E2E', () => {
   // =========================================================================
   // TC 1: USER NỘP HỒ SƠ GIẢNG VIÊN
