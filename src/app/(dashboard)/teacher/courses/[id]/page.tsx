@@ -1,41 +1,65 @@
 'use client';
-import { useEffect } from 'react';
-import { useCourseBuilderStore } from '@/store/use-course-builder-store';
+import React from 'react';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { useCourseBuilderStore } from '@/store/use-course-builder-store'; // Task 1.7 cũ
+import { SortableSectionItem } from './_components/sortable-section-item'; // Task 2.4 mới
 import axios from 'axios';
 export default function CourseBuilderPage({ params }: { params: { id: string } }) {
-  const { sections, setCourseData, isLoading, setLoading } = useCourseBuilderStore();
-  // Task S1-CM-07: Fetch dữ liệu và đẩy vào Zustand khi vào trang
-  useEffect(() => {
-    const fetchCourse = async () => {
-      setLoading(true);
+  const { sections, setCourseData, reorderSections } = useCourseBuilderStore();
+  const sensors = useSensors(useSensor(PointerSensor));
+  // Task S2-CM-04: Xử lý khi kết thúc kéo thả
+  const onDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      // 1. Cập nhật UI ngay lập tức (Optimistic Update từ Task 1.7)
+      reorderSections(active.id as string, over.id as string);
+      // 2. Lấy danh sách mới từ store sau khi reorder để gửi API
+      const updatedSections = useCourseBuilderStore.getState().sections;
+      const payload = updatedSections.map((section, index) => ({
+        id: section.id,
+        orderIndex: index + 1,
+      }));
       try {
-        const response = await axios.get(`/api/v1/courses/${params.id}`);
-        // Giả sử API trả về { id, sections: [...] }
-        setCourseData(response.data.id, response.data.sections);
+        // Gọi API Reorder (Task 2.2 Backend)
+        await axios.patch(`/api/v1/courses/${params.id}/sections/reorder`, {
+          orders: payload,
+        });
       } catch (error) {
-        console.error('Lỗi fetch dữ liệu:', error);
-      } finally {
-        setLoading(false);
+        console.error('Lỗi đồng bộ thứ tự:', error);
+        // Nếu lỗi, bạn nên fetch lại dữ liệu từ server để reset UI
+        alert('Không thể lưu thứ tự mới, vui lòng thử lại.');
       }
-    };
-    fetchCourse();
-  }, [params.id, setCourseData, setLoading]);
-  if (isLoading) return <div>Đang tải cấu trúc khóa học...</div>;
+    }
+  };
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Trình xây dựng nội dung</h1>
-      {/* Hiển thị danh sách Section từ Store */}
-      <div className="space-y-4">
-        {sections.map((section) => (
-          <div key={section.id} className="p-4 bg-white border rounded-lg shadow-sm">
-            <h3 className="font-medium">{section.title}</h3>
-            <p className="text-sm text-gray-500">{section.lessons.length} bài học</p>
-          </div>
-        ))}
-        {sections.length === 0 && (
-          <p className="text-gray-400 italic">Chưa có chương mục nào. Bắt đầu tạo ở Sprint 2!</p>
-        )}
-      </div>
+    <div className="p-6 max-w-3xl">
+      <h2 className="text-xl font-bold mb-6">Cấu trúc chương học</h2>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={onDragEnd}
+        modifiers={[restrictToVerticalAxis]} // Chỉ cho phép kéo lên xuống
+      >
+        <SortableContext items={sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+          {sections.map((section) => (
+            <SortableSectionItem key={section.id} id={section.id} title={section.title} />
+          ))}
+        </SortableContext>
+      </DndContext>
+      {sections.length === 0 && (
+        <div className="text-center p-10 border-2 border-dashed rounded-lg text-gray-400">
+          Chưa có chương mục nào.
+        </div>
+      )}
     </div>
   );
 }
