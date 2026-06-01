@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
     "test:e2e": "start-server-and-test start http://localhost:3001 'playwright test --project=chromium'"
   },
   "dependencies": {
