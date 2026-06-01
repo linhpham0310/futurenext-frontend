@@ -225,12 +225,28 @@ export const authApi = {
 // --- Users API ---
 export const usersApi = {
   getProfile: async (): Promise<AuthUser> => {
-    const response = await apiClient.get<AuthUser>('/me/profile');
+    const response = await apiClient.get<AuthUser>('/users/me/profile');
     return response.data;
   },
 
   updateProfile: async (data: UpdateProfileFormData): Promise<AuthUser> => {
-    const response = await apiClient.put<AuthUser>('/me/profile', data);
+    const response = await apiClient.put<AuthUser>('/users/me/profile', data);
+    return response.data;
+  },
+};
+
+// Thêm API cho teacher profiles
+export const teacherProfilesApi = {
+  submit: async (data: { bio: string; expertise: string[] }) => {
+    const response = await apiClient.post('/teacher-profiles/submit', data);
+    return response.data;
+  },
+  update: async (data: Partial<{ bio: string; expertise: string[] }>) => {
+    const response = await apiClient.put('/teacher-profiles/update', data);
+    return response.data;
+  },
+  getMyProfile: async () => {
+    const response = await apiClient.get('/teacher-profiles/my-profile');
     return response.data;
   },
 };

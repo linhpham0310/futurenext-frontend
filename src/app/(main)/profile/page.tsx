@@ -7,8 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form } from '@/components/ui/form';
 import { Spinner } from '@/components/ui/spinner';
 import { useProfile } from '@/hooks/auth/useProfile';
+import { useTeacherProfile } from '@/hooks/profile/use-teacher-profile';
 import { TeacherProfile } from '@/types/auth.api';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 export default function ProfilePage() {
@@ -23,6 +24,25 @@ export default function ProfilePage() {
     updateSuccess,
     refetchProfile,
   } = useProfile();
+
+  const [teacherProfile, setTeacherProfile] = useState<TeacherProfile | null>(null);
+  const { getMyProfile } = useTeacherProfile();
+
+  useEffect(() => {
+    if (profileData?.id) {
+      const loadTeacherProfile = async () => {
+        try {
+          const result = await getMyProfile();
+          if (result?.data) {
+            setTeacherProfile(result.data);
+          }
+        } catch (error) {
+          console.error('Error fetching teacher profile:', error);
+        }
+      };
+      loadTeacherProfile();
+    }
+  }, [profileData, getMyProfile]);
 
   useEffect(() => {
     if (updateSuccess) {

@@ -1,6 +1,6 @@
 // [Task: S3-FE-01] Hook quản lý logic nộp và cập nhật Teacher Profile
 import { useState } from 'react';
-import { apiClient } from '@/lib/api';
+import { apiClient, teacherProfilesApi } from '@/lib/api';
 
 interface SubmitProfilePayload {
   bio: string;
@@ -52,9 +52,22 @@ export function useTeacherProfile() {
     }
   };
 
+  const getMyProfile = async () => {
+    setIsLoading(true);
+    try {
+      const response = await teacherProfilesApi.getMyProfile();
+      return response.data;
+    } catch (err) {
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     submitProfile,
     updateProfile,
+    getMyProfile,
     isLoading,
     error,
   };
