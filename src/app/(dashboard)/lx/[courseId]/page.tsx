@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useLXStore } from '@/store/use-lx-store'; // Kế thừa từ Task LX-FE-1.2
 import { Loader2, BookOpen } from 'lucide-react';
+import { LessonNavigationControls } from './_components/lesson-navigation-controls';
 // TASK: LX-FE-1.3: Đồng bộ vùng hiển thị nội dung chính với Sidebar qua URL
 export default function LxPage() {
   const searchParams = useSearchParams();
@@ -57,6 +58,11 @@ export default function LxPage() {
           <span>Trạng thái: {activeLesson.status}</span>
         </div>
       </div>
+
+      {/* ---------------------------------------------------------
+        TASK: LX-FE-1.4: Tích hợp thanh điều hướng bài học vào cuối trang
+        --------------------------------------------------------- */}
+      <LessonNavigationControls />
     </div>
   );
 }
