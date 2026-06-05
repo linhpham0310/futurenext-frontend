@@ -6,7 +6,8 @@ import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { Clock, Users, Star, Badge } from 'lucide-react';
+import { Clock, Users, Star } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const mockDetail = {
   id: '1',

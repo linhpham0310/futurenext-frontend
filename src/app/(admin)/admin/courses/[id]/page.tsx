@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'; // (tự thêm nếu chưa có)
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge'; // (tùy chọn)
+import { Badge } from '@/components/ui/badge';
 
 // Dữ liệu mẫu
 const mockCourse = {
