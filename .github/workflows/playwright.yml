@@ -17,14 +17,16 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
-      - name: Start frontend server
-        run: |
-          npm run build
-          npm run start &
+      - name: Build frontend
+        run: npm run build
         env:
           CI: true
-          PORT: 3001
           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+
+      - name: Start frontend server
+        run: npm run start &
+        env:
+          PORT: 3001
       - name: Wait for frontend to be ready
         run: |
           npx wait-on http://localhost:3001 --timeout 60000

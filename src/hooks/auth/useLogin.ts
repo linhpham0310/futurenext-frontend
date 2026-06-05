@@ -1,82 +1,68 @@
 /**
  * @file Custom hook for handling user login form logic and authentication state.
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginFormData } from '@/lib/schemas/auth.schema';
 import { authApi } from '@/lib/api';
-import { useAuth } from '@/hooks/auth/useAuth'; // Import useAuth hook to access store actions
+import { useAuth } from '@/hooks/auth/useAuth'; // chỉ dùng để lấy storeLogin và state
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/types/auth.api';
 
-/**
- * Custom hook to manage the state and logic for the login form.
- * @returns {object} Form control methods, loading state, API error.
- */
 export function useLogin() {
   const router = useRouter();
-  const { login: storeLogin } = useAuth(); // Get the login action from the auth store hook
+  const { login: storeLogin, isAuthenticated, user } = useAuth(); // lấy từ useAuth (đã có sẵn)
   const [apiError, setApiError] = useState<string | null>(null);
+  const [shouldRedirect, setShouldRedirect] = useState(false); // cờ để trì hoãn redirect
 
-  // Initialize react-hook-form
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: { email: '', password: '' },
   });
 
-  // Handle form submission
+  // Khi form submit thành công, chỉ gọi API và set cờ
   const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
-    setApiError(null); // Clear previous errors
-    console.log('Attempting login with:', { email: data.email }); // Log email only
-
+    setApiError(null);
     try {
-      // Call the login API function
       const response = await authApi.login(data);
-      console.log('Login API Success:', response);
-
-      // Call the login action from the auth store to update global state
-      storeLogin(response.accessToken, response.user);
-
-      // Redirect to dashboard or intended page after successful login
-      // TODO: Implement redirect logic based on user role or previous page
-      const role = response.user.role;
-      if (role === UserRole.ADMIN) {
-        router.push('/admin/dashboard');
-      } else if (role === UserRole.TEACHER) {
-        router.push('/teacher/dashboard');
-      } else {
-        router.push('/dashboard'); // student
-      }
+      storeLogin(response.accessToken, response.user); // cập nhật store
+      setShouldRedirect(true); // báo hiệu cần redirect
     } catch (error: unknown) {
       const err = error as { message?: string; statusCode?: number };
-      console.error('Login API Failed:', error);
-      // Handle specific API errors (401, 403, 429...)
       if (err?.statusCode === 401) {
-        // Unauthorized (wrong email/pass)
         setApiError(err.message || 'Email hoặc mật khẩu không chính xác.');
       } else if (err?.statusCode === 403) {
-        // Forbidden (not verified, locked)
         setApiError(err.message || 'Tài khoản chưa kích hoạt hoặc bị khóa.');
       } else if (err?.statusCode === 429) {
-        // Too Many Requests
-        setApiError(err.message || 'Bạn đã thử quá nhiều lần. Vui lòng thử lại sau.');
+        setApiError(err.message || 'Bạn đã thử quá nhiều lần.');
       } else {
-        // Other errors
-        setApiError(err.message || 'Đã xảy ra lỗi trong quá trình đăng nhập.');
+        setApiError(err.message || 'Đã xảy ra lỗi.');
       }
-      // Clear password field on error for security
       form.setValue('password', '');
+      setShouldRedirect(false);
     }
   };
 
+  // Effect này chạy khi isAuthenticated và user đã sẵn sàng, và có cờ redirect
+  useEffect(() => {
+    if (shouldRedirect && isAuthenticated && user) {
+      const role = user.role;
+      if (role === UserRole.ADMIN) {
+        router.replace('/admin/dashboard');
+      } else if (role === UserRole.TEACHER) {
+        router.replace('/teacher/dashboard');
+      } else {
+        router.replace('/dashboard');
+      }
+      setShouldRedirect(false); // reset cờ
+    }
+  }, [shouldRedirect, isAuthenticated, user, router]);
+
   return {
-    form, // Form object
-    onSubmit, // Submit handler
-    isLoading: form.formState.isSubmitting, // Loading state
-    apiError, // API error message
+    form,
+    onSubmit,
+    isLoading: form.formState.isSubmitting,
+    apiError,
   };
 }
