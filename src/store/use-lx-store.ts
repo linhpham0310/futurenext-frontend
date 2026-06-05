@@ -36,6 +36,10 @@ interface LXState {
     lastPosition: number
   ) => void;
   resetLXStore: () => void;
+  // ---------------------------------------------------------
+  // TASK: LX-FE-1.5: Hàm tiện ích tìm bài học để tiếp tục học
+  // ---------------------------------------------------------
+  getLastActiveLesson: () => LXLesson | null;
 }
 export const useLXStore = create<LXState>((set, get) => ({
   courseId: null,
@@ -124,4 +128,18 @@ export const useLXStore = create<LXState>((set, get) => ({
       isLoadingStructure: false,
       isLoadingLesson: false,
     }),
+  // TASK: LX-FE-1.5: Quét mảng tiến độ để tìm ra bài học tối ưu nhất để Resume
+  getLastActiveLesson: () => {
+    const { sections } = get();
+    const allLessons = sections.flatMap((s) => s.lessons);
+    if (allLessons.length === 0) return null;
+    // Ưu tiên 1: Tìm bài học đang ở trạng thái 'IN_PROGRESS'
+    const inProgressLesson = allLessons.find((l) => l.status === 'IN_PROGRESS');
+    if (inProgressLesson) return inProgressLesson;
+    // Ưu tiên 2: Tìm bài học đầu tiên ở trạng thái 'NOT_STARTED'
+    const notStartedLesson = allLessons.find((l) => l.status === 'NOT_STARTED');
+    if (notStartedLesson) return notStartedLesson;
+    // Ưu tiên 3: Nếu đã học xong hết sạch, trả về bài học đầu tiên để review lại
+    return allLessons[0];
+  },
 }));

@@ -4,22 +4,22 @@ import { useSearchParams } from 'next/navigation';
 import { useLXStore } from '@/store/use-lx-store'; // Kế thừa từ Task LX-FE-1.2
 import { Loader2, BookOpen } from 'lucide-react';
 import { LessonNavigationControls } from './_components/lesson-navigation-controls';
+import { CourseWelcomeOverview } from './_components/course-welcome-overview';
 // TASK: LX-FE-1.3: Đồng bộ vùng hiển thị nội dung chính với Sidebar qua URL
 export default function LxPage() {
   const searchParams = useSearchParams();
   const lessonId = searchParams.get('lessonId'); // Lấy ?lessonId=... từ URL
   const { activeLesson, fetchLessonDetail, isLoadingLesson, sections } = useLXStore();
   useEffect(() => {
-    // Nếu trên URL chưa có lessonId nhưng Store đã load xong cấu trúc khóa học
-    // Tự động mở bài học đầu tiên của Chương đầu tiên làm mặc định (Auto-play UX)
-    if (!lessonId && sections.length > 0 && sections[0].lessons.length > 0) {
-      const firstLessonId = sections[0].lessons[0].id;
-      fetchLessonDetail(firstLessonId);
-    } else if (lessonId) {
-      // Nếu có lessonId trên URL, gọi API lấy chi tiết bài đó
+    // ---------------------------------------------------------
+    // TASK: LX-FE-1.5: Thay đổi logic tự động Play của Task 1.3 cũ
+    // Thay vì tự ép vào bài 1, nếu URL trống, chúng ta ĐỂ TRỐNG để hiển thị Màn hình Chào mừng
+    // ---------------------------------------------------------
+    if (lessonId) {
       fetchLessonDetail(lessonId);
     }
-  }, [lessonId, sections, fetchLessonDetail]);
+  }, [lessonId, fetchLessonDetail]);
+
   // Trạng thái chờ khi đang tải nội dung bài học mới
   if (isLoadingLesson) {
     return (
@@ -29,15 +29,16 @@ export default function LxPage() {
       </div>
     );
   }
-  // Trạng thái trống nếu chưa chọn hoặc không có bài học nào
-  if (!activeLesson) {
-    return (
-      <div className="h-full w-full flex flex-col items-center justify-center gap-y-2 text-gray-400 min-h-[400px]">
-        <BookOpen className="h-8 w-8 text-gray-300" />
-        <p className="text-xs font-medium">Vui lòng chọn một bài học từ danh mục bên trái.</p>
-      </div>
-    );
+
+  // ---------------------------------------------------------
+  // TASK: LX-FE-1.5: Nếu không có lessonId trên URL, hiển thị Màn hình Chào mừng thông minh
+  // ---------------------------------------------------------
+  if (!lessonId) {
+    return <CourseWelcomeOverview />;
   }
+  // Nếu có chọn bài học cụ thể, hiển thị không gian Workspace như cũ
+  if (!activeLesson) return null;
+
   return (
     <div className="p-8 max-w-3xl mx-auto space-y-6 animate-in fade-in duration-300">
       {/* Khung Player giả lập (Sẽ triển khai thật Trình phát Media ở Sprint 2) */}
