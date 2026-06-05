@@ -24,7 +24,7 @@ jobs:
         env:
           CI: true
           PORT: 3001
-          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.API_BASE_URL_STAGING }}
+          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
       - name: Wait for frontend to be ready
         run: |
           npx wait-on http://localhost:3001 --timeout 60000
