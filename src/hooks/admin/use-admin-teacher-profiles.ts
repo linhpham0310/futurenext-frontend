@@ -1,5 +1,6 @@
 // [Task: S3-FE-02] Hook quản lý danh sách và nghiệp vụ duyệt hồ sơ giảng viên cho Admin
 import { useState, useCallback, useEffect } from 'react';
+import { apiClient } from '@/lib/api';
 
 // Định nghĩa các interface nội bộ để TypeScript hỗ trợ check lỗi
 export interface AdminTeacherProfile {
@@ -44,16 +45,9 @@ export function useAdminTeacherProfiles() {
         ...(filters.status !== 'ALL' && { status: filters.status }),
       }).toString();
 
-      // Gọi API GET từ Task S3-BE-02
-      const response = await fetch(`/api/admin/teacher-profiles?${queryParams}`, {
-        headers: {
-          // Bổ sung Authorization Header nếu project không tự động đính kèm cookie/token
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Lỗi khi lấy danh sách');
+      // Gọi API GET từ Task S3-BE-02 — uses apiClient for automatic auth token injection
+      const response = await apiClient.get(`/admin/teacher-profiles?${queryParams}`);
+      const data = response.data;
 
       setProfiles(data.data.items);
       setTotalPages(data.data.meta.totalPages);
@@ -83,14 +77,7 @@ export function useAdminTeacherProfiles() {
   // [Task: S3-FE-02] Hàm xử lý Duyệt / Từ chối
   const reviewProfile = async (profileId: string, status: 'APPROVED' | 'REJECTED') => {
     try {
-      const response = await fetch(`/api/admin/teacher-profiles/${profileId}/review`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Lỗi khi xử lý hồ sơ');
+      await apiClient.patch(`/admin/teacher-profiles/${profileId}/review`, { status });
 
       // Update lại state local để UI phản hồi ngay lập tức mà không cần gọi lại fetchProfiles
       setProfiles((prev) => prev.map((p) => (p.id === profileId ? { ...p, status } : p)));

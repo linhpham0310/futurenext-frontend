@@ -46,21 +46,21 @@ export function useAuth() {
   const logout = async () => {
     if (isLoggingOut) return;
     setIsLoggingOut(true);
-    console.debug('[useAuth] Initiating logout process...');
+
 
     try {
       // Gọi API Logout (fire-and-forget)
-      authApi.logout().catch((err) => {
-        console.warn('[useAuth] Logout API call failed:', err?.message || err);
+      authApi.logout().catch(() => {
+        // Fire-and-forget: backend session cleanup is best-effort
       });
-    } catch (error) {
-      console.warn('[useAuth] Error initiating logout API call:', error);
+    } catch {
+      // Swallowed — clearAuth below handles client-side cleanup regardless
     } finally {
       // Xóa state client
       clearAuth();
       // Chuyển hướng về trang login
       router.replace('/sign-in');
-      console.debug('[useAuth] Logout complete.');
+
     }
   };
 

@@ -27,6 +27,13 @@ export const VideoUploader = ({ courseId, onSuccess }: VideoUploaderProps) => {
       return;
     }
 
+    // Enforce file size limit (500MB)
+    const MAX_FILE_SIZE = 500 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error('File vượt quá giới hạn 500MB. Vui lòng chọn file nhỏ hơn.');
+      return;
+    }
+
     try {
       setUploadStatus('uploading');
       setIsUploading(true);

@@ -41,7 +41,7 @@ export function useProfile() {
    * (Nghiệp vụ) Hàm fetch dữ liệu profile từ API (GET /me/profile)
    */
   const fetchProfile = useCallback(async () => {
-    console.log('[useProfile] Fetching profile...');
+
     setIsLoading(true);
     setFetchError(null);
     try {
@@ -54,9 +54,9 @@ export function useProfile() {
         avatarUrl: data.avatarUrl || '',
         updatedAt: data.updatedAt, // QUAN TRỌNG: Lưu timestamp mới nhất
       });
-      console.log('[useProfile] Profile fetched:', data);
+
     } catch (error: unknown) {
-      console.error('[useProfile] Fetch failed:', error);
+
       const err = error as { message?: string };
 
       setFetchError(err.message || 'Không thể tải hồ sơ.');
@@ -91,7 +91,7 @@ export function useProfile() {
     setUpdateError(null);
     setUpdateSuccess(false);
     setIsUpdating(true);
-    console.debug('Attempting profile update with data:', data);
+
 
     try {
       // 1. Gọi API update
@@ -99,7 +99,7 @@ export function useProfile() {
       const updatedUser = await usersApi.updateProfile(data);
 
       // 2. Cập nhật thành công
-      console.log('Profile update API Success:', updatedUser);
+
       setUpdateSuccess(true);
       setProfileData(updatedUser); // Cập nhật state profile local
       setUserInAuth(updatedUser); // Cập nhật global state
@@ -110,7 +110,7 @@ export function useProfile() {
         updatedAt: updatedUser.updatedAt, // QUAN TRỌNG: Cập nhật timestamp mới
       });
     } catch (error: unknown) {
-      console.error('Profile update API Failed:', error);
+
       const err = error as { statusCode?: number; message?: string };
 
       // 3. Xử lý lỗi

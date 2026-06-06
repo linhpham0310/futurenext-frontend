@@ -45,12 +45,12 @@ export function useEmailVerification() {
 
     // Prepare data for API call
     const submissionData = { email: emailFromUrl, otp: data.otp };
-    console.log('Submitting OTP verification:', submissionData);
+
 
     try {
       // Call verification API
       const response = await authApi.verifyEmail(submissionData);
-      console.log('Verification API Success:', response);
+
       setSuccessMessage(
         response.message || 'Xác thực thành công! Đang chuyển đến trang đăng nhập...'
       );
@@ -62,7 +62,7 @@ export function useEmailVerification() {
       }, 3000);
     } catch (error: unknown) {
       const err = error as { message?: string; statusCode?: number };
-      console.error('Verification API Failed:', error);
+
       // Set error message based on API response
       setApiError(err.message || 'Xác minh thất bại. Vui lòng thử lại.');
       form.reset(); // Clear OTP input on error

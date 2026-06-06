@@ -68,12 +68,11 @@ apiClient.interceptors.request.use(
       !isRefreshRequest
     ) {
       config.headers.Authorization = `Bearer ${accessToken}`;
-      console.debug('[API Request] Added Authorization header.');
     }
     return config;
   },
   (error) => {
-    console.error('[API Request Error Interceptor]', error);
+    // Error handled by response interceptor
     return Promise.reject(error);
   }
 );
@@ -100,11 +99,11 @@ apiClient.interceptors.response.use(
     const status = error.response?.status;
     const url = originalRequest.url;
 
-    console.debug(`[API Response Error] Status: ${status}, URL: ${url}`);
+
 
     if (status === 401 && url !== '/auth/refresh' && !originalRequest._retry) {
       if (isRefreshing) {
-        console.debug('Token refresh in progress, queueing request:', originalRequest.url);
+
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
@@ -119,12 +118,12 @@ apiClient.interceptors.response.use(
 
       originalRequest._retry = true;
       isRefreshing = true;
-      console.log('Access token expired or invalid. Attempting refresh...');
+
 
       try {
         const refreshResponse = await authApi.refreshToken();
         const newAccessToken = refreshResponse.accessToken;
-        console.log('Token refresh successful!');
+
 
         //  Dùng function mới để sync
         setAccessToken(newAccessToken);
@@ -136,14 +135,14 @@ apiClient.interceptors.response.use(
         processQueue(null, newAccessToken);
         return apiClient(originalRequest);
       } catch (refreshError: unknown) {
-        console.error('Token refresh failed:', refreshError);
+
         processQueue(refreshError as AxiosError, null);
 
         //  Clear cả Zustand và localStorage
         useAuthStore.getState().clearAuth();
         localStorage.removeItem('accessToken');
 
-        console.error('User logged out due to refresh failure.');
+
 
         //  Chuyển hướng về login
         if (typeof window !== 'undefined') {

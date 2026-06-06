@@ -24,7 +24,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   // Bảo vệ Route
   useEffect(() => {
     if (!isHydrating && !isAuthenticated) {
-      console.log('[MainLayout] User not authenticated, redirecting to sign-in.');
+
       router.replace('/sign-in');
     }
   }, [isAuthenticated, isHydrating, router]);

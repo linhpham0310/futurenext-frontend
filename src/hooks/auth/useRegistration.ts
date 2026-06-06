@@ -41,8 +41,7 @@ export function useRegistration() {
   const onSubmit: SubmitHandler<RegisterFormData> = async (data) => {
     setApiError(null); // Clear previous errors
     setIsSuccess(false);
-    // Logging form data (remove sensitive data like password in production logs)
-    console.log('Attempting registration with:', { fullName: data.fullName, email: data.email });
+
 
     const payload = {
       fullName: data.fullName,
@@ -55,8 +54,8 @@ export function useRegistration() {
 
     try {
       // Call the registration API function
-      const response = await authApi.register(payload);
-      console.log('Registration API Success:', response);
+      await authApi.register(payload);
+
       setIsSuccess(true); // Set success state
       form.reset(); // Clear form fields after successful submission
 
@@ -65,7 +64,7 @@ export function useRegistration() {
         router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
       }, 3000);
     } catch (error: unknown) {
-      console.error('Registration API Failed:', error);
+
 
       const apiError = error as ApiError;
 
