@@ -2,6 +2,7 @@ import { apiClient } from '@/lib/api';
 import { User, UserRole, UserStatus } from '@/types/auth.api';
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
+import { getApiErrorMessage } from '@/lib/api-error';
 
 interface FetchUsersResponse {
   items: User[];
@@ -18,7 +19,6 @@ export const useUserManagement = () => {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const [filters, setFilters] = useState({
     page: 1,
@@ -30,7 +30,6 @@ export const useUserManagement = () => {
 
   const fetchUsers = useCallback(async () => {
     setIsLoading(true);
-    setError(null);
 
     try {
       const response = await apiClient.get<FetchUsersResponse>('/admin/users', { params: filters });
@@ -38,8 +37,7 @@ export const useUserManagement = () => {
       setTotal(response.data.meta.total);
       setTotalPages(response.data.meta.totalPages);
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err?.response?.data?.message || 'Không thể tải danh sách người dùng');
+      toast.error(getApiErrorMessage(error, 'Không thể tải danh sách người dùng'));
     } finally {
       setIsLoading(false);
     }
@@ -64,8 +62,7 @@ export const useUserManagement = () => {
       toast.success('Cập nhật vai trò thành công');
       await fetchUsers();
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err?.response?.data?.message || 'Cập nhật thất bại');
+      toast.error(getApiErrorMessage(error, 'Cập nhật thất bại'));
     }
   };
 

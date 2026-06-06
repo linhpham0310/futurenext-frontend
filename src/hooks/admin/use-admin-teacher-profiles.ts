@@ -1,7 +1,7 @@
 // [Task: S3-FE-02] Hook quản lý danh sách và nghiệp vụ duyệt hồ sơ giảng viên cho Admin
 import { useState, useCallback, useEffect } from 'react';
+import { getApiErrorMessage } from '@/lib/api-error';
 
-// Định nghĩa các interface nội bộ để TypeScript hỗ trợ check lỗi
 export interface AdminTeacherProfile {
   id: string;
   bio: string;
@@ -13,10 +13,6 @@ export interface AdminTeacherProfile {
     email: string;
     full_name?: string;
   };
-}
-
-interface ApiError {
-  message?: string;
 }
 
 export function useAdminTeacherProfiles() {
@@ -58,8 +54,7 @@ export function useAdminTeacherProfiles() {
       setProfiles(data.data.items);
       setTotalPages(data.data.meta.totalPages);
     } catch (err: unknown) {
-      const apiError = err as ApiError;
-      setError(apiError.message || 'Lỗi khi lấy danh sách');
+      setError(getApiErrorMessage(err, 'Lỗi khi lấy danh sách'));
     } finally {
       setIsLoading(false);
     }
@@ -97,10 +92,7 @@ export function useAdminTeacherProfiles() {
 
       return true;
     } catch (err: unknown) {
-      const apiError = err as ApiError;
-      const errorMessage = apiError.message || 'Lỗi khi xử lý hồ sơ';
-
-      alert(errorMessage); // Hiển thị lỗi nhanh bằng alert (hoặc dùng Toast tùy dự án)
+      alert(getApiErrorMessage(err, 'Lỗi khi xử lý hồ sơ'));
       return false;
     }
   };

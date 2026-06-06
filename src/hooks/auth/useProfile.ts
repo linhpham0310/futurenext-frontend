@@ -8,8 +8,9 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateProfileSchema, UpdateProfileFormData } from '@/lib/schemas/user.schema';
 import { usersApi } from '@/lib/api';
-import { useAuth } from '@/hooks/auth/useAuth'; // (S1-FE-05) Để cập nhật user state
+import { useAuth } from '@/hooks/auth/useAuth';
 import { AuthUser } from '@/types/auth.api';
+import { getApiErrorMessage, getApiErrorStatus } from '@/lib/api-error';
 
 /**
  * Custom hook to manage fetching and updating the user's profile.
@@ -57,9 +58,7 @@ export function useProfile() {
       console.log('[useProfile] Profile fetched:', data);
     } catch (error: unknown) {
       console.error('[useProfile] Fetch failed:', error);
-      const err = error as { message?: string };
-
-      setFetchError(err.message || 'Không thể tải hồ sơ.');
+      setFetchError(getApiErrorMessage(error, 'Không thể tải hồ sơ.'));
       // Nếu lỗi 401 (interceptor thất bại), hook useAuth (S1-FE-06) sẽ tự động xử lý logout
     } finally {
       setIsLoading(false);
@@ -111,24 +110,17 @@ export function useProfile() {
       });
     } catch (error: unknown) {
       console.error('Profile update API Failed:', error);
-      const err = error as { statusCode?: number; message?: string };
+      const status = getApiErrorStatus(error);
 
-      // 3. Xử lý lỗi
-      if (err?.statusCode === 409) {
-        // Lỗi Optimistic Lock [cite: 3716-3720]
+      if (status === 409) {
         setUpdateError(
           'Dữ liệu đã được thay đổi bởi một phiên khác. Vui lòng tải lại trang và thử lại.'
         );
-
-        // Tự động fetch lại dữ liệu mới nhất để user thử lại
         setTimeout(() => fetchProfile(), 2000);
-      } else if (err?.statusCode === 400) {
-        // Lỗi validation từ server
-        // (Hiếm khi xảy ra nếu Zod đã validate đúng)
-        setUpdateError(err.message || 'Dữ liệu gửi lên không hợp lệ.');
+      } else if (status === 400) {
+        setUpdateError(getApiErrorMessage(error, 'Dữ liệu gửi lên không hợp lệ.'));
       } else {
-        // Lỗi chung (500, mạng...)
-        setUpdateError(err.message || 'Đã xảy ra lỗi khi cập nhật hồ sơ.');
+        setUpdateError(getApiErrorMessage(error, 'Đã xảy ra lỗi khi cập nhật hồ sơ.'));
       }
     } finally {
       setIsUpdating(false);

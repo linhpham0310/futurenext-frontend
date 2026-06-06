@@ -7,6 +7,7 @@ import { authApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/types/auth.api';
+import { getApiErrorMessage } from '@/lib/api-error';
 
 export function useLogin() {
   const router = useRouter();
@@ -26,8 +27,7 @@ export function useLogin() {
       storeLogin(response.accessToken, response.user); // cập nhật store
       setShouldRedirect(true); // báo hiệu cần redirect
     } catch (error: unknown) {
-      const err = error as { message?: string; statusCode?: number };
-      setApiError(err.message || 'Đăng nhập thất bại');
+      setApiError(getApiErrorMessage(error, 'Đăng nhập thất bại'));
       form.setValue('password', '');
     }
   };

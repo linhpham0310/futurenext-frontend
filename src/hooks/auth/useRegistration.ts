@@ -2,95 +2,75 @@
  * @file Custom hook for handling user registration form logic, API calls, and state management.
  */
 import { useState } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form'; // Import SubmitHandler
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, RegisterFormData } from '@/lib/schemas/auth.schema';
 import { authApi } from '@/lib/api';
-import { useRouter } from 'next/navigation'; // Thường không cần chuyển hướng ngay sau register
-
-interface ApiError {
-  message?: string;
-  statusCode?: number;
-  // Các field khác nếu có
-}
+import { useRouter } from 'next/navigation';
+import { getApiErrorMessage, getApiErrorStatus } from '@/lib/api-error';
 
 /**
  * Custom hook to manage the state and logic for the registration form.
- * @returns {object} Form control methods, loading state, API error, and success state.
  */
 export function useRegistration() {
-  const router = useRouter(); // Có thể dùng để chuyển hướng nếu cần
-  const [apiError, setApiError] = useState<string | null>(null); // State for general API errors
-  const [isSuccess, setIsSuccess] = useState<boolean>(false); // State for success message display
+  const router = useRouter();
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
-  // Initialize react-hook-form with Zod schema validation
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      // Set initial form values
       fullName: '',
       email: '',
       password: '',
-      confirmPassword: '', // Initialize confirmPassword
+      confirmPassword: '',
       consentAccepted: false,
-      role: 'student', //  thêm
+      role: 'student',
     },
   });
 
-  // Function to handle form submission
   const onSubmit: SubmitHandler<RegisterFormData> = async (data) => {
-    setApiError(null); // Clear previous errors
+    setApiError(null);
     setIsSuccess(false);
-    // Logging form data (remove sensitive data like password in production logs)
-    console.log('Attempting registration with:', { fullName: data.fullName, email: data.email });
 
     const payload = {
       fullName: data.fullName,
       email: data.email,
       password: data.password,
-      confirmPassword: data.confirmPassword, // ← PHẢI CÓ
-      agreeTerms: data.consentAccepted, // 🔥 mapping QUAN TRỌNG
-      role: data.role, //  thêm
+      confirmPassword: data.confirmPassword,
+      agreeTerms: data.consentAccepted,
+      role: data.role,
     };
 
     try {
-      // Call the registration API function
-      const response = await authApi.register(payload);
-      console.log('Registration API Success:', response);
-      setIsSuccess(true); // Set success state
-      form.reset(); // Clear form fields after successful submission
+      await authApi.register(payload);
+      setIsSuccess(true);
+      form.reset();
 
-      // Optional: Redirect after a delay or simply display success message
       setTimeout(() => {
         router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
       }, 3000);
     } catch (error: unknown) {
-      console.error('Registration API Failed:', error);
+      const status = getApiErrorStatus(error);
 
-      const apiError = error as ApiError;
-
-      // Handle specific API errors
-      if (apiError?.statusCode === 409) {
-        // Conflict - Email exists
+      if (status === 409) {
         form.setError('email', {
           type: 'server',
-          message: apiError.message || 'Email này đã tồn tại.',
+          message: getApiErrorMessage(error, 'Email này đã tồn tại.'),
         });
-      } else if (apiError?.statusCode === 429) {
-        // Too Many Requests
+      } else if (status === 429) {
         setApiError('Bạn đã thực hiện quá nhiều yêu cầu. Vui lòng thử lại sau vài phút.');
       } else {
-        // Other errors (validation from server, 500, network error)
-        setApiError(apiError.message || 'Đã xảy ra lỗi không mong muốn trong quá trình đăng ký.');
+        setApiError(getApiErrorMessage(error, 'Đã xảy ra lỗi không mong muốn trong quá trình đăng ký.'));
       }
     }
   };
 
   return {
-    form, // The form object from react-hook-form
-    onSubmit, // The submit handler function
-    isLoading: form.formState.isSubmitting, // Loading state from react-hook-form
-    apiError, // General API error message
-    isSuccess, // Success state flag
+    form,
+    onSubmit,
+    isLoading: form.formState.isSubmitting,
+    apiError,
+    isSuccess,
   };
 }

@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { verifyEmailSchema, VerifyEmailFormData } from '@/lib/schemas/auth.schema';
 import { authApi } from '@/lib/api';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { getApiErrorMessage } from '@/lib/api-error';
 
 /**
  * Custom hook to manage state and logic for the email verification page.
@@ -61,11 +62,9 @@ export function useEmailVerification() {
         router.push('/sign-in');
       }, 3000);
     } catch (error: unknown) {
-      const err = error as { message?: string; statusCode?: number };
       console.error('Verification API Failed:', error);
-      // Set error message based on API response
-      setApiError(err.message || 'Xác minh thất bại. Vui lòng thử lại.');
-      form.reset(); // Clear OTP input on error
+      setApiError(getApiErrorMessage(error, 'Xác minh thất bại. Vui lòng thử lại.'));
+      form.reset();
     }
   };
 
