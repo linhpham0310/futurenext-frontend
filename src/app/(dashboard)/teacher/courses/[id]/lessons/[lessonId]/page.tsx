@@ -30,7 +30,12 @@ export default function LessonEditorPage() {
           else setContent(res.data.content || '');
           setLoading(false);
         })
-        .catch(() => toast.error('Không tải được bài học'));
+        .catch((error: unknown) => {
+          const err = error as { message?: string };
+          toast.error(err.message || 'Không tải được bài học');
+          console.error('[LessonEditor] Fetch lesson failed:', error);
+          setLoading(false);
+        });
     }
   }, [courseId, lessonId, isTeacher]);
 
@@ -41,8 +46,10 @@ export default function LessonEditorPage() {
       await apiClient.patch(`/teacher/courses/${courseId}/lessons/${lessonId}`, payload);
       toast.success('Lưu nội dung thành công');
       router.push(`/teacher/courses/${courseId}/builder`);
-    } catch {
-      toast.error('Lưu thất bại');
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      toast.error(err.message || 'Lưu thất bại');
+      console.error('[LessonEditor] Save content failed:', error);
     } finally {
       setIsSaving(false);
     }

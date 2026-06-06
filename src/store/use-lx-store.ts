@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import axios from 'axios';
+import { apiClient } from '@/lib/api';
 // Định nghĩa cấu trúc dữ liệu theo thiết kế LLD của module LX
 export interface LXLesson {
   id: string;
@@ -25,6 +25,8 @@ interface LXState {
   activeLesson: LXLesson | null;
   isLoadingStructure: boolean;
   isLoadingLesson: boolean;
+  structureError: string | null;
+  lessonError: string | null;
   // ---------------------------------------------------------
   // TASK: LX-FE-1.2: Các Actions tương tác với API Backend
   // ---------------------------------------------------------
@@ -49,19 +51,24 @@ export const useLXStore = create<LXState>((set, get) => ({
   activeLesson: null,
   isLoadingStructure: false,
   isLoadingLesson: false,
+  structureError: null,
+  lessonError: null,
   // Action 1: Lấy bản đồ lộ trình khóa học (Gọi API LX-BE-1.3)
   fetchRuntimeOverview: async (courseId: string) => {
     try {
-      set({ isLoadingStructure: true });
-      const { data } = await axios.get(`/lx/runtime/${courseId}`);
+      set({ isLoadingStructure: true, structureError: null });
+      const { data } = await apiClient.get(`/lx/runtime/${courseId}`);
       set({
         courseId: data.courseId,
         courseTitle: data.courseTitle,
         progressPercentage: data.progressPercentage,
         sections: data.sections,
       });
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      const message = err.message || 'Không thể tải lộ trình học tập.';
       console.error('Lỗi khi fetch lộ trình học tập (Zustand):', error);
+      set({ structureError: message });
     } finally {
       set({ isLoadingStructure: false });
     }
@@ -69,8 +76,8 @@ export const useLXStore = create<LXState>((set, get) => ({
   // Action 2: Lấy nội dung chi tiết của một bài học cụ thể (Gọi API LX-BE-1.4)
   fetchLessonDetail: async (lessonId: string) => {
     try {
-      set({ isLoadingLesson: true });
-      const { data } = await axios.get(`/lx/lesson/${lessonId}`);
+      set({ isLoadingLesson: true, lessonError: null });
+      const { data } = await apiClient.get(`/lx/lesson/${lessonId}`);
       set({
         activeLesson: {
           id: data.id,
@@ -83,8 +90,11 @@ export const useLXStore = create<LXState>((set, get) => ({
           lastPosition: data.userProgress.lastPosition,
         },
       });
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      const message = err.message || 'Không thể tải nội dung bài giảng.';
       console.error('Lỗi khi fetch nội dung bài giảng (Zustand):', error);
+      set({ lessonError: message });
     } finally {
       set({ isLoadingLesson: false });
     }
@@ -127,6 +137,8 @@ export const useLXStore = create<LXState>((set, get) => ({
       activeLesson: null,
       isLoadingStructure: false,
       isLoadingLesson: false,
+      structureError: null,
+      lessonError: null,
     }),
   // TASK: LX-FE-1.5: Quét mảng tiến độ để tìm ra bài học tối ưu nhất để Resume
   getLastActiveLesson: () => {

@@ -1,5 +1,7 @@
 // [Task: S3-FE-02] Hook quản lý danh sách và nghiệp vụ duyệt hồ sơ giảng viên cho Admin
 import { useState, useCallback, useEffect } from 'react';
+import { apiClient } from '@/lib/api';
+import { toast } from 'sonner';
 
 // Định nghĩa các interface nội bộ để TypeScript hỗ trợ check lỗi
 export interface AdminTeacherProfile {
@@ -37,29 +39,22 @@ export function useAdminTeacherProfiles() {
     setIsLoading(true);
     setError(null);
     try {
-      // Build query string từ filters
-      const queryParams = new URLSearchParams({
-        page: filters.page.toString(),
-        limit: filters.limit.toString(),
+      const params = {
+        page: filters.page,
+        limit: filters.limit,
         ...(filters.status !== 'ALL' && { status: filters.status }),
-      }).toString();
+      };
 
-      // Gọi API GET từ Task S3-BE-02
-      const response = await fetch(`/api/admin/teacher-profiles?${queryParams}`, {
-        headers: {
-          // Bổ sung Authorization Header nếu project không tự động đính kèm cookie/token
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Lỗi khi lấy danh sách');
+      const response = await apiClient.get('/admin/teacher-profiles', { params });
+      const data = response.data;
 
       setProfiles(data.data.items);
       setTotalPages(data.data.meta.totalPages);
     } catch (err: unknown) {
       const apiError = err as ApiError;
-      setError(apiError.message || 'Lỗi khi lấy danh sách');
+      const message = apiError.message || 'Lỗi khi lấy danh sách hồ sơ';
+      setError(message);
+      console.error('[useAdminTeacherProfiles] fetchProfiles failed:', err);
     } finally {
       setIsLoading(false);
     }
@@ -83,24 +78,18 @@ export function useAdminTeacherProfiles() {
   // [Task: S3-FE-02] Hàm xử lý Duyệt / Từ chối
   const reviewProfile = async (profileId: string, status: 'APPROVED' | 'REJECTED') => {
     try {
-      const response = await fetch(`/api/admin/teacher-profiles/${profileId}/review`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Lỗi khi xử lý hồ sơ');
+      await apiClient.patch(`/admin/teacher-profiles/${profileId}/review`, { status });
 
       // Update lại state local để UI phản hồi ngay lập tức mà không cần gọi lại fetchProfiles
       setProfiles((prev) => prev.map((p) => (p.id === profileId ? { ...p, status } : p)));
+      toast.success(status === 'APPROVED' ? 'Đã duyệt hồ sơ' : 'Đã từ chối hồ sơ');
 
       return true;
     } catch (err: unknown) {
       const apiError = err as ApiError;
       const errorMessage = apiError.message || 'Lỗi khi xử lý hồ sơ';
-
-      alert(errorMessage); // Hiển thị lỗi nhanh bằng alert (hoặc dùng Toast tùy dự án)
+      toast.error(errorMessage);
+      console.error('[useAdminTeacherProfiles] reviewProfile failed:', err);
       return false;
     }
   };

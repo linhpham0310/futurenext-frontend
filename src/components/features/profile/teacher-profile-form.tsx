@@ -59,7 +59,10 @@ export function TeacherProfileForm({ existingProfile, onSuccess }: TeacherProfil
         setSuccessMsg('Nộp hồ sơ thành công! Vui lòng chờ phê duyệt.');
       }
       if (onSuccess) onSuccess();
-    } catch {}
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      setLocalError(e.message || 'Có lỗi xảy ra, vui lòng thử lại.');
+    }
   };
 
   const getStatusInfo = () => {

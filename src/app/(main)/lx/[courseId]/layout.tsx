@@ -14,7 +14,7 @@ export default function LxLayout({ children }: { children: React.ReactNode }) {
   const courseId = params.courseId as string;
   const { user, isLoading: authLoading } = useAuth();
   const [isAiOpen, setIsAiOpen] = useState(true);
-  const { fetchRuntimeOverview, isLoadingStructure, resetLXStore, courseTitle } = useLXStore();
+  const { fetchRuntimeOverview, isLoadingStructure, structureError, resetLXStore, courseTitle } = useLXStore();
 
   useEffect(() => {
     if (courseId && user) {
@@ -27,6 +27,20 @@ export default function LxLayout({ children }: { children: React.ReactNode }) {
     return (
       <div className="h-screen flex items-center justify-center">
         <Spinner className="h-8 w-8" />
+      </div>
+    );
+  }
+
+  if (structureError) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center gap-y-3 bg-white">
+        <p className="text-sm text-red-600 font-medium">{structureError}</p>
+        <button
+          onClick={() => fetchRuntimeOverview(courseId)}
+          className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          Thử lại
+        </button>
       </div>
     );
   }

@@ -39,7 +39,9 @@ export const useUserManagement = () => {
       setTotalPages(response.data.meta.totalPages);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err?.response?.data?.message || 'Không thể tải danh sách người dùng');
+      const message = err?.response?.data?.message || 'Không thể tải danh sách người dùng';
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -74,6 +76,7 @@ export const useUserManagement = () => {
     total,
     totalPages,
     isLoading,
+    error,
     filters,
     setFilters,
     handleUpdateRole,

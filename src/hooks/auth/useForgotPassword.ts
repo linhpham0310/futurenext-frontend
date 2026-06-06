@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { apiClient } from '@/lib/api'; // [KẾ THỪA S1]
 import { ForgotPasswordInput } from '@/lib/schemas/auth.schema';
-import axios from 'axios';
 
 export const useForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,14 +15,14 @@ export const useForgotPassword = () => {
       await apiClient.post('/auth/forgot-password', data);
       setIsSuccess(true);
     } catch (err: unknown) {
-      let message = 'Có lỗi xảy ra, vui lòng thử lại sau.';
+      // apiClient interceptor rejects with { statusCode, message, error }
+      const apiErr = err as { statusCode?: number; message?: string };
+      let message: string;
 
-      // Xử lý lỗi Rate Limit hoặc lỗi Server
-      if (axios.isAxiosError(err)) {
-        message =
-          err.response?.status === 429
-            ? 'Bạn đã yêu cầu quá nhiều lần. Vui lòng thử lại sau 1 giờ.'
-            : 'Có lỗi xảy ra, vui lòng thử lại sau.';
+      if (apiErr.statusCode === 429) {
+        message = 'Bạn đã yêu cầu quá nhiều lần. Vui lòng thử lại sau 1 giờ.';
+      } else {
+        message = apiErr.message || 'Có lỗi xảy ra, vui lòng thử lại sau.';
       }
       setError(message);
     } finally {

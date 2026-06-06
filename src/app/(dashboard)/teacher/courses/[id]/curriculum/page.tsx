@@ -22,8 +22,10 @@ export default function CurriculumMappingPage({ params }: { params: { id: string
         keyConcepts: concepts,
       });
       toast.success('Đã cập nhật AI Metadata');
-    } catch (error) {
-      toast.error('Lỗi cập nhật');
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      toast.error(err.message || 'Lỗi cập nhật metadata');
+      console.error('[CurriculumMapping] Update tags failed:', error);
     }
   };
 

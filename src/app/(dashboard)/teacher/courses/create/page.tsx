@@ -48,8 +48,11 @@ export default function CreateCoursePage() {
       const response = await apiClient.post('/teacher/courses', data);
       toast.success('Tạo bản nháp thành công!');
       router.push(`/teacher/courses/${response.data.id}/builder`);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Có lỗi xảy ra');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      const message = err.response?.data?.message || err.message || 'Có lỗi xảy ra';
+      console.error('Lỗi khi tạo khóa học:', error);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

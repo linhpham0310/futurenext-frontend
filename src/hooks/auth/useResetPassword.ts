@@ -3,7 +3,6 @@ import { useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api'; // [KẾ THỪA S1]
 import { ResetPasswordInput } from '@/lib/schemas/auth.schema';
 import { toast } from 'sonner';
-import axios from 'axios';
 
 export const useResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -25,12 +24,9 @@ export const useResetPassword = () => {
         router.push('/sign-in');
       }, 2000);
     } catch (err: unknown) {
-      let msg = 'Mã OTP không đúng hoặc đã hết hạn.';
-
-      if (axios.isAxiosError(err)) {
-        msg = err.response?.data?.message || msg;
-      }
-      toast.error(msg);
+      // apiClient interceptor rejects with { statusCode, message, error }
+      const apiErr = err as { message?: string };
+      toast.error(apiErr.message || 'Mã OTP không đúng hoặc đã hết hạn.');
     } finally {
       setIsLoading(false);
     }

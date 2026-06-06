@@ -1,8 +1,8 @@
 'use client';
 import React, { useState } from 'react';
-import { Upload, FileVideo, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
 import { apiClient } from '@/lib/api';
+import { Upload, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface VideoUploaderProps {
   courseId: string;
@@ -68,10 +68,11 @@ export const VideoUploader = ({ courseId, onSuccess }: VideoUploaderProps) => {
       xhr.open('PUT', uploadUrl);
       xhr.setRequestHeader('Content-Type', file.type);
       xhr.send(file);
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = error as { message?: string };
       setUploadStatus('error');
-      toast.error('Lỗi khi tải video lên S3');
-      console.error(error);
+      toast.error(err.message || 'Lỗi khi tải video lên S3');
+      console.error('[VideoUploader] Upload failed:', error);
     } finally {
       setIsUploading(false);
     }

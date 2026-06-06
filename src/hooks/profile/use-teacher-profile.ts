@@ -54,10 +54,15 @@ export function useTeacherProfile() {
 
   const getMyProfile = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const response = await teacherProfilesApi.getMyProfile();
       return response.data;
-    } catch (err) {
+    } catch (err: unknown) {
+      const apiError = err as ApiError;
+      const message = apiError.response?.data?.message || 'Không thể tải hồ sơ giảng viên';
+      console.error('[useTeacherProfile] getMyProfile failed:', err);
+      setError(message);
       return null;
     } finally {
       setIsLoading(false);
