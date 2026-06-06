@@ -34,6 +34,7 @@ export function useLogin() {
 
   useEffect(() => {
     if (shouldRedirect && isAuthenticated && user) {
+      setShouldRedirect(false); // reset trước
       const role = user.role;
       if (role === UserRole.ADMIN) {
         router.replace('/admin/dashboard');
