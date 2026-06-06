@@ -4,13 +4,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { SelectFilter } from '@/components/ui/select-filter';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Pagination } from '@/components/ui/pagination';
-import { Search } from 'lucide-react';
+import { PageLoading } from '@/components/shared/page-loading';
+import { SearchFilterBar } from '@/components/shared/search-filter-bar';
 
 const mockStudents = Array.from({ length: 15 }, (_, i) => ({
   id: `student-${i}`,
@@ -33,12 +31,7 @@ export default function AdminStudentsPage() {
     if (!isLoading && !isAdmin) router.push('/forbidden');
   }, [isLoading, isAdmin, router]);
 
-  if (isLoading)
-    return (
-      <div className="flex justify-center p-10">
-        <Spinner />
-      </div>
-    );
+  if (isLoading) return <PageLoading />;
   if (!isAdmin) return null;
 
   return (
@@ -48,26 +41,18 @@ export default function AdminStudentsPage() {
         <p className="text-muted-foreground">Danh sách tất cả học viên trong hệ thống.</p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Tìm theo tên hoặc email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <SelectFilter
-          options={[
-            { label: 'Tất cả trạng thái', value: '' },
-            { label: 'Đang hoạt động', value: 'ACTIVE' },
-            { label: 'Đã khóa', value: 'LOCKED' },
-          ]}
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        />
-      </div>
+      <SearchFilterBar
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Tìm theo tên hoặc email..."
+        filterOptions={[
+          { label: 'Tất cả trạng thái', value: '' },
+          { label: 'Đang hoạt động', value: 'ACTIVE' },
+          { label: 'Đã khóa', value: 'LOCKED' },
+        ]}
+        filterValue={statusFilter}
+        onFilterChange={setStatusFilter}
+      />
 
       <Card>
         <CardHeader>

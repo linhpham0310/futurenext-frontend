@@ -8,8 +8,8 @@ import { RegisterForm } from '@/components/features/auth/RegisterForm';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { GraduationCap } from 'lucide-react';
+import { AppLogo } from '@/components/shared/app-logo';
+import { SocialLoginButtons } from '@/components/shared/social-login-buttons';
 
 export default function RegisterPage() {
   const { form, onSubmit, isLoading, apiError, isSuccess } = useRegistration();
@@ -49,14 +49,7 @@ export default function RegisterPage() {
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
         <div className="w-full max-w-md">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 justify-center mb-8">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#2563EB] to-[#7C3AED] rounded-xl flex items-center justify-center">
-              <GraduationCap className="w-7 h-7 text-white" />
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-[#2563EB] to-[#7C3AED] bg-clip-text text-transparent">
-              FutureNext.ai
-            </span>
-          </Link>{' '}
+          <AppLogo />
           <Card className="w-full max-w-[420px]">
             <CardHeader className="text-center space-y-2">
               <CardTitle className="text-2xl font-semibold tracking-tight">Tạo tài khoản</CardTitle>
@@ -85,32 +78,8 @@ export default function RegisterPage() {
               {/* Register Form */}
               <RegisterForm form={form} onSubmit={onSubmit} isLoading={isLoading} />
 
-              {/* Divider and Social Logins Placeholder */}
-              <>
-                <div className="relative my-2">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      Hoặc tiếp tục với
-                    </span>
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <Button variant="outline" disabled>
-                    {' '}
-                    {/* Use Button component */}
-                    {/* <Icons.apple className="mr-2 h-4 w-4" /> */} Apple
-                  </Button>
-                  <Button variant="outline" disabled>
-                    {/* <Icons.google className="mr-2 h-4 w-4" /> */} Google
-                  </Button>
-                  <Button variant="outline" disabled>
-                    {/* <Icons.meta className="mr-2 h-4 w-4" /> */} Meta
-                  </Button>
-                </div>
-              </>
+              {/* Social Login */}
+              <SocialLoginButtons />
 
               {/* Link to Login */}
               <p className="mt-4 px-8 text-center text-sm text-muted-foreground">

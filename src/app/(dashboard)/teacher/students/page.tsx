@@ -3,11 +3,9 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { SelectFilter } from '@/components/ui/select-filter';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Pagination } from '@/components/ui/pagination';
-import { Search } from 'lucide-react';
+import { SearchFilterBar } from '@/components/shared/search-filter-bar';
 
 const mockStudents = Array.from({ length: 10 }, (_, i) => ({
   id: `student-${i}`,
@@ -31,31 +29,21 @@ export default function TeacherStudentsPage() {
         <p className="text-muted-foreground">Quản lý học viên trong các khóa học của bạn.</p>
       </div>
 
-      {/* Nhóm bộ lọc */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Tìm theo tên hoặc email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <SelectFilter
-          options={[
-            { label: 'Tất cả khóa học', value: '' },
-            { label: 'Khóa học 1', value: '1' },
-            { label: 'Khóa học 2', value: '2' },
-            { label: 'Khóa học 3', value: '3' },
-          ]}
-          value={courseFilter}
-          onChange={(e) => setCourseFilter(e.target.value)}
-          className="w-full sm:w-48"
-        />
-      </div>
+      <SearchFilterBar
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Tìm theo tên hoặc email..."
+        filterOptions={[
+          { label: 'Tất cả khóa học', value: '' },
+          { label: 'Khóa học 1', value: '1' },
+          { label: 'Khóa học 2', value: '2' },
+          { label: 'Khóa học 3', value: '3' },
+        ]}
+        filterValue={courseFilter}
+        onFilterChange={setCourseFilter}
+        filterClassName="w-full sm:w-48"
+      />
 
-      {/* Nhóm bảng học viên */}
       <Card>
         <CardHeader>
           <CardTitle>Danh sách học viên</CardTitle>

@@ -1,22 +1,16 @@
 // src/app/(teacher)/teacher/dashboard/page.tsx
 'use client';
 
-import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Users, DollarSign, Award } from 'lucide-react';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { StatCard } from '@/components/shared/stat-card';
+import { PageLoading } from '@/components/shared/page-loading';
 
 export default function TeacherDashboardPage() {
   const { isTeacher, isLoading, user } = useAuth();
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Spinner className="h-10 w-10" />
-      </div>
-    );
-  }
-
+  if (isLoading) return <PageLoading fullScreen />;
   if (!isTeacher) return null;
 
   const stats = [
@@ -37,17 +31,13 @@ export default function TeacherDashboardPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">{stat.title}</CardTitle>
-              <div className={`p-2 rounded-full ${stat.color}`}>
-                <stat.icon className="h-4 w-4" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-            </CardContent>
-          </Card>
+          <StatCard
+            key={stat.title}
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            iconClassName={stat.color}
+          />
         ))}
       </div>
 
