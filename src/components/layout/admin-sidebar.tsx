@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 
 //  Menu cho Admin
 const adminMenuItems = [
-  { icon: LayoutDashboard, label: 'Bảng điều khiển', href: '/admin' },
+  { icon: LayoutDashboard, label: 'Bảng điều khiển', href: '/admin/dashboard' },
   { icon: BookOpen, label: 'Khóa học', href: '/admin/courses' },
   { icon: MessageSquare, label: 'Truyền thông', href: '/admin/communications' },
   { icon: DollarSign, label: 'Doanh thu', href: '/admin/revenue' },

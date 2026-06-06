@@ -20,8 +20,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
   useEffect(() => {
     if (!isHydrating && !isAuthenticated) {
       router.replace('/sign-in');
-    }
-    if (!isHydrating && !isLoading && !isTeacher) {
+    } else if (!isHydrating && !isLoading && isAuthenticated && !isTeacher) {
       router.replace('/forbidden');
     }
   }, [isAuthenticated, isTeacher, isLoading, isHydrating, router]);

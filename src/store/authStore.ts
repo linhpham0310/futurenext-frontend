@@ -24,7 +24,11 @@ export const useAuthStore = create<AuthState>()(
 
       setAuth: (user, token) => {
         localStorage.setItem('accessToken', token);
-        set({ user, accessToken: token, isAuthenticated: true });
+        const normalizedUser: AuthUser = {
+          ...user,
+          role: (user.role?.toUpperCase() as AuthUser['role']) ?? user.role,
+        };
+        set({ user: normalizedUser, accessToken: token, isAuthenticated: true });
       },
 
       clearAuth: () => {

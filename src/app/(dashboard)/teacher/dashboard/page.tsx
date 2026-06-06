@@ -1,8 +1,6 @@
 // src/app/(teacher)/teacher/dashboard/page.tsx
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Users, DollarSign, Award } from 'lucide-react';
@@ -10,13 +8,6 @@ import { useAuth } from '@/hooks/auth/useAuth';
 
 export default function TeacherDashboardPage() {
   const { isTeacher, isLoading, user } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && !isTeacher) {
-      router.push('/');
-    }
-  }, [isLoading, isTeacher, router]);
 
   if (isLoading) {
     return (

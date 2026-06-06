@@ -5,17 +5,18 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { BookOpen, Clock, TrendingUp } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function StudentDashboardPage() {
-  const { user, isLoading } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
+  const router = useRouter();
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Spinner className="h-8 w-8" />
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user?.role !== 'STUDENT') {
+      router.replace(user?.role === 'ADMIN' ? '/admin/dashboard' : '/teacher/dashboard');
+    }
+  }, [isLoading, isAuthenticated, user, router]);
 
   return (
     <div className="p-6 space-y-8 max-w-5xl mx-auto">

@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     // suppressHydrationWarning is crucial for next-themes compatibility
     <html lang="vi" suppressHydrationWarning>
-      <head /> {/* Next.js manages head content */}
+      <head />
       <body
         className={cn(
           'min-h-screen bg-background font-sans antialiased', // Base styles from Shadcn theme

@@ -1,8 +1,6 @@
 // src/app/(admin)/admin/dashboard/page.tsx
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,13 +8,6 @@ import { Users, BookOpen, DollarSign, Clock } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const { user, isLoading, isAdmin } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && !isAdmin) {
-      router.push('/forbidden');
-    }
-  }, [isLoading, isAdmin, router]);
 
   if (isLoading)
     return (

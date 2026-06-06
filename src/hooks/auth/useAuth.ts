@@ -81,12 +81,12 @@ export function useAuth() {
     isPendingTeacher,
     isLoading,
     login,
-    logout: clearAuth,
+    logout,
     setUser: updateUser,
     setAccessToken,
     setAuth,
     clearAuth,
     updateUser,
-    isLoggingOut: false,
+    isLoggingOut,
   };
 }
