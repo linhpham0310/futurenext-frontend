@@ -1,56 +1,57 @@
-// src/app/(teacher)/teacher/revenue/page.tsx
+// src/app/(dashboard)/teacher/revenue/page.tsx
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, TrendingUp, CreditCard } from 'lucide-react';
+import { DollarSign, TrendingUp, Calendar } from 'lucide-react';
 
 export default function TeacherRevenuePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Doanh thu</h1>
-        <p className="text-muted-foreground">Theo dõi thu nhập từ các khóa học của bạn.</p>
+        <h1 className="text-2xl font-bold text-foreground">Doanh thu</h1>
+        <p className="text-muted-foreground">Thống kê thu nhập từ khóa học</p>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Doanh thu tháng này</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12.500.000đ</div>
-            <p className="text-xs text-green-600 flex items-center gap-1">
-              <TrendingUp className="h-3 w-3" /> +8% so với tháng trước
-            </p>
+          <CardContent className="p-4">
+            <div className="flex justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Tổng doanh thu</p>
+                <p className="text-2xl font-bold">0đ</p>
+              </div>
+              <DollarSign className="h-8 w-8 text-green-500" />
+            </div>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Tổng doanh thu</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">245.000.000đ</div>
+          <CardContent className="p-4">
+            <div className="flex justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Tháng này</p>
+                <p className="text-2xl font-bold">0đ</p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-blue-500" />
+            </div>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Giao dịch tháng này</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">48</div>
+          <CardContent className="p-4">
+            <div className="flex justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Học viên mới</p>
+                <p className="text-2xl font-bold">0</p>
+              </div>
+              <Calendar className="h-8 w-8 text-cyan-500" />
+            </div>
           </CardContent>
         </Card>
       </div>
-
       <Card>
         <CardHeader>
-          <CardTitle>Lịch sử giao dịch</CardTitle>
+          <CardTitle>Biểu đồ doanh thu</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">Chưa có giao dịch nào.</p>
+          <p className="text-muted-foreground">Tính năng đang phát triển</p>
         </CardContent>
       </Card>
     </div>

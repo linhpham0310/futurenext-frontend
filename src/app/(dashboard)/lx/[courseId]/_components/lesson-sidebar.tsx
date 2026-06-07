@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useLXStore } from '@/store/use-lx-store'; // Kế thừa từ Task LX-FE-1.2
 import { CheckCircle2, Circle, PlayCircle, FileText, HelpCircle, Code2, Clock } from 'lucide-react';

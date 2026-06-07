@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Upload, FileVideo, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { apiClient } from '@/lib/api';
 
 interface VideoUploaderProps {
   courseId: string;
@@ -33,7 +34,7 @@ export const VideoUploader = ({ courseId, onSuccess }: VideoUploaderProps) => {
       setProgress(0);
 
       // 1. Lấy Presigned URL từ Backend (Gọi API từ Task 3.2)
-      const { data } = await axios.get(`/courses/${courseId}/upload-url`, {
+      const { data } = await apiClient.get(`/courses/${courseId}/upload-url`, {
         params: {
           fileName: file.name,
           fileType: file.type,
@@ -43,22 +44,31 @@ export const VideoUploader = ({ courseId, onSuccess }: VideoUploaderProps) => {
       const { uploadUrl, fileKey } = data;
 
       // 2. Upload trực tiếp lên S3 sử dụng PUT request (Task S3-CM-05)
-      await axios.put(uploadUrl, file, {
-        headers: { 'Content-Type': file.type },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / (progressEvent.total || file.size)
-          );
-          setProgress(percentCompleted);
-        },
+      const xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded * 100) / event.total);
+          setProgress(percent);
+        }
       });
 
       // 3. Xử lý sau khi upload thành công
-      setUploadStatus('success');
-      toast.success('Tải video lên thành công!');
-
+      xhr.addEventListener('load', () => {
+        if (xhr.status === 200) {
+          setUploadStatus('success');
+          toast.success('Tải video lên thành công!');
+          onSuccess(fileKey);
+        } else {
+          throw new Error('Upload failed');
+        }
+      });
       // Trả fileKey về cho component cha để gọi API UpdateContent (Task 3.3)
-      onSuccess(fileKey);
+      xhr.addEventListener('error', () => {
+        throw new Error('Network error');
+      });
+      xhr.open('PUT', uploadUrl);
+      xhr.setRequestHeader('Content-Type', file.type);
+      xhr.send(file);
     } catch (error) {
       setUploadStatus('error');
       toast.error('Lỗi khi tải video lên S3');
@@ -77,7 +87,7 @@ export const VideoUploader = ({ courseId, onSuccess }: VideoUploaderProps) => {
           </div>
           <div className="text-center">
             <p className="text-sm font-semibold text-gray-700">Nhấn để chọn hoặc kéo thả video</p>
-            <p className="text-xs text-gray-500">MP4, WebM hoặc Ogg (Tối đa 500MB)</p>
+            <p className="text-xs text-gray-500">MP4, WebM hoặc Ogg (Tối đa 50MB)</p>
           </div>
           <input
             type="file"

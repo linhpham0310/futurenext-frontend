@@ -1,15 +1,63 @@
 // src/app/(teacher)/teacher/dashboard/page.tsx
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Users, DollarSign, Award } from 'lucide-react';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { courseApi } from '@/lib/api';
+
+interface CourseStats {
+  studentCount?: number;
+  revenue?: number;
+  rating?: number;
+}
 
 export default function TeacherDashboardPage() {
-  const { isTeacher, isLoading, user } = useAuth();
+  const { isTeacher, isLoading: authLoading, user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalCourses: 0,
+    totalStudents: 0,
+    totalRevenue: 0,
+    totalCertificates: 0,
+  });
 
-  if (isLoading) {
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!isTeacher) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      try {
+        const res = await courseApi.getMyCourses();
+        const courses = res.data || [];
+        const totalStudents = courses.reduce(
+          (sum: number, c: CourseStats) => sum + (c.studentCount || 0),
+          0
+        );
+        const totalRevenue = courses.reduce(
+          (sum: number, c: CourseStats) => sum + (c.revenue || 0),
+          0
+        );
+        setStats({
+          totalCourses: courses.length,
+          totalStudents,
+          totalRevenue,
+          totalCertificates: 0,
+        });
+      } catch (error) {
+        console.error('Failed to fetch course stats', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, [isTeacher]);
+
+  if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Spinner className="h-10 w-10" />
@@ -19,11 +67,31 @@ export default function TeacherDashboardPage() {
 
   if (!isTeacher) return null;
 
-  const stats = [
-    { title: 'Khóa học', value: '0', icon: BookOpen, color: 'bg-blue-100 text-blue-700' },
-    { title: 'Học viên', value: '0', icon: Users, color: 'bg-green-100 text-green-700' },
-    { title: 'Doanh thu', value: '0đ', icon: DollarSign, color: 'bg-yellow-100 text-yellow-700' },
-    { title: 'Chứng chỉ', value: '0', icon: Award, color: 'bg-purple-100 text-purple-700' },
+  const statItems = [
+    {
+      title: 'Khóa học',
+      value: stats.totalCourses,
+      icon: BookOpen,
+      color: 'bg-blue-100 text-blue-700',
+    },
+    {
+      title: 'Học viên',
+      value: stats.totalStudents,
+      icon: Users,
+      color: 'bg-green-100 text-green-700',
+    },
+    {
+      title: 'Doanh thu',
+      value: `${stats.totalRevenue.toLocaleString()}đ`,
+      icon: DollarSign,
+      color: 'bg-yellow-100 text-yellow-700',
+    },
+    {
+      title: 'Chứng chỉ',
+      value: stats.totalCertificates,
+      icon: Award,
+      color: 'bg-purple-100 text-purple-700',
+    },
   ];
 
   return (
@@ -36,7 +104,7 @@ export default function TeacherDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
+        {statItems.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-slate-500">{stat.title}</CardTitle>
@@ -60,7 +128,7 @@ export default function TeacherDashboardPage() {
         </CardHeader>
         <CardContent>
           <p className="text-slate-500">
-            Tính năng quản lý khóa học sẽ được phát triển trong các sprint tiếp theo.
+            Sử dụng menu &quot;Khóa học&quot; để tạo mới hoặc chỉnh sửa nội dung.
           </p>
         </CardContent>
       </Card>

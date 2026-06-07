@@ -1,30 +1,140 @@
-// src/app/(dashboard)/teacher/courses/page.tsx
-import React from 'react';
-import Link from 'next/link';
-// Task S1-CM-05: Trang chính quản lý khóa học của Giảng viên
-export default function TeacherCoursesPage() {
+// src/app/(dashboard)/teacher/courses/create/page.tsx
+'use client';
+
+import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Save, ImageIcon } from 'lucide-react';
+import { z } from 'zod';
+import { courseApi } from '@/lib/api';
+import { toast } from 'sonner';
+import { useState } from 'react';
+
+// Schema với price có default và không optional (bắt buộc nhưng có default)
+const courseSchema = z.object({
+  title: z.string().min(5, 'Tiêu đề phải có ít nhất 5 ký tự'),
+  description: z.string().optional(),
+  price: z.number().min(0, 'Giá không được âm').default(0),
+  thumbnailUrl: z.string().optional(),
+});
+
+type CourseFormValues = z.infer<typeof courseSchema>;
+
+export default function CreateCoursePage() {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CourseFormValues>({
+    resolver: zodResolver(courseSchema) as any,
+    defaultValues: {
+      title: '',
+      price: 0,
+      description: '',
+      thumbnailUrl: '',
+    },
+  });
+
+  const onSubmit = async (data: CourseFormValues) => {
+    setIsSubmitting(true);
+    try {
+      const response = await courseApi.createDraft({
+        title: data.title,
+        description: data.description || '',
+        price: data.price,
+        thumbnailUrl: data.thumbnailUrl || '',
+      });
+      toast.success('Tạo bản nháp thành công!');
+      router.push(`/teacher/courses/${response.data.id}`);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Cài đặt khóa học mới</h1>
+        <p className="text-gray-500">Bắt đầu hành trình chia sẻ kiến thức AI-Native của bạn.</p>
+      </div>
+
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-8 bg-white p-8 rounded-xl shadow-sm border"
+      >
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Khóa học của tôi</h1>
-          <p className="text-gray-500 text-sm">Quản lý và cập nhật nội dung bài giảng AI-Native.</p>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Tiêu đề khóa học *</label>
+          <input
+            {...register('title')}
+            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
+              errors.title ? 'border-red-500' : 'border-gray-300'
+            }`}
+          />
+          {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
         </div>
-        {/* Nút điều hướng sang trang tạo khóa học (Sẽ làm ở Task 1.6) */}
-        <Link
-          href="/teacher/courses/create"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-        >
-          + Tạo khóa học mới
-        </Link>
-      </div>
-      {/* Placeholder cho danh sách khóa học */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="border-2 border-dashed border-gray-300 rounded-xl h-64 flex flex-col items-center justify-center text-gray-400">
-          <p>Chưa có khóa học nào.</p>
-          <p className="text-xs">Hãy nhấn &quot;Tạo khóa học mới&quot; để bắt đầu.</p>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả tổng quan</label>
+          <textarea
+            {...register('description')}
+            rows={4}
+            className="w-full p-3 border border-gray-300 rounded-lg"
+          />
         </div>
-      </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Giá bán (VNĐ)</label>
+            <input
+              type="number"
+              {...register('price', { valueAsNumber: true })}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+            />
+            {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Hình đại diện (URL)
+            </label>
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                <ImageIcon className="text-gray-400" />
+              </div>
+              <input
+                {...register('thumbnailUrl')}
+                placeholder="https://..."
+                className="flex-1 p-3 border border-gray-300 rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
+
+        <hr />
+
+        <div className="flex justify-end gap-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Hủy bỏ
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:bg-blue-300"
+          >
+            <Save size={18} />
+            {isSubmitting ? 'Đang lưu...' : 'Lưu bản nháp'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

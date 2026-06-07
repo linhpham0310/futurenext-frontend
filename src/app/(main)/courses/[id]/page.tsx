@@ -8,29 +8,40 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { Clock, Users, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { courseApi } from '@/lib/api';
 
-const mockDetail = {
-  id: '1',
-  title: 'React & TypeScript Masterclass',
-  description: 'Học cách xây dựng ứng dụng web hiện đại với React và TypeScript.',
-  instructor: { name: 'Nguyễn Văn A', avatar: '' },
-  duration: '24 giờ',
-  students: 1250,
-  rating: 4.7,
-  price: 699000,
-  outcomes: ['Hiểu sâu về React Hooks', 'Thành thạo TypeScript', 'Xây dựng dự án thực tế'],
-};
+interface CourseDetail {
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+  students: number;
+  rating: number;
+  price: number;
+  outcomes: string[];
+}
 
 export default function CourseDetailPage() {
-  const { id } = useParams<{ id: string }>();
-  const [course, setCourse] = useState<typeof mockDetail | null>(null);
+  const params = useParams();
+  const id = params.id as string;
+  const [course, setCourse] = useState<CourseDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => {
-      setCourse(mockDetail);
-      setLoading(false);
-    }, 500);
+    if (!id) return;
+
+    const fetchDetail = async () => {
+      setLoading(true);
+      try {
+        const res = await courseApi.getPublicCourseDetail(id);
+        setCourse(res.data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDetail();
   }, [id]);
 
   if (loading)

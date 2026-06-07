@@ -1,23 +1,52 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { MarkdownEditor } from '@/components/shared/markdown-editor'; // (NEW - S3-CM-04)
-import { VideoUploader } from '@/components/shared/video-uploader'; // (NEW - S3-CM-05)
-import { useCourseBuilderStore } from '@/store/use-course-builder-store';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
 
-export default function LessonEditorPage({ params }: { params: { id: string; lessonId: string } }) {
-  const [content, setContent] = useState<string>('');
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import { MarkdownEditor } from '@/components/shared/markdown-editor';
+import { VideoUploader } from '@/components/shared/video-uploader';
+import { apiClient } from '@/lib/api';
+import { toast } from 'sonner';
+import { Spinner } from '@/components/ui/spinner';
+
+export default function LessonEditorPage() {
+  const params = useParams();
+  const { id: courseId, lessons: lessonId } = params;
+  const [content, setContent] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [lessonType, setLessonType] = useState<'VIDEO' | 'ARTICLE' | 'QUIZ'>('ARTICLE');
-  const [videoKey, setVideoKey] = useState<string>('');
+  const [videoKey, setVideoKey] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  // TASK S3-CM-04: Xử lý lưu nội dung Markdown
+  useEffect(() => {
+    console.log('courseId:', courseId, 'lessonId:', lessonId);
+
+    const fetchLesson = async () => {
+      if (!lessonId || !courseId) return;
+      try {
+        const res = await apiClient.get(`/courses/${courseId}/lessons/${lessonId}`);
+        setLessonType(res.data.type);
+        if (res.data.type === 'VIDEO') {
+          setVideoKey(res.data.content || '');
+        } else {
+          setContent(res.data.content || '');
+        }
+      } catch (error) {
+        console.error('Failed to load lesson', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLesson();
+  }, [lessonId, courseId]);
+
   const onSave = async () => {
+    if (!courseId || !lessonId) {
+      toast.error('Thiếu thông tin khóa học hoặc bài học');
+      return;
+    }
+    setIsSaving(true);
     try {
-      setIsSaving(true);
-      // Gọi API updateContent đã làm ở Task 3.3
-      await axios.patch(`/courses/${params.id}/lessons/${params.lessonId}`, {
+      await apiClient.patch(`/courses/${courseId}/lessons/${lessonId}`, {
         content: lessonType === 'VIDEO' ? videoKey : content,
       });
       toast.success('Đã lưu nội dung bài học');
@@ -28,11 +57,18 @@ export default function LessonEditorPage({ params }: { params: { id: string; les
     }
   };
 
-  // TASK S3-CM-05: Callback sau khi video đã nằm trên S3
-  const handleUploadSuccess = async (fileKey: string) => {
+  const handleUploadSuccess = (fileKey: string) => {
     setVideoKey(fileKey);
     toast.success('Video đã được tải lên, hãy lưu bài học để cập nhật!');
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Spinner className="h-8 w-8" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-4">
@@ -47,7 +83,6 @@ export default function LessonEditorPage({ params }: { params: { id: string; les
         </button>
       </div>
 
-      {/* Chọn loại bài học */}
       <div className="flex gap-4 border-b pb-2">
         <button
           onClick={() => setLessonType('ARTICLE')}
@@ -63,11 +98,10 @@ export default function LessonEditorPage({ params }: { params: { id: string; les
         </button>
       </div>
 
-      {/* Nội dung theo loại bài học */}
       {lessonType === 'VIDEO' ? (
         <div className="space-y-4">
           <p className="text-sm text-gray-500 italic">Tải lên video bài giảng cho học viên.</p>
-          <VideoUploader courseId={params.id} onSuccess={handleUploadSuccess} />
+          <VideoUploader courseId={courseId} onSuccess={handleUploadSuccess} />
           {videoKey && (
             <div className="mt-2 p-2 bg-green-50 text-green-700 rounded-md text-sm">
               ✅ Video đã sẵn sàng: {videoKey.split('/').pop()}
@@ -76,7 +110,7 @@ export default function LessonEditorPage({ params }: { params: { id: string; les
         </div>
       ) : (
         <>
-          <MarkdownEditor value={content} onChange={(val) => setContent(val)} />
+          <MarkdownEditor value={content} onChange={setContent} />
           <p className="text-xs text-gray-400 italic">
             * Lưu ý: Định dạng Markdown giúp hệ thống AI phân tích và hỗ trợ học tập tốt hơn.
           </p>

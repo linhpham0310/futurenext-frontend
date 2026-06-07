@@ -9,7 +9,8 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Spinner } from '@/components/ui/spinner';
-import { SiteHeader } from '@/components/layout/SiteHeader';
+import { StudentSidebar } from '@/components/layout/student-sidebar';
+import Footer from '@/components/layout/footer';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -40,9 +41,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   // Hiển thị layout chính với SiteHeader
   return (
-    <div className="relative flex min-h-screen flex-col bg-background">
-      <SiteHeader />
-      <main className="flex-grow container mx-auto max-w-5xl px-4 py-8 md:py-12">{children}</main>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-cyan-50">
+      <StudentSidebar />
+      <main className="flex-1 container mx-auto px-4 py-8 max-w-7xl">{children}</main>
+      <Footer />
     </div>
   );
 }

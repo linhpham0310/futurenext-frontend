@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useLXStore } from '@/store/use-lx-store'; // Kế thừa từ Task LX-FE-1.2
-import { Loader2, BookOpen } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { LessonNavigationControls } from './_components/lesson-navigation-controls';
 import { CourseWelcomeOverview } from './_components/course-welcome-overview';
 // TASK: LX-FE-1.3: Đồng bộ vùng hiển thị nội dung chính với Sidebar qua URL

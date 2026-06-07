@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+
 import { ArrowLeft, MessageSquareCode } from 'lucide-react';
 import Link from 'next/link';
 interface LessonNavbarProps {

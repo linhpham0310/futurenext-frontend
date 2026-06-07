@@ -6,6 +6,7 @@ interface Lesson {
   title: string;
   type: 'VIDEO' | 'ARTICLE' | 'QUIZ';
   orderIndex: number;
+  content?: string;
 }
 
 interface Section {
@@ -20,18 +21,21 @@ interface CourseState {
   sections: Section[];
   isLoading: boolean;
 
-  // TASK S2-CM-05: Thêm backup để rollback
-  _backupSections: Section[];
   setCourseData: (courseId: string, sections: Section[]) => void;
   addSection: (section: Section) => void;
   updateSectionTitle: (sectionId: string, title: string) => void;
+  deleteSection: (sectionId: string) => void;
   reorderSections: (activeId: string, overId: string) => void;
-  setLoading: (status: boolean) => void;
   rollbackSections: () => void; // Hàm khôi phục dữ liệu
+  addLesson: (sectionId: string, lesson: Lesson) => void;
+  setLoading: (status: boolean) => void;
+  updateLesson: (sectionId: string, lessonId: string, data: Partial<Lesson>) => void;
+  deleteLesson: (sectionId: string, lessonId: string) => void;
+  _backupSections: Section[];
 }
 
 // Task S1-CM-07: Khởi tạo Zustand Store
-export const useCourseBuilderStore = create<CourseState>((set) => ({
+export const useCourseBuilderStore = create<CourseState>((set, get) => ({
   courseId: null,
   sections: [],
   isLoading: false,
@@ -40,8 +44,8 @@ export const useCourseBuilderStore = create<CourseState>((set) => ({
   setCourseData: (courseId, sections) =>
     set({
       courseId,
-      sections: [...(sections ?? [])].sort((a, b) => a.orderIndex - b.orderIndex),
-      _backupSections: [...(sections ?? [])],
+      sections: sections.sort((a, b) => a.orderIndex - b.orderIndex),
+      _backupSections: sections,
     }),
   addSection: (section) =>
     set((state) => ({
@@ -52,6 +56,9 @@ export const useCourseBuilderStore = create<CourseState>((set) => ({
     set((state) => ({
       sections: state.sections.map((s) => (s.id === sectionId ? { ...s, title } : s)),
     })),
+
+  deleteSection: (sectionId) =>
+    set((state) => ({ sections: state.sections.filter((s) => s.id !== sectionId) })),
 
   // TASK S2-CM-05: Cập nhật logic reorder để hỗ trợ Optimistic
   reorderSections: (activeId, overId) =>
@@ -72,10 +79,28 @@ export const useCourseBuilderStore = create<CourseState>((set) => ({
       };
     }),
 
-  setLoading: (status) => set({ isLoading: status }),
-  // TASK S2-CM-05: Hàm hoàn tác nếu API thất bại
-  rollbackSections: () =>
+  rollbackSections: () => set((state) => ({ sections: state._backupSections })),
+
+  addLesson: (sectionId, lesson) =>
     set((state) => ({
-      sections: state._backupSections,
+      sections: state.sections.map((s) =>
+        s.id === sectionId ? { ...s, lessons: [...s.lessons, lesson] } : s
+      ),
+    })),
+  setLoading: (status) => set({ isLoading: status }),
+  updateLesson: (sectionId, lessonId, data) =>
+    set((state) => ({
+      sections: state.sections.map((s) =>
+        s.id === sectionId
+          ? { ...s, lessons: s.lessons.map((l) => (l.id === lessonId ? { ...l, ...data } : l)) }
+          : s
+      ),
+    })),
+
+  deleteLesson: (sectionId, lessonId) =>
+    set((state) => ({
+      sections: state.sections.map((s) =>
+        s.id === sectionId ? { ...s, lessons: s.lessons.filter((l) => l.id !== lessonId) } : s
+      ),
     })),
 }));

@@ -1,5 +1,5 @@
 // src/hooks/auth/useLogin.ts
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginFormData } from '@/lib/schemas/auth.schema';
@@ -10,9 +10,8 @@ import { UserRole } from '@/types/auth.api';
 
 export function useLogin() {
   const router = useRouter();
-  const { login: storeLogin, isAuthenticated, user } = useAuth();
+  const { login: storeLogin } = useAuth();
   const [apiError, setApiError] = useState<string | null>(null);
-  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -23,28 +22,29 @@ export function useLogin() {
     setApiError(null);
     try {
       const response = await authApi.login(data);
-      storeLogin(response.accessToken, response.user); // cập nhật store
-      setShouldRedirect(true); // báo hiệu cần redirect
+      storeLogin(response.accessToken, response.user);
+      const role = (response.user.role as string)?.toUpperCase();
+      if (role === UserRole.ADMIN) {
+        router.push('/admin/dashboard');
+      } else if (role === UserRole.TEACHER) {
+        router.push('/teacher/dashboard');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (error: unknown) {
       const err = error as { message?: string; statusCode?: number };
-      setApiError(err.message || 'Đăng nhập thất bại');
+      if (err?.statusCode === 401) {
+        setApiError(err.message || 'Email hoặc mật khẩu không chính xác.');
+      } else if (err?.statusCode === 403) {
+        setApiError(err.message || 'Tài khoản chưa kích hoạt hoặc bị khóa.');
+      } else if (err?.statusCode === 429) {
+        setApiError(err.message || 'Bạn đã thử quá nhiều lần. Vui lòng thử lại sau.');
+      } else {
+        setApiError(err.message || 'Đã xảy ra lỗi trong quá trình đăng nhập.');
+      }
       form.setValue('password', '');
     }
   };
-
-  useEffect(() => {
-    if (shouldRedirect && isAuthenticated && user) {
-      setShouldRedirect(false); // reset trước
-      const role = user.role;
-      if (role === UserRole.ADMIN) {
-        router.replace('/admin/dashboard');
-      } else if (role === UserRole.TEACHER) {
-        router.replace('/teacher/dashboard');
-      } else {
-        router.replace('/dashboard');
-      }
-    }
-  }, [shouldRedirect, isAuthenticated, user, router]);
 
   return {
     form,

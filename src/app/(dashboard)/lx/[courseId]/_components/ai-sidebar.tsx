@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+
 import { Bot, Sparkles } from 'lucide-react';
 interface AiSidebarProps {
   isOpen: boolean;

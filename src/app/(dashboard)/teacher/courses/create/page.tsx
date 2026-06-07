@@ -1,40 +1,48 @@
+// src/app/(teacher)/teacher/courses/create/page.tsx
 'use client';
 
-import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Save, Image as ImageIcon } from 'lucide-react';
-import { courseSchema, CourseFormValues } from './schema';
-import { apiClient } from '@/lib/api';
-import z from 'zod';
+import { Save, ImageIcon } from 'lucide-react';
+import { z } from 'zod';
+import { courseApi } from '@/lib/api';
+import { toast } from 'sonner';
+import { useState } from 'react';
+
+const courseSchema = z.object({
+  title: z.string().min(5, 'Tiêu đề phải có ít nhất 5 ký tự'),
+  description: z.string().optional(),
+  price: z.number().min(0, 'Giá không được âm').default(0),
+  thumbnailUrl: z.string().optional(),
+});
+
+type CourseFormValues = z.infer<typeof courseSchema>;
 
 export default function CreateCoursePage() {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<CourseFormValues>({
-    resolver: zodResolver(courseSchema),
-    defaultValues: {
-      title: '',
-      price: 0,
-      description: '',
-      thumbnailUrl: '',
-    },
+    resolver: zodResolver(courseSchema) as any,
+    defaultValues: { title: '', price: 0, description: '', thumbnailUrl: '' },
   });
 
-  // Task S1-CM-06: Xử lý gửi dữ liệu lên Backend
   const onSubmit = async (data: CourseFormValues) => {
+    setIsSubmitting(true);
     try {
-      const response = await apiClient.post('/courses/draft', data);
-      alert('Tạo bản nháp thành công!');
+      const response = await courseApi.createDraft(data);
+      toast.success('Tạo bản nháp thành công!');
       router.push(`/teacher/courses/${response.data.id}`);
-    } catch (error) {
-      console.error('Lỗi khi tạo khóa học:', error);
-      alert('Có lỗi xảy ra, vui lòng thử lại.');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -49,60 +57,48 @@ export default function CreateCoursePage() {
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-8 bg-white p-8 rounded-xl shadow-sm border"
       >
-        {/* Tiêu đề */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Tiêu đề khóa học *</label>
-
           <input
             {...register('title')}
-            placeholder="Ví dụ: Làm chủ AI Agent với OpenClaw"
             className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
               errors.title ? 'border-red-500' : 'border-gray-300'
             }`}
           />
-
           {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
         </div>
 
-        {/* Mô tả */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả tổng quan</label>
-
           <textarea
             {...register('description')}
             rows={4}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            placeholder="Khóa học này sẽ giúp học viên..."
+            className="w-full p-3 border border-gray-300 rounded-lg"
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Giá */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Giá bán (VNĐ)</label>
-
             <input
-              {...register('price')}
               type="number"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              {...register('price')}
+              className="w-full p-3 border border-gray-300 rounded-lg"
             />
+            {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
           </div>
-
-          {/* Thumbnail */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Hình đại diện (URL)
             </label>
-
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
                 <ImageIcon className="text-gray-400" />
               </div>
-
               <input
                 {...register('thumbnailUrl')}
                 placeholder="https://..."
-                className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="flex-1 p-3 border border-gray-300 rounded-lg"
               />
             </div>
           </div>
@@ -118,7 +114,6 @@ export default function CreateCoursePage() {
           >
             Hủy bỏ
           </button>
-
           <button
             type="submit"
             disabled={isSubmitting}

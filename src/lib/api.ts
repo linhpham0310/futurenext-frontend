@@ -4,6 +4,7 @@ import { AuthUser, RegisterRequest, RegisterResponse } from '@/types/auth.api';
 import { LoginFormData, VerifyEmailFormData } from './schemas/auth.schema';
 import { useAuthStore } from '@/store/authStore';
 import { UpdateProfileFormData } from './schemas/user.schema';
+import { Course } from '@/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
 
@@ -233,6 +234,10 @@ export const usersApi = {
     const response = await apiClient.put<AuthUser>('/users/me/profile', data);
     return response.data;
   },
+  getMyCourses: async (): Promise<Course[]> => {
+    const response = await apiClient.get<Course[]>('/courses/me');
+    return response.data;
+  },
 };
 
 // Thêm API cho teacher profiles
@@ -249,4 +254,63 @@ export const teacherProfilesApi = {
     const response = await apiClient.get('/teacher-profiles/my-profile');
     return response.data;
   },
+};
+
+export const courseApi = {
+  getPublicCourses: (params?: { page?: number; limit?: number; search?: string; level?: string }) =>
+    apiClient.get('/courses', { params }),
+
+  getPublicCourseDetail: (id: string) => apiClient.get(`/courses/${id}`),
+
+  getMyCourses: () => apiClient.get('/courses/my-courses'),
+
+  getCourse: (id: string) => apiClient.get(`/courses/${id}`),
+
+  createDraft: (data: any) => apiClient.post('/courses/draft', data),
+
+  // src/lib/api.ts (thêm vào cuối file, trong courseApi)
+
+  updateCourse: (id: string, data: any) => apiClient.patch(`/courses/${id}`, data),
+  deleteCourse: (id: string) => apiClient.delete(`/courses/${id}`),
+
+  // Sections
+  addSection: (courseId: string, data: any) =>
+    apiClient.post(`/courses/${courseId}/sections`, data),
+  updateSection: (sectionId: string, data: any) => apiClient.patch(`/sections/${sectionId}`, data),
+  deleteSection: (sectionId: string) => apiClient.delete(`/sections/${sectionId}`),
+  reorderSections: (courseId: string, orders: any[]) =>
+    apiClient.patch(`/courses/${courseId}/sections/reorder`, { orders }),
+
+  // Lessons
+  addLesson: (sectionId: string, data: any) =>
+    apiClient.post(`/sections/${sectionId}/lessons`, data),
+  updateLesson: (lessonId: string, data: any) => apiClient.patch(`/lessons/${lessonId}`, data),
+  deleteLesson: (lessonId: string) => apiClient.delete(`/lessons/${lessonId}`),
+  updateLessonContent: (courseId: string, lessonId: string, data: any) =>
+    apiClient.patch(`/courses/${courseId}/lessons/${lessonId}`, data),
+  updateLessonMetadata: (courseId: string, lessonId: string, data: any) =>
+    apiClient.patch(`/courses/${courseId}/lessons/${lessonId}/metadata`, data),
+
+  // Upload
+  getUploadUrl: (courseId: string, fileName: string, fileType: string) =>
+    apiClient.get(`/courses/${courseId}/upload-url`, { params: { fileName, fileType } }),
+
+  // Outcomes
+  updateOutcomes: (courseId: string, outcomes: string[]) =>
+    apiClient.patch(`/courses/${courseId}/outcomes`, { outcomes }),
+
+  // Submit & Review
+  submitCourse: (courseId: string) => apiClient.post(`/courses/${courseId}/submit`),
+  processReview: (courseId: string, action: string, reason?: string) =>
+    apiClient.patch(`/courses/${courseId}/review`, { action, reason }),
+  getAdminDetail: (courseId: string) => apiClient.get(`/courses/${courseId}/admin-detail`),
+};
+
+export const lxApi = {
+  testAiLog: (data: {
+    lessonId: string;
+    interactionType: string;
+    prompt: string;
+    response: string;
+  }) => apiClient.post('/lx/ai/test-log', data),
 };

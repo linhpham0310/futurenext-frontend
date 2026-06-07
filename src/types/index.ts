@@ -9,7 +9,7 @@ export interface Course {
   id: string;
   title: string;
   description: string;
-  thumbnail: string;
+  thumbnail?: string;
   instructor: {
     id: string;
     name: string;
@@ -19,20 +19,21 @@ export interface Course {
   level: 'Beginner' | 'Intermediate' | 'Advanced';
   price: number;
   originalPrice?: number;
-  rating: number;
+  rating?: number;
   totalRatings: number;
   totalStudents: number;
-  duration: string;
+  duration?: string;
   lessons: number;
   lastUpdated: string;
   tags: string[];
   bestseller?: boolean;
   featured?: boolean;
   instructorId: string;
-  students: number;
+  students?: number;
   assignments: Assignment[];
   isEnrolled?: boolean;
   progress?: number;
+  outcomes?: string[];
 }
 
 export interface CourseFilters {

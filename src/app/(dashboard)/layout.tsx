@@ -4,8 +4,9 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Spinner } from '@/components/ui/spinner';
-import { SiteHeader } from '@/components/layout/SiteHeader';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { TeacherHeader } from '@/components/layout/teacher-sidebar';
+import Footer from '@/components/layout/footer';
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
   const { isTeacher, isLoading, isAuthenticated } = useAuth();
@@ -37,9 +38,9 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
 
   return (
     <div className="relative flex min-h-screen flex-col bg-background">
-      <SiteHeader />
-
+      <TeacherHeader />
       <main className="flex-1 overflow-y-auto">{children}</main>
+      <Footer />
     </div>
   );
 }
