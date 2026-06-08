@@ -1,14 +1,15 @@
-// src/app/(teacher)/teacher/courses/create/page.tsx
 'use client';
 
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Save, ImageIcon } from 'lucide-react';
 import { z } from 'zod';
-import { courseApi } from '@/lib/api';
+import { apiClient } from '@/lib/api';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { Spinner } from '@/components/ui/spinner';
+import { Save, ImageIcon } from 'lucide-react';
 
 const courseSchema = z.object({
   title: z.string().min(5, 'Tiêu đề phải có ít nhất 5 ký tự'),
@@ -20,6 +21,7 @@ const courseSchema = z.object({
 type CourseFormValues = z.infer<typeof courseSchema>;
 
 export default function CreateCoursePage() {
+  const { isTeacher, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -28,19 +30,26 @@ export default function CreateCoursePage() {
     handleSubmit,
     formState: { errors },
   } = useForm<CourseFormValues>({
-    resolver: zodResolver(courseSchema) as any,
+    resolver: zodResolver(courseSchema),
     defaultValues: { title: '', price: 0, description: '', thumbnailUrl: '' },
   });
+
+  if (authLoading)
+    return (
+      <div className="p-8 flex justify-center">
+        <Spinner />
+      </div>
+    );
+  if (!isTeacher) return null;
 
   const onSubmit = async (data: CourseFormValues) => {
     setIsSubmitting(true);
     try {
-      const response = await courseApi.createDraft(data);
+      const response = await apiClient.post('/teacher/courses', data);
       toast.success('Tạo bản nháp thành công!');
-      router.push(`/teacher/courses/${response.data.id}`);
-    } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err.response?.data?.message || 'Có lỗi xảy ra');
+      router.push(`/teacher/courses/${response.data.id}/builder`);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Có lỗi xảy ra');
     } finally {
       setIsSubmitting(false);
     }
@@ -61,13 +70,10 @@ export default function CreateCoursePage() {
           <label className="block text-sm font-medium text-gray-700 mb-2">Tiêu đề khóa học *</label>
           <input
             {...register('title')}
-            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
-              errors.title ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
           />
           {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
         </div>
-
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả tổng quan</label>
           <textarea
@@ -76,13 +82,12 @@ export default function CreateCoursePage() {
             className="w-full p-3 border border-gray-300 rounded-lg"
           />
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Giá bán (VNĐ)</label>
             <input
               type="number"
-              {...register('price')}
+              {...register('price', { valueAsNumber: true })}
               className="w-full p-3 border border-gray-300 rounded-lg"
             />
             {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
@@ -103,9 +108,7 @@ export default function CreateCoursePage() {
             </div>
           </div>
         </div>
-
         <hr />
-
         <div className="flex justify-end gap-4">
           <button
             type="button"
@@ -119,8 +122,7 @@ export default function CreateCoursePage() {
             disabled={isSubmitting}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:bg-blue-300"
           >
-            <Save size={18} />
-            {isSubmitting ? 'Đang lưu...' : 'Lưu bản nháp'}
+            <Save size={18} /> {isSubmitting ? 'Đang lưu...' : 'Lưu bản nháp'}
           </button>
         </div>
       </form>

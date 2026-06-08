@@ -1,15 +1,97 @@
-// src/app/(admin)/admin/dashboard/page.tsx
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, BookOpen, DollarSign, Clock } from 'lucide-react';
+import { Users, BookOpen, DollarSign, Clock, Activity } from 'lucide-react';
+import { apiClient } from '@/lib/api';
+import { useRouter } from 'next/navigation';
+
+interface DashboardStats {
+  totalUsers: number;
+  totalCourses: number;
+  monthlyRevenue: number;
+  pendingCourses: number;
+  pendingTeacherProfiles: number;
+  userGrowthPercent: number;
+  revenueGrowthPercent: number;
+}
+interface RecentActivity {
+  id: string;
+  type: string;
+  description: string;
+  timestamp: string;
+}
 
 export default function AdminDashboardPage() {
   const { user, isLoading, isAdmin } = useAuth();
+  const router = useRouter();
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [activities, setActivities] = useState<RecentActivity[]>([]);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [activitiesLoading, setActivitiesLoading] = useState(true);
 
-  if (isLoading)
+  useEffect(() => {
+    if (!isLoading && !isAdmin) router.push('/forbidden');
+  }, [isAdmin, isLoading, router]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchStats();
+      fetchRecentActivities();
+    }
+  }, [isAdmin]);
+
+  const fetchStats = async () => {
+    try {
+      const response = await apiClient.get('/admin/dashboard/stats');
+      setStats(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+  const fetchRecentActivities = async () => {
+    try {
+      const response = await apiClient.get('/admin/activities/recent', { params: { limit: 10 } });
+      setActivities(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setActivitiesLoading(false);
+    }
+  };
+
+  const formatRelativeTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    if (diffMins < 1) return 'Vừa xong';
+    if (diffMins < 60) return `${diffMins} phút trước`;
+    if (diffHours < 24) return `${diffHours} giờ trước`;
+    return `${diffDays} ngày trước`;
+  };
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'USER_REGISTER':
+        return '👤';
+      case 'COURSE_CREATED':
+        return '📘';
+      case 'PAYMENT_SUCCESS':
+        return '💰';
+      case 'COURSE_UPDATED':
+        return '✏️';
+      default:
+        return '📌';
+    }
+  };
+
+  if (isLoading || statsLoading)
     return (
       <div className="p-8 flex justify-center">
         <Spinner />
@@ -23,8 +105,6 @@ export default function AdminDashboardPage() {
         <h1 className="text-2xl font-bold">Bảng điều khiển Admin</h1>
         <p className="text-muted-foreground">Chào {user?.fullName}, đây là tổng quan hệ thống.</p>
       </div>
-
-      {/* Nhóm 1: Thống kê nhanh */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -32,8 +112,10 @@ export default function AdminDashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
-            <p className="text-xs text-muted-foreground">+20% từ tháng trước</p>
+            <div className="text-2xl font-bold">{stats?.totalUsers?.toLocaleString()}</div>
+            <p className="text-xs text-green-600">
+              +{stats?.userGrowthPercent || 0}% từ tháng trước
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -42,8 +124,8 @@ export default function AdminDashboardPage() {
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">42</div>
-            <p className="text-xs text-muted-foreground">5 chờ duyệt</p>
+            <div className="text-2xl font-bold">{stats?.totalCourses || 0}</div>
+            <p className="text-xs text-muted-foreground">{stats?.pendingCourses || 0} chờ duyệt</p>
           </CardContent>
         </Card>
         <Card>
@@ -52,8 +134,12 @@ export default function AdminDashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">125M</div>
-            <p className="text-xs text-muted-foreground">+12% so với tháng trước</p>
+            <div className="text-2xl font-bold">
+              {stats?.monthlyRevenue?.toLocaleString('vi-VN')}đ
+            </div>
+            <p className="text-xs text-green-600">
+              +{stats?.revenueGrowthPercent || 0}% so với tháng trước
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -62,19 +148,42 @@ export default function AdminDashboardPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">18</div>
-            <p className="text-xs text-muted-foreground">12 hồ sơ giáo viên</p>
+            <div className="text-2xl font-bold">{stats?.pendingTeacherProfiles || 0}</div>
+            <p className="text-xs text-muted-foreground">hồ sơ giáo viên</p>
           </CardContent>
         </Card>
       </div>
-
-      {/* Nhóm 2: Hoạt động gần đây (placeholder) */}
       <Card>
         <CardHeader>
-          <CardTitle>Hoạt động gần đây</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5" /> Hoạt động gần đây
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">Chưa có hoạt động nào.</p>
+          {activitiesLoading ? (
+            <div className="flex justify-center py-4">
+              <Spinner />
+            </div>
+          ) : activities.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Chưa có hoạt động nào.</p>
+          ) : (
+            <div className="space-y-4">
+              {activities.map((activity) => (
+                <div
+                  key={activity.id}
+                  className="flex items-start gap-3 border-b pb-3 last:border-0"
+                >
+                  <div className="text-2xl">{getActivityIcon(activity.type)}</div>
+                  <div className="flex-1">
+                    <p className="text-sm">{activity.description}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {formatRelativeTime(activity.timestamp)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

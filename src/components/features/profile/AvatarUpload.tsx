@@ -1,7 +1,7 @@
 'use client';
 
+import { getUploadUrl } from '@/lib/upload-api';
 import { useState } from 'react';
-import { getUploadUrl } from '@/lib/api/upload';
 
 export default function VideoUploader({ courseId }: { courseId: string }) {
   const [loading, setLoading] = useState(false);

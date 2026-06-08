@@ -314,3 +314,243 @@ export const lxApi = {
     response: string;
   }) => apiClient.post('/lx/ai/test-log', data),
 };
+// ==================== BỔ SUNG API CHO CÁC MODULE CÒN THIẾU ====================
+
+// ---------- 1. Common API (dùng cho cả 3 role) ----------
+export const commonApi = {
+  // Đổi mật khẩu (dùng chung)
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    apiClient.patch('/auth/change-password', data),
+
+  // Thông báo (notifications)
+  getNotifications: (params?: { limit?: number }) => apiClient.get('/notifications', { params }),
+  getUnreadCount: () => apiClient.get('/notifications/unread-count'),
+  markNotificationRead: (id: string) => apiClient.patch(`/notifications/${id}/read`),
+  markAllNotificationsRead: () => apiClient.patch('/notifications/mark-all-read'),
+
+  // Tìm kiếm toàn cục
+  search: (q: string) => apiClient.get('/search', { params: { q } }),
+};
+
+// ---------- 2. Admin API ----------
+export const adminApi = {
+  // Dashboard
+  getDashboardStats: () => apiClient.get('/admin/dashboard/stats'),
+  getRecentActivities: (limit?: number) =>
+    apiClient.get('/admin/activities/recent', { params: { limit } }),
+
+  // Quản lý người dùng (users)
+  getUsers: (params?: {
+    page?: number;
+    limit?: number;
+    q?: string;
+    role?: string;
+    status?: string;
+  }) => apiClient.get('/admin/users', { params }),
+  getUserById: (id: string) => apiClient.get(`/admin/users/${id}`),
+  updateUser: (id: string, data: { role?: string; status?: string }) =>
+    apiClient.patch(`/admin/users/${id}`, data),
+  updateUserFull: (
+    id: string,
+    data: { fullName: string; email: string; phone?: string; role: string; status: string }
+  ) => apiClient.put(`/admin/users/${id}`, data),
+  deleteUser: (id: string) => apiClient.delete(`/admin/users/${id}`),
+
+  // Quản lý học viên (students)
+  getStudents: (params?: { page?: number; limit?: number; q?: string; status?: string }) =>
+    apiClient.get('/admin/students', { params }),
+  getStudentById: (id: string) => apiClient.get(`/admin/students/${id}`),
+  updateStudentStatus: (id: string, status: 'ACTIVE' | 'LOCKED') =>
+    apiClient.patch(`/admin/students/${id}/status`, { status }),
+  updateStudent: (
+    id: string,
+    data: { fullName: string; email: string; phone?: string; status: string }
+  ) => apiClient.put(`/admin/students/${id}`, data),
+  deleteStudent: (id: string) => apiClient.delete(`/admin/students/${id}`),
+
+  // Quản lý hồ sơ giáo viên
+  getTeacherProfiles: (params?: { status?: string; page?: number; limit?: number }) =>
+    apiClient.get('/admin/teacher-profiles', { params }),
+  approveTeacherProfile: (id: string) => apiClient.patch(`/admin/teacher-profiles/${id}/approve`),
+  rejectTeacherProfile: (id: string, reason?: string) =>
+    apiClient.patch(`/admin/teacher-profiles/${id}/reject`, { reason }),
+  deleteTeacherProfile: (id: string) => apiClient.delete(`/admin/teacher-profiles/${id}`),
+
+  // Quản lý khóa học (admin view)
+  getCourses: (params?: { page?: number; limit?: number; q?: string; status?: string }) =>
+    apiClient.get('/admin/courses', { params }),
+  getCourseDetail: (id: string) => apiClient.get(`/admin/courses/${id}`),
+  approveCourse: (id: string) => apiClient.patch(`/admin/courses/${id}/approve`),
+  rejectCourse: (id: string, reason: string) =>
+    apiClient.patch(`/admin/courses/${id}/reject`, { reason }),
+  updateCourse: (
+    id: string,
+    data: { title?: string; description?: string; price?: number; status?: string }
+  ) => apiClient.put(`/admin/courses/${id}`, data),
+  deleteCourse: (id: string) => apiClient.delete(`/admin/courses/${id}`),
+
+  // Doanh thu & giao dịch
+  getRevenueStats: () => apiClient.get('/admin/revenue/stats'),
+  getTransactions: (limit?: number) =>
+    apiClient.get('/admin/revenue/transactions', { params: { limit } }),
+};
+
+// ---------- 3. Teacher API ----------
+export const teacherApi = {
+  // Dashboard
+  getDashboardStats: () => apiClient.get('/teacher/dashboard/stats'),
+
+  // Quản lý khóa học (giảng viên)
+  getMyCourses: (params?: { status?: string; page?: number; limit?: number }) =>
+    apiClient.get('/teacher/courses', { params }),
+  createCourse: (data: {
+    title: string;
+    description?: string;
+    price?: number;
+    thumbnailUrl?: string;
+  }) => apiClient.post('/teacher/courses', data),
+  getCourseDetail: (id: string) => apiClient.get(`/teacher/courses/${id}`),
+  updateCourse: (
+    id: string,
+    data: { title?: string; description?: string; price?: number; thumbnailUrl?: string }
+  ) => apiClient.put(`/teacher/courses/${id}`, data),
+  deleteCourse: (id: string) => apiClient.delete(`/teacher/courses/${id}`),
+  submitCourse: (id: string) => apiClient.patch(`/teacher/courses/${id}/submit`),
+
+  // Quản lý chương/bài học (builder)
+  getCourseBuilder: (id: string) => apiClient.get(`/teacher/courses/${id}/builder`),
+  addSection: (courseId: string, data: { title: string }) =>
+    apiClient.post(`/teacher/courses/${courseId}/sections`, data),
+  updateSection: (sectionId: string, data: { title: string }) =>
+    apiClient.patch(`/teacher/courses/${courseId}/sections/${sectionId}`, data),
+  deleteSection: (courseId: string, sectionId: string) =>
+    apiClient.delete(`/teacher/courses/${courseId}/sections/${sectionId}`),
+  reorderSections: (courseId: string, orders: { id: string; orderIndex: number }[]) =>
+    apiClient.patch(`/teacher/courses/${courseId}/sections/reorder`, { orders }),
+  addLesson: (
+    sectionId: string,
+    data: {
+      title: string;
+      type: string;
+      content?: string;
+      duration?: number;
+      isFreePreview?: boolean;
+    }
+  ) => apiClient.post(`/teacher/sections/${sectionId}/lessons`, data),
+  updateLesson: (courseId: string, lessonId: string, data: any) =>
+    apiClient.patch(`/teacher/courses/${courseId}/lessons/${lessonId}`, data),
+  deleteLesson: (courseId: string, lessonId: string) =>
+    apiClient.delete(`/teacher/courses/${courseId}/lessons/${lessonId}`),
+  updateLessonContent: (
+    courseId: string,
+    lessonId: string,
+    data: { content: string; duration?: number }
+  ) => apiClient.patch(`/teacher/courses/${courseId}/lessons/${lessonId}/content`, data),
+  updateLessonMetadata: (courseId: string, lessonId: string, data: { keyConcepts: string[] }) =>
+    apiClient.patch(`/teacher/courses/${courseId}/lessons/${lessonId}/metadata`, data),
+
+  // Outcomes
+  updateOutcomes: (courseId: string, outcomes: string[]) =>
+    apiClient.patch(`/teacher/courses/${courseId}/outcomes`, { outcomes }),
+
+  // Quản lý học viên (teacher)
+  getStudents: (params?: { q?: string; courseId?: string; page?: number; limit?: number }) =>
+    apiClient.get('/teacher/students', { params }),
+  getCourseStudents: (courseId: string) => apiClient.get(`/teacher/courses/${courseId}/students`),
+
+  // Doanh thu giảng viên
+  getRevenueStats: () => apiClient.get('/teacher/revenue/stats'),
+  getTransactions: (limit?: number) =>
+    apiClient.get('/teacher/revenue/transactions', { params: { limit } }),
+
+  // Hồ sơ giảng viên (profile)
+  getProfile: () => apiClient.get('/teacher/profile'),
+  updateProfile: (data: { fullName: string; phone?: string; bio?: string; expertise?: string }) =>
+    apiClient.put('/teacher/profile', data),
+
+  // Cài đặt thanh toán (payout)
+  getPaymentSettings: () => apiClient.get('/teacher/payment-settings'),
+  updatePaymentSettings: (data: { bankAccount: string; bankName: string; accountHolder: string }) =>
+    apiClient.put('/teacher/payment-settings', data),
+
+  // Quản lý đề thi (exams)
+  getExams: (params?: { status?: string; page?: number; limit?: number }) =>
+    apiClient.get('/teacher/exams', { params }),
+  generateQuiz: (data: { topic: string; type: string; duration: number; numQuestions: number }) =>
+    apiClient.post('/teacher/exams/generate', data),
+  createExam: (data: any) => apiClient.post('/teacher/exams', data),
+  getExam: (id: string) => apiClient.get(`/teacher/exams/${id}`),
+  updateExam: (id: string, data: any) => apiClient.put(`/teacher/exams/${id}`, data),
+  deleteExam: (id: string) => apiClient.delete(`/teacher/exams/${id}`),
+  publishExam: (id: string, data: { courseId: string }) =>
+    apiClient.post(`/teacher/exams/${id}/publish`, data),
+  getExamResults: (id: string) => apiClient.get(`/teacher/exams/${id}/results`),
+
+  // Thông báo (announcements)
+  getAnnouncements: () => apiClient.get('/teacher/announcements'),
+  createAnnouncement: (data: { courseId: string; title: string; content: string }) =>
+    apiClient.post('/teacher/announcements', data),
+
+  // Chứng chỉ đã cấp
+  getCertificates: () => apiClient.get('/teacher/certificates'),
+
+  // Báo cáo xuất Excel
+  exportRevenueReport: () =>
+    apiClient.get('/teacher/reports/revenue/export', { responseType: 'blob' }),
+  exportStudentsReport: () =>
+    apiClient.get('/teacher/reports/students/export', { responseType: 'blob' }),
+};
+
+// ---------- 4. Student API ----------
+export const studentApi = {
+  // Dashboard & Khóa học của tôi
+  getMyCourses: () => apiClient.get('/student/courses/my'),
+  getPublicCourses: (params?: { search?: string; page?: number; limit?: number }) =>
+    apiClient.get('/student/courses', { params }),
+  getPublicCourseDetail: (id: string) => apiClient.get(`/student/courses/${id}`),
+  enrollCourse: (id: string) => apiClient.post(`/student/courses/${id}/enroll`),
+
+  // Hồ sơ học viên
+  getProfile: () => apiClient.get('/student/profile'),
+  updateProfile: (data: { fullName?: string; phone?: string; avatarUrl?: string }) =>
+    apiClient.put('/student/profile', data),
+
+  // Yêu thích (favorites)
+  getFavorites: () => apiClient.get('/student/favorites'),
+  removeFavorite: (courseId: string) => apiClient.delete(`/student/favorites/${courseId}`),
+
+  // Đánh giá (reviews)
+  getReviews: () => apiClient.get('/student/reviews'),
+  createReview: (data: { courseId: string; rating: number; comment?: string }) =>
+    apiClient.post('/student/reviews', data),
+  deleteReview: (reviewId: string) => apiClient.delete(`/student/reviews/${reviewId}`),
+
+  // Bài thi (exams)
+  getAssignedExams: () => apiClient.get('/student/exams'),
+  getExamInfo: (id: string) => apiClient.get(`/student/exams/${id}`),
+  takeExam: (id: string) => apiClient.get(`/student/exams/${id}/take`),
+  submitExam: (id: string, answers: Record<string, string>) =>
+    apiClient.post(`/student/exams/${id}/submit`, { answers }),
+  getExamResult: (id: string) => apiClient.get(`/student/exams/${id}/result`),
+
+  // Không gian học tập (LX)
+  getRuntimeOverview: (courseId: string) => apiClient.get(`/student/lx/${courseId}/overview`),
+  getLessonContent: (lessonId: string) => apiClient.get(`/student/lx/lessons/${lessonId}`),
+  updateLessonProgress: (lessonId: string, data: { status: string; lastPosition?: number }) =>
+    apiClient.patch(`/student/lessons/${lessonId}/progress`, data),
+  askAi: (data: { lessonId?: string; question: string }) => apiClient.post('/student/ai/ask', data),
+
+  // Thông báo (student)
+  getNotifications: (limit?: number) =>
+    apiClient.get('/student/notifications', { params: { limit } }),
+  markNotificationRead: (id: string) => apiClient.patch(`/student/notifications/${id}/read`),
+
+  // Tìm kiếm
+  search: (q: string) => apiClient.get('/student/search', { params: { q } }),
+};
+
+// ==================== GIỮ NGUYÊN CÁC API CŨ ====================
+// (authApi, usersApi, teacherProfilesApi, courseApi, lxApi vẫn giữ nguyên)
+// Nếu có conflict (ví dụ courseApi.getMyCourses trùng với studentApi.getMyCourses) thì tuỳ nhu cầu frontend,
+// nhưng khuyến nghị dùng studentApi cho student, teacherApi cho teacher, và courseApi giữ cho các endpoint chung cũ.
+// Bạn có thể comment hoặc xoá bớt nếu muốn dùng hoàn toàn các object mới.

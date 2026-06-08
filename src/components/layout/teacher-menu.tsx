@@ -1,4 +1,3 @@
-// src/components/layout/UserMenu.tsx
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -19,9 +18,15 @@ import {
   LogOut,
   Settings,
   LayoutDashboard,
-  FileCheck,
+  BookOpen,
+  FileQuestion,
   DollarSign,
   Users,
+  Bot,
+  Megaphone,
+  Award,
+  FileText,
+  CreditCard,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -60,39 +65,58 @@ export function TeacherMenu() {
         <DropdownMenuSeparator />
         <Link href="/teacher/dashboard">
           <DropdownMenuItem className="cursor-pointer">
-            <LayoutDashboard className="mr-2 h-4 w-4" />
-            <span>Trang chủ</span>
+            <LayoutDashboard className="mr-2 h-4 w-4" /> Trang chủ
           </DropdownMenuItem>
         </Link>
         <Link href="/teacher/courses">
           <DropdownMenuItem className="cursor-pointer">
-            <FileCheck className="mr-2 h-4 w-4" />
-            <span>Khóa học</span>
-          </DropdownMenuItem>
-        </Link>
-        <Link href="/teacher/revenue">
-          <DropdownMenuItem className="cursor-pointer">
-            <DollarSign className="mr-2 h-4 w-4" />
-            <span>Doanh thu</span>
+            <BookOpen className="mr-2 h-4 w-4" /> Khóa học
           </DropdownMenuItem>
         </Link>
         <Link href="/teacher/students">
           <DropdownMenuItem className="cursor-pointer">
-            <Users className="mr-2 h-4 w-4" />
-            <span>Học viên</span>
+            <Users className="mr-2 h-4 w-4" /> Học viên
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/teacher/revenue">
+          <DropdownMenuItem className="cursor-pointer">
+            <DollarSign className="mr-2 h-4 w-4" /> Doanh thu
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/teacher/exams">
+          <DropdownMenuItem className="cursor-pointer">
+            <FileQuestion className="mr-2 h-4 w-4" /> Đề thi
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/teacher/ai-quiz">
+          <DropdownMenuItem className="cursor-pointer">
+            <Bot className="mr-2 h-4 w-4" /> AI Quiz
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/teacher/certificates">
+          <DropdownMenuItem className="cursor-pointer">
+            <Award className="mr-2 h-4 w-4" /> Chứng chỉ
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/teacher/reports">
+          <DropdownMenuItem className="cursor-pointer">
+            <FileText className="mr-2 h-4 w-4" /> Báo cáo
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/teacher/payment-settings">
+          <DropdownMenuItem className="cursor-pointer">
+            <CreditCard className="mr-2 h-4 w-4" /> Thanh toán
           </DropdownMenuItem>
         </Link>
         <Link href="/teacher/profile">
           <DropdownMenuItem className="cursor-pointer">
-            <User className="mr-2 h-4 w-4" />
-            <span>Hồ sơ</span>
+            <User className="mr-2 h-4 w-4" /> Hồ sơ
           </DropdownMenuItem>
         </Link>
         <DropdownMenuSeparator />
         <Link href="/teacher/settings">
           <DropdownMenuItem className="cursor-pointer">
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Cài đặt</span>
+            <Settings className="mr-2 h-4 w-4" /> Cài đặt
           </DropdownMenuItem>
         </Link>
         <DropdownMenuSeparator />
