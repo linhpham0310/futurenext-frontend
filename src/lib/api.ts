@@ -197,7 +197,6 @@ export const courseApi = {
   getCourse: (id: string) => apiClient.get(`/courses/${id}`),
   createDraft: (data: any) => apiClient.post('/courses/draft', data),
   updateCourse: (id: string, data: any) => apiClient.patch(`/courses/${id}`, data),
-  deleteCourse: (id: string) => apiClient.delete(`/courses/${id}`),
   getUploadUrl: (courseId: string, fileName: string, fileType: string) =>
     apiClient.get(`/courses/${courseId}/upload-url`, { params: { fileName, fileType } }),
   processReview: (courseId: string, action: string, reason?: string) =>
