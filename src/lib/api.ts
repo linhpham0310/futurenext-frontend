@@ -206,7 +206,7 @@ export const courseApi = {
     apiClient.get(`/courses/${courseId}/upload-url`, { params: { fileName, fileType } }),
   updateOutcomes: (courseId: string, outcomes: string[]) =>
     apiClient.patch(`/courses/${courseId}/outcomes`, { outcomes }),
-  submitCourse: (courseId: string) => apiClient.post(`/courses/${courseId}/submit`),
+  submitCourse: (courseId: string) => apiClient.post(`/teacher/courses/${courseId}/submit`),
   processReview: (courseId: string, action: string, reason?: string) =>
     apiClient.patch(`/courses/${courseId}/review`, { action, reason }),
   getAdminDetail: (courseId: string) => apiClient.get(`/courses/${courseId}/admin-detail`),
@@ -310,15 +310,14 @@ export const teacherApi = {
     courseId: string,
     lessonId: string,
     data: { content: string; duration?: number }
-  ) => apiClient.patch(`/teacher/courses/${courseId}/lessons/${lessonId}/content`, data),
+  ) => apiClient.patch(`/teacher/courses/${courseId}/lessons/${lessonId}`, data),
   updateLessonMetadata: (courseId: string, lessonId: string, data: { keyConcepts: string[] }) =>
     apiClient.patch(`/teacher/courses/${courseId}/lessons/${lessonId}/metadata`, data),
   updateOutcomes: (courseId: string, outcomes: string[]) =>
-    apiClient.patch(`/teacher/courses/${courseId}/outcomes`, { outcomes }),
+    apiClient.patch(`/courses/${courseId}/outcomes`, { outcomes }),
   getStudents: (params?: { q?: string; courseId?: string; page?: number; limit?: number }) =>
-    apiClient.get('/courses/teacher/students', { params }),
-  getCourseStudents: (courseId: string) =>
-    apiClient.get(`/courses/teacher/courses/${courseId}/students`),
+    apiClient.get('/teacher/courses/students', { params }),
+  getCourseStudents: (courseId: string) => apiClient.get(`/teacher/courses/${courseId}/students`),
   getRevenueStats: () => apiClient.get('/revenue/teacher/stats'),
   getTransactions: (limit?: number) =>
     apiClient.get('/revenue/teacher/transactions', { params: { limit } }),
