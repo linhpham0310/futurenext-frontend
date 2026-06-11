@@ -39,11 +39,11 @@ export default function TeacherRevenuePage() {
   useEffect(() => {
     if (isTeacher) {
       apiClient
-        .get('/teacher/revenue/stats')
+        .get('/revenue/teacher/stats')
         .then((res) => setStats(res.data))
         .finally(() => setLoading(false));
       apiClient
-        .get('/teacher/revenue/transactions', { params: { limit: 20 } })
+        .get('/revenue/teacher/transactions', { params: { limit: 20 } })
         .then((res) => setTransactions(res.data))
         .finally(() => setTxLoading(false));
     }

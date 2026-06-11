@@ -27,7 +27,7 @@ export default function TeacherDashboardPage() {
   useEffect(() => {
     if (isTeacher) {
       apiClient
-        .get('/teacher/dashboard/stats')
+        .get('/dashboard/teacher/stats')
         .then((res) => setStats(res.data))
         .finally(() => setLoading(false));
     }

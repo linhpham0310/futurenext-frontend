@@ -22,8 +22,6 @@ import { apiClient } from '@/lib/api';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 
 interface Lesson {
   id: string;

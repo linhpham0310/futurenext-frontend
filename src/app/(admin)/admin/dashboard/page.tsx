@@ -45,7 +45,7 @@ export default function AdminDashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await apiClient.get('/admin/dashboard/stats');
+      const response = await apiClient.get('/dashboard/admin/stats');
       setStats(response.data);
     } catch (error) {
       console.error(error);
@@ -55,7 +55,9 @@ export default function AdminDashboardPage() {
   };
   const fetchRecentActivities = async () => {
     try {
-      const response = await apiClient.get('/admin/activities/recent', { params: { limit: 10 } });
+      const response = await apiClient.get('/dashboard/admin/activities/recent', {
+        params: { limit: 10 },
+      });
       setActivities(response.data);
     } catch (error) {
       console.error(error);

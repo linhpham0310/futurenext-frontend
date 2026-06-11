@@ -20,7 +20,7 @@ export default function PaymentSettingsPage() {
   useEffect(() => {
     if (isTeacher) {
       apiClient
-        .get('/teacher/payment-settings')
+        .get('/payment/settings')
         .then((res) => {
           setBankAccount(res.data.bankAccount || '');
           setBankName(res.data.bankName || '');
@@ -34,7 +34,7 @@ export default function PaymentSettingsPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      await apiClient.put('/teacher/payment-settings', { bankAccount, bankName, accountHolder });
+      await apiClient.put('/payment/settings', { bankAccount, bankName, accountHolder });
       toast.success('Cập nhật thông tin thanh toán thành công');
     } catch {
       toast.error('Cập nhật thất bại');

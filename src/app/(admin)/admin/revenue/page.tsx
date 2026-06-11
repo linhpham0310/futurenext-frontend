@@ -46,7 +46,7 @@ export default function AdminRevenuePage() {
 
   const fetchStats = async () => {
     try {
-      const response = await apiClient.get('/admin/revenue/stats');
+      const response = await apiClient.get('/revenue/admin/stats');
       setStats(response.data);
     } catch (error) {
       console.error(error);
@@ -56,7 +56,7 @@ export default function AdminRevenuePage() {
   };
   const fetchTransactions = async () => {
     try {
-      const response = await apiClient.get('/admin/revenue/transactions', {
+      const response = await apiClient.get('/revenue/admin/transactions', {
         params: { limit: 20 },
       });
       setTransactions(response.data);
