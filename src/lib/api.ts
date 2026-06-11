@@ -204,9 +204,6 @@ export const courseApi = {
     apiClient.patch(`/courses/${courseId}/sections/reorder`, { orders }),
   getUploadUrl: (courseId: string, fileName: string, fileType: string) =>
     apiClient.get(`/courses/${courseId}/upload-url`, { params: { fileName, fileType } }),
-  updateOutcomes: (courseId: string, outcomes: string[]) =>
-    apiClient.patch(`/courses/${courseId}/outcomes`, { outcomes }),
-  submitCourse: (courseId: string) => apiClient.post(`/teacher/courses/${courseId}/submit`),
   processReview: (courseId: string, action: string, reason?: string) =>
     apiClient.patch(`/courses/${courseId}/review`, { action, reason }),
   getAdminDetail: (courseId: string) => apiClient.get(`/courses/${courseId}/admin-detail`),
@@ -281,7 +278,7 @@ export const teacherApi = {
     data: { title?: string; description?: string; price?: number; thumbnailUrl?: string }
   ) => apiClient.put(`/teacher/courses/${id}`, data),
   deleteCourse: (id: string) => apiClient.delete(`/teacher/courses/${id}`),
-  submitCourse: (id: string) => apiClient.patch(`/teacher/courses/${id}/submit`),
+  submitCourse: (courseId: string) => apiClient.patch(`/teacher/courses/${courseId}/submit`),
   getCourseBuilder: (id: string) => apiClient.get(`/teacher/courses/${id}/builder`),
   addSection: (courseId: string, data: { title: string }) =>
     apiClient.post(`/teacher/courses/${courseId}/sections`, data),
@@ -311,10 +308,8 @@ export const teacherApi = {
     lessonId: string,
     data: { content: string; duration?: number }
   ) => apiClient.patch(`/teacher/courses/${courseId}/lessons/${lessonId}`, data),
-  updateLessonMetadata: (courseId: string, lessonId: string, data: { keyConcepts: string[] }) =>
-    apiClient.patch(`/teacher/courses/${courseId}/lessons/${lessonId}/metadata`, data),
   updateOutcomes: (courseId: string, outcomes: string[]) =>
-    apiClient.patch(`/courses/${courseId}/outcomes`, { outcomes }),
+    apiClient.patch(`/teacher/courses/${courseId}/outcomes`, { outcomes }),
   getStudents: (params?: { q?: string; courseId?: string; page?: number; limit?: number }) =>
     apiClient.get('/teacher/courses/students', { params }),
   getCourseStudents: (courseId: string) => apiClient.get(`/teacher/courses/${courseId}/students`),
