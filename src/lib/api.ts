@@ -202,10 +202,6 @@ export const courseApi = {
     apiClient.post(`/courses/${courseId}/sections`, data),
   reorderSections: (courseId: string, orders: any[]) =>
     apiClient.patch(`/courses/${courseId}/sections/reorder`, { orders }),
-  updateLessonContent: (courseId: string, lessonId: string, data: any) =>
-    apiClient.patch(`/courses/${courseId}/lessons/${lessonId}`, data),
-  updateLessonMetadata: (courseId: string, lessonId: string, data: any) =>
-    apiClient.patch(`/courses/${courseId}/lessons/${lessonId}/metadata`, data),
   getUploadUrl: (courseId: string, fileName: string, fileType: string) =>
     apiClient.get(`/courses/${courseId}/upload-url`, { params: { fileName, fileType } }),
   updateOutcomes: (courseId: string, outcomes: string[]) =>
