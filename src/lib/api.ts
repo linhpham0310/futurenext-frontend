@@ -175,6 +175,8 @@ export const usersApi = {
   getProfile: () => apiClient.get<AuthUser>('/users/me/profile'),
   updateProfile: (data: UpdateProfileFormData) =>
     apiClient.put<AuthUser>('/users/me/profile', data),
+  // Sửa: /courses/me -> /courses/my-courses
+  getMyCourses: () => apiClient.get('/courses/my-courses'),
 };
 
 // ==================== TEACHER PROFILES API ====================
@@ -214,7 +216,7 @@ export const courseApi = {
   getAdminDetail: (courseId: string) => apiClient.get(`/courses/${courseId}/admin-detail`),
 };
 
-// ==================== ADMIN API  ====================
+// ==================== ADMIN API ====================
 export const adminApi = {
   getDashboardStats: () => apiClient.get('/dashboard/admin/stats'),
   getRecentActivities: (limit?: number) =>
@@ -266,9 +268,9 @@ export const adminApi = {
     apiClient.get('/revenue/admin/transactions', { params: { limit } }),
 };
 
-// ==================== TEACHER API  ====================
+// ==================== TEACHER API ====================
 export const teacherApi = {
-  getDashboardStats: () => apiClient.get('/dashboard/teacher/stats'),
+  getDashboardStats: () => apiClient.get('/teacher/courses/dashboard/stats'),
   getMyCourses: (params?: { status?: string; page?: number; limit?: number }) =>
     apiClient.get('/teacher/courses', { params }),
   createCourse: (data: {
@@ -319,7 +321,8 @@ export const teacherApi = {
     apiClient.patch(`/teacher/courses/${courseId}/outcomes`, { outcomes }),
   getStudents: (params?: { q?: string; courseId?: string; page?: number; limit?: number }) =>
     apiClient.get('/courses/teacher/students', { params }),
-  getCourseStudents: (courseId: string) => apiClient.get(`/teacher/courses/${courseId}/students`),
+  getCourseStudents: (courseId: string) =>
+    apiClient.get(`/courses/teacher/courses/${courseId}/students`),
   getRevenueStats: () => apiClient.get('/revenue/teacher/stats'),
   getTransactions: (limit?: number) =>
     apiClient.get('/revenue/teacher/transactions', { params: { limit } }),
@@ -370,7 +373,7 @@ export const studentApi = {
   createReview: (data: { courseId: string; rating: number; comment?: string }) =>
     apiClient.post('/student/reviews', data),
   deleteReview: (reviewId: string) => apiClient.delete(`/student/reviews/${reviewId}`),
-  // Bài thi
+  // Bài thi (backend chưa có ExamController, nhưng prefix /lx theo thực tế nếu có)
   getAssignedExams: () => apiClient.get('/lx/exams'),
   getExamInfo: (id: string) => apiClient.get(`/lx/exams/${id}`),
   takeExam: (id: string) => apiClient.get(`/lx/exams/${id}/take`),
@@ -383,10 +386,9 @@ export const studentApi = {
   updateLessonProgress: (lessonId: string, data: { status: string; lastPosition?: number }) =>
     apiClient.patch(`/lx/lessons/${lessonId}/progress`, data),
   askAi: (data: { lessonId?: string; question: string }) => apiClient.post('/lx/ai/ask', data),
-  // Thông báo
-  getNotifications: (limit?: number) =>
-    apiClient.get('/student/notifications', { params: { limit } }),
-  markNotificationRead: (id: string) => apiClient.patch(`/student/notifications/${id}/read`),
+  // Thông báo (chuyển sang /notifications)
+  getNotifications: (limit?: number) => apiClient.get('/notifications', { params: { limit } }),
+  markNotificationRead: (id: string) => apiClient.patch(`/notifications/${id}/read`),
   // Tìm kiếm
   search: (q: string) => apiClient.get('/search/courses', { params: { q } }),
 };
@@ -400,7 +402,7 @@ export const commonApi = {
   search: (q: string) => apiClient.get('/search/courses', { params: { q } }),
 };
 
-// ==================== LX API  ====================
+// ==================== LX API (nếu cần dùng riêng) ====================
 export const lxApi = {
   testAiLog: (data: {
     lessonId: string;
