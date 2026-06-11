@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { apiClient } from '@/lib/api';
+import { apiClient, commonApi } from '@/lib/api';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ThemeToggle } from './theme-toggle';
 import { TeacherMenu } from './teacher-menu';
@@ -57,8 +57,8 @@ export const TeacherHeader = () => {
     try {
       setNotifLoading(true);
       const [notifRes, countRes] = await Promise.all([
-        apiClient.get('/teacher/notifications', { params: { limit: 20 } }),
-        apiClient.get('/teacher/notifications/unread-count'),
+        commonApi.getNotifications({ limit: 20 }),
+        commonApi.getUnreadCount(),
       ]);
       setNotifications(notifRes.data);
       setUnreadCount(countRes.data.count);
@@ -71,7 +71,7 @@ export const TeacherHeader = () => {
 
   const markAsRead = async (id: string, link: string) => {
     try {
-      await apiClient.patch(`/teacher/notifications/${id}/read`);
+      await commonApi.markNotificationRead(id);
       setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
       setUnreadCount((prev) => Math.max(0, prev - 1));
       router.push(link);
@@ -83,7 +83,7 @@ export const TeacherHeader = () => {
 
   const markAllAsRead = async () => {
     try {
-      await apiClient.patch('/teacher/notifications/mark-all-read');
+      await commonApi.markAllNotificationsRead();
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
       toast.success('Đã đánh dấu tất cả thông báo là đã đọc');
@@ -99,8 +99,16 @@ export const TeacherHeader = () => {
     }
     setSearchLoading(true);
     try {
-      const res = await apiClient.get('/teacher/search', { params: { q } });
-      setSearchResults(res.data);
+      const res = await apiClient.get('/search/courses', { params: { q } });
+      const courses = res.data?.items ?? res.data ?? [];
+      setSearchResults(
+        courses.map((c: any) => ({
+          id: c.id,
+          label: c.title,
+          type: 'course' as const,
+          link: `/teacher/courses/${c.id}`,
+        }))
+      );
     } catch (error) {
       console.error(error);
       setSearchResults([]);

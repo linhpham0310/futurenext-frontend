@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { apiClient } from '@/lib/api';
+import { authApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,7 +23,7 @@ export default function TeacherSettingsPage() {
     }
     setLoading(true);
     try {
-      await apiClient.patch('/teacher/change-password', { currentPassword, newPassword });
+      await authApi.changePassword({ currentPassword, newPassword });
       toast.success('Đổi mật khẩu thành công');
       setCurrentPassword('');
       setNewPassword('');
