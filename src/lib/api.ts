@@ -175,7 +175,6 @@ export const usersApi = {
   getProfile: () => apiClient.get<AuthUser>('/users/me/profile'),
   updateProfile: (data: UpdateProfileFormData) =>
     apiClient.put<AuthUser>('/users/me/profile', data),
-  // Sửa: /courses/me -> /courses/my-courses
   getMyCourses: () => apiClient.get('/courses/my-courses'),
 };
 
@@ -340,41 +339,33 @@ export const teacherApi = {
 
 // ==================== STUDENT API  ====================
 export const studentApi = {
-  // Khóa học
   getMyCourses: () => apiClient.get('/courses/my-enrolled'),
   getPublicCourses: (params?: { search?: string; page?: number; limit?: number }) =>
     apiClient.get('/courses', { params }),
   getPublicCourseDetail: (id: string) => apiClient.get(`/courses/public/${id}`),
   enrollCourse: (id: string) => apiClient.post(`/courses/${id}/enroll`),
-  // Hồ sơ
   getProfile: () => apiClient.get('/student/profile'),
   updateProfile: (data: { fullName?: string; phone?: string; avatarUrl?: string }) =>
     apiClient.put('/student/profile', data),
-  // Yêu thích
   getFavorites: () => apiClient.get('/student/favorites'),
   removeFavorite: (courseId: string) => apiClient.delete(`/student/favorites/${courseId}`),
-  // Đánh giá
   getReviews: () => apiClient.get('/student/reviews'),
   createReview: (data: { courseId: string; rating: number; comment?: string }) =>
     apiClient.post('/student/reviews', data),
   deleteReview: (reviewId: string) => apiClient.delete(`/student/reviews/${reviewId}`),
-  // Bài thi (backend chưa có ExamController, nhưng prefix /lx theo thực tế nếu có)
   getAssignedExams: () => apiClient.get('/lx/exams'),
   getExamInfo: (id: string) => apiClient.get(`/lx/exams/${id}`),
   takeExam: (id: string) => apiClient.get(`/lx/exams/${id}/take`),
   submitExam: (id: string, answers: Record<string, string>) =>
     apiClient.post(`/lx/exams/${id}/submit`, { answers }),
   getExamResult: (id: string) => apiClient.get(`/lx/exams/${id}/result`),
-  // Không gian học LX
   getRuntimeOverview: (courseId: string) => apiClient.get(`/lx/runtime/${courseId}`),
   getLessonContent: (lessonId: string) => apiClient.get(`/lx/lesson/${lessonId}`),
   updateLessonProgress: (lessonId: string, data: { status: string; lastPosition?: number }) =>
     apiClient.patch(`/lx/lessons/${lessonId}/progress`, data),
   askAi: (data: { lessonId?: string; question: string }) => apiClient.post('/lx/ai/ask', data),
-  // Thông báo (chuyển sang /notifications)
   getNotifications: (limit?: number) => apiClient.get('/notifications', { params: { limit } }),
   markNotificationRead: (id: string) => apiClient.patch(`/notifications/${id}/read`),
-  // Tìm kiếm
   search: (q: string) => apiClient.get('/search/courses', { params: { q } }),
 };
 
