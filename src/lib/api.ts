@@ -14,7 +14,6 @@ export const apiClient = axios.create({
   timeout: 10000,
 });
 
-// Types
 interface LoginSuccessResponse {
   accessToken: string;
   user: AuthUser;
@@ -47,7 +46,6 @@ const clearAccessToken = () => {
   localStorage.removeItem('accessToken');
 };
 
-// Request interceptor
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const accessToken = getAccessToken();
@@ -68,7 +66,6 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor (refresh token)
 let isRefreshing = false;
 let failedQueue: QueueItem[] = [];
 
@@ -138,7 +135,6 @@ apiClient.interceptors.response.use(
   }
 );
 
-// ==================== AUTH API ====================
 export const authApi = {
   register: (data: RegisterRequest) => apiClient.post<RegisterResponse>('/auth/register', data),
   verifyEmail: (data: VerifyEmailFormData) =>
@@ -170,7 +166,6 @@ export const authApi = {
     apiClient.patch('/auth/change-password', data),
 };
 
-// ==================== USERS API (common) ====================
 export const usersApi = {
   getProfile: () => apiClient.get<AuthUser>('/users/me/profile'),
   updateProfile: (data: UpdateProfileFormData) =>
@@ -178,7 +173,6 @@ export const usersApi = {
   getMyCourses: () => apiClient.get('/courses/my-courses'),
 };
 
-// ==================== TEACHER PROFILES API ====================
 export const teacherProfilesApi = {
   submit: (data: { bio: string; expertise: string[] }) =>
     apiClient.post('/teacher-profiles/submit', data),
@@ -187,7 +181,6 @@ export const teacherProfilesApi = {
   getMyProfile: () => apiClient.get('/teacher-profiles/my-profile'),
 };
 
-// ==================== COURSE API (public + chung) ====================
 export const courseApi = {
   getPublicCourses: (params?: { page?: number; limit?: number; search?: string; level?: string }) =>
     apiClient.get('/courses/public', { params }),
@@ -203,7 +196,6 @@ export const courseApi = {
   getAdminDetail: (courseId: string) => apiClient.get(`/courses/${courseId}/admin-detail`),
 };
 
-// ==================== ADMIN API ====================
 export const adminApi = {
   getDashboardStats: () => apiClient.get('/dashboard/admin/stats'),
   getRecentActivities: (limit?: number) =>
@@ -255,7 +247,6 @@ export const adminApi = {
     apiClient.get('/revenue/admin/transactions', { params: { limit } }),
 };
 
-// ==================== TEACHER API ====================
 export const teacherApi = {
   getDashboardStats: () => apiClient.get('/teacher/courses/dashboard/stats'),
   getMyCourses: (params?: { status?: string; page?: number; limit?: number }) =>
@@ -337,7 +328,6 @@ export const teacherApi = {
     apiClient.get('/teacher/reports/students/export', { responseType: 'blob' }),
 };
 
-// ==================== STUDENT API  ====================
 export const studentApi = {
   getMyCourses: () => apiClient.get('/courses/my-enrolled'),
   getPublicCourses: (params?: { search?: string; page?: number; limit?: number }) =>
@@ -369,7 +359,6 @@ export const studentApi = {
   search: (q: string) => apiClient.get('/search/courses', { params: { q } }),
 };
 
-// ==================== COMMON / NOTIFICATION / SEARCH ====================
 export const commonApi = {
   getNotifications: (params?: { limit?: number }) => apiClient.get('/notifications', { params }),
   getUnreadCount: () => apiClient.get('/notifications/unread-count'),
@@ -378,7 +367,6 @@ export const commonApi = {
   search: (q: string) => apiClient.get('/search/courses', { params: { q } }),
 };
 
-// ==================== LX API (nếu cần dùng riêng) ====================
 export const lxApi = {
   testAiLog: (data: {
     lessonId: string;
