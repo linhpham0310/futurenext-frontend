@@ -26,7 +26,7 @@ export const LessonNavigationControls = () => {
 
   const handleCompleteAndNext = async () => {
     try {
-      await apiClient.patch(`/student/lessons/${activeLesson.id}/progress`, {
+      await apiClient.patch(`/lx/lessons/${activeLesson.id}/progress`, {
         status: 'COMPLETED',
       });
       updateLessonProgressLocal(activeLesson.id, 'COMPLETED');

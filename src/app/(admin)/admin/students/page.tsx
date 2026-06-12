@@ -50,7 +50,7 @@ export default function AdminStudentsPage() {
         params: { q: search, status: statusFilter || undefined, page, limit },
       });
       setStudents(response.data.data);
-      setTotalPages(response.data.totalPages);
+      setTotalPages(response.data.meta.totalPages);
     } catch (error) {
       toast.error('Không thể tải danh sách học viên');
     } finally {

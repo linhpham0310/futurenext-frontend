@@ -69,7 +69,7 @@ export default function AdminUsersPage() {
         params: { q: search, role: roleFilter || undefined, page, limit },
       });
       setUsers(response.data.data);
-      setTotalPages(response.data.totalPages);
+      setTotalPages(response.data.meta.totalPages);
     } catch (error) {
       toast.error('Không thể tải danh sách người dùng');
     } finally {

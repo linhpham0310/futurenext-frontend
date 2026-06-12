@@ -32,10 +32,11 @@ export default function TeacherAIQuizPage() {
     }
     setGenerating(true);
     try {
-      const response = await apiClient.post('/teacher/generate-quiz', {
-        content,
+      const response = await apiClient.post('/teacher/exams/generate', {
+        topic: content,
+        type: 'MCQ',
+        duration: 60,
         numQuestions,
-        difficulty,
       });
       setQuestions(response.data.questions || []);
       toast.success(`Đã tạo ${response.data.questions?.length || 0} câu hỏi`);

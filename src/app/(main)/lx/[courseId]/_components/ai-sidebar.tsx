@@ -24,7 +24,7 @@ export const AiSidebar = ({ isOpen }: AiSidebarProps) => {
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
     try {
-      const res = await apiClient.post('/student/ai/ask', { lessonId: activeLesson?.id, question });
+      const res = await apiClient.post('/lx/ai/ask', { lessonId: activeLesson?.id, question });
       const assistantMsg = { role: 'assistant' as const, content: res.data.answer };
       setMessages((prev) => [...prev, assistantMsg]);
     } catch {

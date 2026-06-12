@@ -25,7 +25,7 @@ import { useAuth } from '@/hooks/auth/useAuth';
 interface Course {
   id: string;
   title: string;
-  instructor: string;
+  instructor: { id: string; fullName: string; email: string } | string;
   status: 'PENDING' | 'PUBLISHED' | 'REJECTED' | 'DRAFT';
   students: number;
   revenue: number;
@@ -64,7 +64,7 @@ export default function AdminCoursesPage() {
         params: { q: search, status: statusFilter || undefined, page, limit },
       });
       setCourses(response.data.data);
-      setTotalPages(response.data.totalPages);
+      setTotalPages(response.data.meta.totalPages);
     } catch (error) {
       toast.error('Không thể tải danh sách khóa học');
     } finally {
@@ -205,7 +205,11 @@ export default function AdminCoursesPage() {
                 courses.map((course) => (
                   <tr key={course.id} className="border-t hover:bg-muted/50">
                     <td className="p-4 font-medium">{course.title}</td>
-                    <td className="p-4">{course.instructor}</td>
+                    <td className="p-4">
+                      {typeof course.instructor === 'object'
+                        ? course.instructor.fullName
+                        : course.instructor}
+                    </td>
                     <td className="p-4">{getStatusBadge(course.status)}</td>
                     <td className="p-4">{course.students}</td>
                     <td className="p-4">{course.revenue?.toLocaleString('vi-VN')}đ</td>

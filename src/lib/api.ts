@@ -216,15 +216,15 @@ export const adminApi = {
   ) => apiClient.put(`/admin/users/${id}`, data),
   deleteUser: (id: string) => apiClient.delete(`/admin/users/${id}`),
   getStudents: (params?: { page?: number; limit?: number; q?: string; status?: string }) =>
-    apiClient.get('/admin/students', { params }),
-  getStudentById: (id: string) => apiClient.get(`/admin/students/${id}`),
+    apiClient.get('/admin/users/students', { params }),
+  getStudentById: (id: string) => apiClient.get(`/admin/users/students/${id}`),
   updateStudentStatus: (id: string, status: 'ACTIVE' | 'LOCKED') =>
-    apiClient.patch(`/admin/students/${id}/status`, { status }),
+    apiClient.patch(`/admin/users/students/${id}/status`, { status }),
   updateStudent: (
     id: string,
     data: { fullName: string; email: string; phone?: string; status: string }
-  ) => apiClient.put(`/admin/students/${id}`, data),
-  deleteStudent: (id: string) => apiClient.delete(`/admin/students/${id}`),
+  ) => apiClient.put(`/admin/users/students/${id}`, data),
+  deleteStudent: (id: string) => apiClient.delete(`/admin/users/students/${id}`),
   getTeacherProfiles: (params?: { status?: string; page?: number; limit?: number }) =>
     apiClient.get('/admin/teacher-profiles', { params }),
   approveTeacherProfile: (id: string) => apiClient.patch(`/admin/teacher-profiles/${id}/approve`),
@@ -301,9 +301,9 @@ export const teacherApi = {
   getRevenueStats: () => apiClient.get('/revenue/teacher/stats'),
   getTransactions: (limit?: number) =>
     apiClient.get('/revenue/teacher/transactions', { params: { limit } }),
-  getProfile: () => apiClient.get('/teacher/profile'),
+  getProfile: () => apiClient.get('/teacher-profiles/my-profile'),
   updateProfile: (data: { fullName: string; phone?: string; bio?: string; expertise?: string }) =>
-    apiClient.put('/teacher/profile', data),
+    apiClient.put('/teacher-profiles/update', data),
   getPaymentSettings: () => apiClient.get('/payment/settings'),
   updatePaymentSettings: (data: { bankAccount: string; bankName: string; accountHolder: string }) =>
     apiClient.put('/payment/settings', data),

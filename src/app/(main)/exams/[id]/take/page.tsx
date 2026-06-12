@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { apiClient } from '@/lib/api';
@@ -74,7 +74,7 @@ export default function TakeExamPage() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [exam, timeLeft]);
+  }, [exam]);
 
   // Lưu answers vào localStorage
   useEffect(() => {
@@ -99,11 +99,17 @@ export default function TakeExamPage() {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
 
+  const answersRef = useRef(answers);
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
+
   const handleSubmit = async (auto = false) => {
     if (submitting) return;
     setSubmitting(true);
     try {
-      await apiClient.post(`/student/exams/${id}/submit`, { answers });
+      const currentAnswers = answersRef.current;
+      await apiClient.post(`/student/exams/${id}/submit`, { answers: currentAnswers });
       localStorage.removeItem(`exam_${id}_answers`);
       toast.success(auto ? 'Hết giờ! Bài đã được nộp.' : 'Nộp bài thành công');
       router.push(`/exams/${id}/result`);

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { Clock, Users, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { courseApi } from '@/lib/api';
+import { courseApi, studentApi } from '@/lib/api';
 import { toast } from 'sonner';
 
 interface CourseDetail {
@@ -49,7 +49,7 @@ export default function CourseDetailPage() {
   const handleEnroll = async () => {
     setEnrolling(true);
     try {
-      await courseApi.enrollCourse(id);
+      await studentApi.enrollCourse(id);
       toast.success('Đăng ký thành công!');
       router.push(`/learning/${id}`);
     } catch (error) {
