@@ -20,7 +20,7 @@ interface Student {
   phone?: string;
   coursesEnrolled: number;
   joinedAt: string;
-  status: 'ACTIVE' | 'LOCKED' | 'INACTIVE';
+  status: 'active' | 'locked' | 'inactive';
 }
 
 export default function AdminStudentsPage() {
@@ -59,8 +59,8 @@ export default function AdminStudentsPage() {
   };
 
   const toggleStatus = async (student: Student) => {
-    const newStatus = student.status === 'ACTIVE' ? 'LOCKED' : 'ACTIVE';
-    const action = newStatus === 'ACTIVE' ? 'mở khóa' : 'khóa';
+    const newStatus = student.status === 'active' ? 'locked' : 'active';
+    const action = newStatus === 'active' ? 'mở khóa' : 'khóa';
     if (!confirm(`Bạn có chắc muốn ${action} học viên "${student.fullName}"?`)) return;
     try {
       await apiClient.patch(`/admin/students/${student.id}/status`, { status: newStatus });
@@ -84,7 +84,7 @@ export default function AdminStudentsPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'ACTIVE':
+      case 'active':
         return (
           <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
             Hoạt động
@@ -128,9 +128,9 @@ export default function AdminStudentsPage() {
           label="Trạng thái"
           options={[
             { label: 'Tất cả', value: '' },
-            { label: 'Hoạt động', value: 'ACTIVE' },
-            { label: 'Đã khóa', value: 'LOCKED' },
-            { label: 'Không hoạt động', value: 'INACTIVE' },
+            { label: 'Hoạt động', value: 'active' },
+            { label: 'Đã khóa', value: 'locked' },
+            { label: 'Không hoạt động', value: 'inactive' },
           ]}
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -183,7 +183,7 @@ export default function AdminStudentsPage() {
                           <Eye className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="icon" onClick={() => toggleStatus(student)}>
-                          {student.status === 'ACTIVE' ? (
+                          {student.status === 'active' ? (
                             <Lock className="h-4 w-4" />
                           ) : (
                             <Unlock className="h-4 w-4" />

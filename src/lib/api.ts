@@ -218,7 +218,7 @@ export const adminApi = {
   getStudents: (params?: { page?: number; limit?: number; q?: string; status?: string }) =>
     apiClient.get('/admin/users/students', { params }),
   getStudentById: (id: string) => apiClient.get(`/admin/users/students/${id}`),
-  updateStudentStatus: (id: string, status: 'ACTIVE' | 'LOCKED') =>
+  updateStudentStatus: (id: string, status: 'active' | 'locked') =>
     apiClient.patch(`/admin/users/students/${id}/status`, { status }),
   updateStudent: (
     id: string,
@@ -302,7 +302,7 @@ export const teacherApi = {
   getTransactions: (limit?: number) =>
     apiClient.get('/revenue/teacher/transactions', { params: { limit } }),
   getProfile: () => apiClient.get('/teacher-profiles/my-profile'),
-  updateProfile: (data: { fullName: string; phone?: string; bio?: string; expertise?: string }) =>
+  updateProfile: (data: { fullName: string; phone?: string; bio?: string; expertise?: string[] }) =>
     apiClient.put('/teacher-profiles/update', data),
   getPaymentSettings: () => apiClient.get('/payment/settings'),
   updatePaymentSettings: (data: { bankAccount: string; bankName: string; accountHolder: string }) =>
@@ -322,10 +322,8 @@ export const teacherApi = {
   createAnnouncement: (data: { courseId: string; title: string; content: string }) =>
     apiClient.post('/teacher/announcements', data),
   getCertificates: () => apiClient.get('/teacher/certificates'),
-  exportRevenueReport: () =>
-    apiClient.get('/teacher/reports/revenue/export', { responseType: 'blob' }),
-  exportStudentsReport: () =>
-    apiClient.get('/teacher/reports/students/export', { responseType: 'blob' }),
+  exportRevenueReport: () => apiClient.get('/reports/revenue/export', { responseType: 'blob' }),
+  exportStudentsReport: () => apiClient.get('/reports/students/export', { responseType: 'blob' }),
 };
 
 export const studentApi = {

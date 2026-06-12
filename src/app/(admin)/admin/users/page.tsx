@@ -33,7 +33,7 @@ interface User {
   fullName: string;
   email: string;
   role: 'admin' | 'teacher' | 'student';
-  status: 'ACTIVE' | 'LOCKED' | 'INACTIVE';
+  status: 'active' | 'locked' | 'inactive';
   createdAt: string;
 }
 
@@ -284,9 +284,9 @@ export default function AdminUsersPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ACTIVE">Hoạt động</SelectItem>
-                    <SelectItem value="LOCKED">Đã khóa</SelectItem>
-                    <SelectItem value="INACTIVE">Không hoạt động</SelectItem>
+                    <SelectItem value="active">Hoạt động</SelectItem>
+                    <SelectItem value="locked">Đã khóa</SelectItem>
+                    <SelectItem value="inactive">Không hoạt động</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
