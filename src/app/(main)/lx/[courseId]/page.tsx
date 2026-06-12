@@ -33,7 +33,7 @@ export default function LxPage() {
         ) : (
           <div
             className="prose max-w-none p-6 bg-white text-black rounded-xl"
-            dangerouslySetInnerHTML={{ __html: activeLesson.content }}
+            dangerouslySetInnerHTML={{ __html: activeLesson.content || '' }}
           />
         )}
       </div>

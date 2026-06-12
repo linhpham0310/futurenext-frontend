@@ -61,20 +61,6 @@ export default function TakeExamPage() {
   }, [id, user, router]);
 
   // Timer
-  useEffect(() => {
-    if (!exam || timeLeft <= 0) return;
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          handleSubmit(true);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [exam]);
 
   // Lưu answers vào localStorage
   useEffect(() => {
@@ -119,6 +105,21 @@ export default function TakeExamPage() {
       setSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (!exam || timeLeft <= 0) return;
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          handleSubmit(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [exam]);
 
   if (authLoading || loading)
     return (

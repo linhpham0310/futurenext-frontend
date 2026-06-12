@@ -18,13 +18,7 @@ import {
 import { apiClient } from '@/lib/api';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-
-interface Lesson {
-  id: string;
-  title: string;
-  type: 'VIDEO' | 'ARTICLE' | 'QUIZ';
-  orderIndex: number;
-}
+import { Lesson } from '@/types';
 
 interface Props {
   id: string;

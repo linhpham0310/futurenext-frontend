@@ -22,13 +22,8 @@ import { apiClient } from '@/lib/api';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
+import { Lesson } from '@/types';
 
-interface Lesson {
-  id: string;
-  title: string;
-  type: string;
-  orderIndex: number;
-}
 interface Section {
   id: string;
   title: string;

@@ -30,7 +30,7 @@ export default function CreateCoursePage() {
     handleSubmit,
     formState: { errors },
   } = useForm<CourseFormValues>({
-    resolver: zodResolver(courseSchema),
+    resolver: zodResolver(courseSchema) as any,
     defaultValues: { title: '', price: 0, description: '', thumbnailUrl: '' },
   });
 

@@ -36,13 +36,6 @@ export default function AdminDashboardPage() {
     if (!isLoading && !isAdmin) router.push('/forbidden');
   }, [isAdmin, isLoading, router]);
 
-  useEffect(() => {
-    if (isAdmin) {
-      fetchStats();
-      fetchRecentActivities();
-    }
-  }, [isAdmin]);
-
   const fetchStats = async () => {
     try {
       const response = await apiClient.get('/dashboard/admin/stats');
@@ -65,6 +58,13 @@ export default function AdminDashboardPage() {
       setActivitiesLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchStats();
+      fetchRecentActivities();
+    }
+  }, [isAdmin]);
 
   const formatRelativeTime = (timestamp: string) => {
     const date = new Date(timestamp);

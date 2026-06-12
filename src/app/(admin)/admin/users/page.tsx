@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { Spinner } from '@/components/ui/spinner';
@@ -58,11 +58,7 @@ export default function AdminUsersPage() {
     if (!authLoading && !isAdmin) router.push('/forbidden');
   }, [isAdmin, authLoading, router]);
 
-  useEffect(() => {
-    if (isAdmin) fetchUsers();
-  }, [search, roleFilter, page, isAdmin]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const response = await apiClient.get('/admin/users', {
@@ -70,12 +66,16 @@ export default function AdminUsersPage() {
       });
       setUsers(response.data.data);
       setTotalPages(response.data.meta.totalPages);
-    } catch (error) {
+    } catch {
       toast.error('Không thể tải danh sách người dùng');
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, roleFilter, page]);
+
+  useEffect(() => {
+    if (isAdmin) fetchUsers();
+  }, [isAdmin, fetchUsers]);
 
   const openEditDialog = (user: User) => {
     setEditingUser(user);
@@ -94,7 +94,7 @@ export default function AdminUsersPage() {
       toast.success('Cập nhật người dùng thành công');
       setEditingUser(null);
       fetchUsers();
-    } catch (error) {
+    } catch {
       toast.error('Cập nhật thất bại');
     } finally {
       setSubmitting(false);
@@ -107,7 +107,7 @@ export default function AdminUsersPage() {
       await apiClient.delete(`/admin/users/${id}`);
       toast.success('Xóa người dùng thành công');
       fetchUsers();
-    } catch (error) {
+    } catch {
       toast.error('Xóa thất bại');
     }
   };
@@ -127,13 +127,13 @@ export default function AdminUsersPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'ACTIVE':
+      case 'active':
         return (
           <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
             Hoạt động
           </span>
         );
-      case 'LOCKED':
+      case 'locked':
         return (
           <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Đã khóa</span>
         );

@@ -45,9 +45,14 @@ export interface CourseFilters {
 }
 
 // ========== Learning Types ==========
+
+export type LessonType = 'VIDEO' | 'ARTICLE' | 'QUIZ';
+
 export interface Lesson {
   id: string;
   title: string;
+  type: LessonType;
+
   description: string;
   videoUrl?: string;
   content: string;

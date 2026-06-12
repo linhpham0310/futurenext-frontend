@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { Spinner } from '@/components/ui/spinner';
@@ -56,11 +56,7 @@ export default function AdminTeacherProfilesPage() {
     if (!authLoading && !isAdmin) router.push('/forbidden');
   }, [isAdmin, authLoading, router]);
 
-  useEffect(() => {
-    if (isAdmin) fetchProfiles();
-  }, [search, statusFilter, page, isAdmin]);
-
-  const fetchProfiles = async () => {
+  const fetchProfiles = useCallback(async () => {
     setLoading(true);
     try {
       const response = await apiClient.get('/admin/teacher-profiles', {
@@ -68,19 +64,23 @@ export default function AdminTeacherProfilesPage() {
       });
       setProfiles(response.data.data);
       setTotalPages(response.data.totalPages);
-    } catch (error) {
+    } catch {
       toast.error('Không thể tải danh sách hồ sơ giáo viên');
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, statusFilter, page]);
+
+  useEffect(() => {
+    if (isAdmin) fetchProfiles();
+  }, [isAdmin, fetchProfiles]);
 
   const handleApprove = async (profileId: string) => {
     try {
       await apiClient.patch(`/admin/teacher-profiles/${profileId}/approve`);
       toast.success('Hồ sơ giáo viên đã được duyệt');
       fetchProfiles();
-    } catch (error) {
+    } catch {
       toast.error('Duyệt thất bại');
     }
   };
@@ -105,7 +105,7 @@ export default function AdminTeacherProfilesPage() {
       toast.success('Đã từ chối hồ sơ');
       setRejectDialogOpen(false);
       fetchProfiles();
-    } catch (error) {
+    } catch {
       toast.error('Từ chối thất bại');
     } finally {
       setSubmitting(false);
@@ -118,7 +118,7 @@ export default function AdminTeacherProfilesPage() {
       await apiClient.delete(`/admin/teacher-profiles/${profileId}`);
       toast.success('Xóa hồ sơ thành công');
       fetchProfiles();
-    } catch (error) {
+    } catch {
       toast.error('Xóa thất bại');
     }
   };

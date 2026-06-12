@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,11 +53,7 @@ export default function AdminCoursesPage() {
     if (!authLoading && !isAdmin) router.push('/forbidden');
   }, [isAdmin, authLoading, router]);
 
-  useEffect(() => {
-    if (isAdmin) fetchCourses();
-  }, [search, statusFilter, page, isAdmin]);
-
-  const fetchCourses = async () => {
+  const fetchCourses = useCallback(async () => {
     setLoading(true);
     try {
       const response = await apiClient.get('/admin/courses', {
@@ -65,12 +61,16 @@ export default function AdminCoursesPage() {
       });
       setCourses(response.data.data);
       setTotalPages(response.data.meta.totalPages);
-    } catch (error) {
+    } catch {
       toast.error('Không thể tải danh sách khóa học');
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, statusFilter, page]);
+
+  useEffect(() => {
+    if (isAdmin) fetchCourses();
+  }, [isAdmin, fetchCourses]);
 
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Bạn có chắc muốn xóa khóa học "${title}"? Hành động không thể hoàn tác.`)) return;
@@ -78,7 +78,7 @@ export default function AdminCoursesPage() {
       await apiClient.delete(`/admin/courses/${id}`);
       toast.success('Xóa khóa học thành công');
       fetchCourses();
-    } catch (error) {
+    } catch {
       toast.error('Xóa thất bại');
     }
   };
@@ -88,7 +88,7 @@ export default function AdminCoursesPage() {
       await apiClient.patch(`/admin/courses/${id}/approve`);
       toast.success('Khóa học đã được xuất bản');
       fetchCourses();
-    } catch (error) {
+    } catch {
       toast.error('Phê duyệt thất bại');
     }
   };
@@ -98,6 +98,7 @@ export default function AdminCoursesPage() {
     setRejectReason('');
     setRejectDialogOpen(true);
   };
+
   const handleReject = async () => {
     if (!selectedCourseId) return;
     if (!rejectReason.trim()) {
@@ -110,7 +111,7 @@ export default function AdminCoursesPage() {
       toast.success('Đã từ chối khóa học');
       setRejectDialogOpen(false);
       fetchCourses();
-    } catch (error) {
+    } catch {
       toast.error('Từ chối thất bại');
     } finally {
       setSubmitting(false);

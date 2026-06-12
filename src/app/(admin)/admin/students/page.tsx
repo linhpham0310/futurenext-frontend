@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent } from '@/components/ui/card';
@@ -39,11 +39,7 @@ export default function AdminStudentsPage() {
     if (!authLoading && !isAdmin) router.push('/forbidden');
   }, [isAdmin, authLoading, router]);
 
-  useEffect(() => {
-    if (isAdmin) fetchStudents();
-  }, [search, statusFilter, page, isAdmin]);
-
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     setLoading(true);
     try {
       const response = await apiClient.get('/admin/students', {
@@ -51,12 +47,16 @@ export default function AdminStudentsPage() {
       });
       setStudents(response.data.data);
       setTotalPages(response.data.meta.totalPages);
-    } catch (error) {
+    } catch {
       toast.error('Không thể tải danh sách học viên');
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, statusFilter, page]);
+
+  useEffect(() => {
+    if (isAdmin) fetchStudents();
+  }, [isAdmin, fetchStudents]);
 
   const toggleStatus = async (student: Student) => {
     const newStatus = student.status === 'active' ? 'locked' : 'active';
@@ -66,7 +66,7 @@ export default function AdminStudentsPage() {
       await apiClient.patch(`/admin/students/${student.id}/status`, { status: newStatus });
       toast.success(`Đã ${action} học viên`);
       fetchStudents();
-    } catch (error) {
+    } catch {
       toast.error('Thay đổi trạng thái thất bại');
     }
   };
@@ -77,7 +77,7 @@ export default function AdminStudentsPage() {
       await apiClient.delete(`/admin/students/${id}`);
       toast.success('Xóa học viên thành công');
       fetchStudents();
-    } catch (error) {
+    } catch {
       toast.error('Xóa thất bại');
     }
   };
@@ -90,7 +90,7 @@ export default function AdminStudentsPage() {
             Hoạt động
           </span>
         );
-      case 'LOCKED':
+      case 'locked':
         return (
           <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Đã khóa</span>
         );

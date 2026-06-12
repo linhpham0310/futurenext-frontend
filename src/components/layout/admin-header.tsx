@@ -284,9 +284,9 @@ export const AdminHeader = () => {
             <p className="text-xs text-slate-500">Quản trị viên</p>
           </div>
           <Avatar className="h-10 w-10 border-2 border-blue-200">
-            <AvatarImage src={user.avatarUrl || undefined} />
+            <AvatarImage src={user?.avatarUrl || undefined} />
             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
-              {getInitials(user.fullName)}
+              {getInitials(user?.fullName || '')}
             </AvatarFallback>
           </Avatar>
         </div>

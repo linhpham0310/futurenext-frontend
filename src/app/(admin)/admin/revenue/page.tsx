@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, TrendingUp, CreditCard } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
@@ -30,31 +30,23 @@ export default function AdminRevenuePage() {
 
   const [stats, setStats] = useState<RevenueStats | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
   const [txLoading, setTxLoading] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !isAdmin) router.push('/forbidden');
   }, [isAdmin, authLoading, router]);
 
-  useEffect(() => {
-    if (isAdmin) {
-      fetchStats();
-      fetchTransactions();
-    }
-  }, [isAdmin]);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const response = await apiClient.get('/revenue/admin/stats');
       setStats(response.data);
     } catch (error) {
       console.error(error);
-    } finally {
-      setLoading(false);
     }
-  };
-  const fetchTransactions = async () => {
+  }, []);
+
+  const fetchTransactions = useCallback(async () => {
+    setTxLoading(true);
     try {
       const response = await apiClient.get('/revenue/admin/transactions', {
         params: { limit: 20 },
@@ -65,7 +57,14 @@ export default function AdminRevenuePage() {
     } finally {
       setTxLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchStats();
+      fetchTransactions();
+    }
+  }, [isAdmin, fetchStats, fetchTransactions]);
 
   if (authLoading)
     return (

@@ -45,16 +45,16 @@ export function useProfile() {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const data = await usersApi.getProfile();
-      setProfileData(data); // Cập nhật state profile
-      setUserInAuth(data); // Cập nhật global auth store
+      const response = await usersApi.getProfile();
+      setProfileData(response.data); // Cập nhật state profile
+      setUserInAuth(response.data); // Cập nhật global auth store
       // Cập nhật giá trị default của form sau khi fetch thành công
       form.reset({
-        fullName: data.fullName,
-        avatarUrl: data.avatarUrl || '',
-        updatedAt: data.updatedAt, // QUAN TRỌNG: Lưu timestamp mới nhất
+        fullName: response.data.fullName,
+        avatarUrl: response.data.avatarUrl || '',
+        updatedAt: response.data.updatedAt, // QUAN TRỌNG: Lưu timestamp mới nhất
       });
-      console.log('[useProfile] Profile fetched:', data);
+      console.log('[useProfile] Profile fetched:', response.data);
     } catch (error: unknown) {
       console.error('[useProfile] Fetch failed:', error);
       const err = error as { message?: string };
@@ -96,18 +96,19 @@ export function useProfile() {
     try {
       // 1. Gọi API update
       // `data` đã bao gồm `updatedAt` từ form.reset()
-      const updatedUser = await usersApi.updateProfile(data);
+      const formData = form.getValues();
 
+      const { data: updatedUserData } = await usersApi.updateProfile(formData);
       // 2. Cập nhật thành công
-      console.log('Profile update API Success:', updatedUser);
+      console.log('Profile update API Success:', updatedUserData);
       setUpdateSuccess(true);
-      setProfileData(updatedUser); // Cập nhật state profile local
-      setUserInAuth(updatedUser); // Cập nhật global state
+      setProfileData(updatedUserData); // Cập nhật state profile local
+      setUserInAuth(updatedUserData); // Cập nhật global state
       // Reset form với dữ liệu MỚI NHẤT (đặc biệt là updatedAt mới)
       form.reset({
-        fullName: updatedUser.fullName,
-        avatarUrl: updatedUser.avatarUrl || '',
-        updatedAt: updatedUser.updatedAt, // QUAN TRỌNG: Cập nhật timestamp mới
+        fullName: updatedUserData.fullName,
+        avatarUrl: updatedUserData.avatarUrl || '',
+        updatedAt: updatedUserData.updatedAt, // QUAN TRỌNG: Cập nhật timestamp mới
       });
     } catch (error: unknown) {
       console.error('Profile update API Failed:', error);

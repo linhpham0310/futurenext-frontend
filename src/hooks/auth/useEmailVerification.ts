@@ -52,7 +52,7 @@ export function useEmailVerification() {
       const response = await authApi.verifyEmail(submissionData);
       console.log('Verification API Success:', response);
       setSuccessMessage(
-        response.message || 'Xác thực thành công! Đang chuyển đến trang đăng nhập...'
+        response.data?.message || 'Xác thực thành công! Đang chuyển đến trang đăng nhập...'
       );
       setIsRedirecting(true); // Start redirect state
 
