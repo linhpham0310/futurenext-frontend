@@ -343,12 +343,12 @@ export const studentApi = {
   createReview: (data: { courseId: string; rating: number; comment?: string }) =>
     apiClient.post('/student/reviews', data),
   deleteReview: (reviewId: string) => apiClient.delete(`/student/reviews/${reviewId}`),
-  getAssignedExams: () => apiClient.get('/lx/exams'),
-  getExamInfo: (id: string) => apiClient.get(`/lx/exams/${id}`),
-  takeExam: (id: string) => apiClient.get(`/lx/exams/${id}/take`),
+  getAssignedExams: () => apiClient.get('/student/exams'),
+  getExamInfo: (id: string) => apiClient.get(`/student/exams/${id}`),
+  takeExam: (id: string) => apiClient.get(`/student/exams/${id}/take`),
   submitExam: (id: string, answers: Record<string, string>) =>
-    apiClient.post(`/lx/exams/${id}/submit`, { answers }),
-  getExamResult: (id: string) => apiClient.get(`/lx/exams/${id}/result`),
+    apiClient.post(`/student/exams/${id}/submit`, { answers }),
+  getExamResult: (id: string) => apiClient.get(`/student/exams/${id}/result`),
   getRuntimeOverview: (courseId: string) => apiClient.get(`/lx/runtime/${courseId}`),
   getLessonContent: (lessonId: string) => apiClient.get(`/lx/lesson/${lessonId}`),
   updateLessonProgress: (lessonId: string, data: { status: string; lastPosition?: number }) =>

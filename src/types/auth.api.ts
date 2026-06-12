@@ -5,7 +5,7 @@ export interface User {
   id: string;
   fullName: string;
   email: string;
-  role: 'STUDENT' | 'TEACHER' | 'ADMIN';
+  role: 'student' | 'teacher' | 'admin';
   avatarUrl?: string | null;
   status: 'PENDING_EMAIL_VERIFY' | 'ACTIVE' | 'LOCKED';
   locale: string;
@@ -85,7 +85,7 @@ export interface AuthUser {
   id: string;
   fullName: string;
   email: string;
-  role: 'STUDENT' | 'TEACHER' | 'ADMIN';
+  role: 'student' | 'teacher' | 'admin';
   avatarUrl?: string | null;
   updatedAt?: string;
   teacherProfile?: {
@@ -98,9 +98,9 @@ export interface AuthUser {
 
 // ========== Enums nếu cần ==========
 export enum UserRole {
-  STUDENT = 'STUDENT',
-  TEACHER = 'TEACHER',
-  ADMIN = 'ADMIN',
+  STUDENT = 'student',
+  TEACHER = 'teacher',
+  ADMIN = 'admin',
 }
 
 export enum UserStatus {

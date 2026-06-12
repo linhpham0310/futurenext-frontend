@@ -66,9 +66,9 @@ export const useAuth = () => {
   const { user, accessToken, isAuthenticated, setAuth, clearAuth, updateUser, setAccessToken } =
     useAuthStore();
 
-  const isAdmin = user?.role === 'ADMIN';
-  const isTeacher = user?.role === 'TEACHER';
-  const isStudent = user?.role === 'STUDENT';
+  const isAdmin = user?.role === 'admin';
+  const isTeacher = user?.role === 'teacher';
+  const isStudent = user?.role === 'student';
   const isPendingTeacher = user?.teacherProfile?.status === 'PENDING';
 
   return {

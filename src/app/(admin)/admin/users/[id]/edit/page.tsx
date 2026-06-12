@@ -21,7 +21,7 @@ export default function EditUserPage() {
     fullName: '',
     email: '',
     phone: '',
-    role: 'STUDENT',
+    role: 'student',
     status: 'ACTIVE',
   });
 
@@ -111,9 +111,9 @@ export default function EditUserPage() {
             value={form.role}
             onChange={(e) => setForm({ ...form, role: e.target.value })}
           >
-            <option value="STUDENT">Học viên</option>
-            <option value="TEACHER">Giảng viên</option>
-            <option value="ADMIN">Quản trị viên</option>
+            <option value="student">Học viên</option>
+            <option value="teacher">Giảng viên</option>
+            <option value="admin">Quản trị viên</option>
           </select>
         </div>
         <div>

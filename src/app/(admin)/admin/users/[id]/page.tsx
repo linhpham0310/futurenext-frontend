@@ -52,9 +52,9 @@ export default function UserDetailPage() {
   if (!user) return <div className="p-8">Không tìm thấy người dùng</div>;
 
   const roleLabel: Record<string, string> = {
-    ADMIN: 'Quản trị viên',
-    TEACHER: 'Giảng viên',
-    STUDENT: 'Học viên',
+    admin: 'Quản trị viên',
+    teacher: 'Giảng viên',
+    student: 'Học viên',
   };
   const statusLabel: Record<string, string> = {
     ACTIVE: 'Hoạt động',

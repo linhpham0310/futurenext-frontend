@@ -32,7 +32,7 @@ interface User {
   id: string;
   fullName: string;
   email: string;
-  role: 'ADMIN' | 'TEACHER' | 'STUDENT';
+  role: 'admin' | 'teacher' | 'student';
   status: 'ACTIVE' | 'LOCKED' | 'INACTIVE';
   createdAt: string;
 }
@@ -116,9 +116,9 @@ export default function AdminUsersPage() {
 
   const getRoleLabel = (role: string) => {
     switch (role) {
-      case 'ADMIN':
+      case 'admin':
         return 'Quản trị viên';
-      case 'TEACHER':
+      case 'teacher':
         return 'Giảng viên';
       default:
         return 'Học viên';
@@ -174,9 +174,9 @@ export default function AdminUsersPage() {
           label="Vai trò"
           options={[
             { label: 'Tất cả', value: '' },
-            { label: 'Học viên', value: 'STUDENT' },
-            { label: 'Giảng viên', value: 'TEACHER' },
-            { label: 'Quản trị viên', value: 'ADMIN' },
+            { label: 'Học viên', value: 'student' },
+            { label: 'Giảng viên', value: 'teacher' },
+            { label: 'Quản trị viên', value: 'admin' },
           ]}
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
@@ -271,9 +271,9 @@ export default function AdminUsersPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="STUDENT">Học viên</SelectItem>
-                    <SelectItem value="TEACHER">Giảng viên</SelectItem>
-                    <SelectItem value="ADMIN">Quản trị viên</SelectItem>
+                    <SelectItem value="student">Học viên</SelectItem>
+                    <SelectItem value="teacher">Giảng viên</SelectItem>
+                    <SelectItem value="admin">Quản trị viên</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
