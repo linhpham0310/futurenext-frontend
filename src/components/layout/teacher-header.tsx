@@ -98,16 +98,8 @@ export const TeacherHeader = () => {
     }
     setSearchLoading(true);
     try {
-      const res = await apiClient.get('/search/courses', { params: { q } });
-      const courses = res.data?.items ?? res.data ?? [];
-      setSearchResults(
-        courses.map((c: any) => ({
-          id: c.id,
-          label: c.title,
-          type: 'course' as const,
-          link: `/teacher/courses/${c.id}`,
-        }))
-      );
+      const res = await apiClient.get('/teacher/search', { params: { q } });
+      setSearchResults(res.data);
     } catch (error) {
       console.error(error);
       setSearchResults([]);

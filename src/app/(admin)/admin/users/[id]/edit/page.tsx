@@ -1,4 +1,3 @@
-// src/app/(admin)/admin/users/[id]/edit/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -22,7 +21,7 @@ export default function EditUserPage() {
     email: '',
     phone: '',
     role: 'student',
-    status: 'ACTIVE',
+    status: 'active',
   });
 
   useEffect(() => {
@@ -41,7 +40,7 @@ export default function EditUserPage() {
             role: data.role,
             status: data.status,
           });
-        } catch (error) {
+        } catch {
           toast.error('Không tải được thông tin người dùng');
         } finally {
           setLoading(false);
@@ -58,26 +57,20 @@ export default function EditUserPage() {
       await apiClient.put(`/admin/users/${id}`, form);
       toast.success('Cập nhật người dùng thành công');
       router.push(`/admin/users/${id}`);
-    } catch (error) {
+    } catch {
       toast.error('Cập nhật thất bại');
     } finally {
       setSaving(false);
     }
   };
 
-  if (authLoading)
+  if (authLoading || loading)
     return (
       <div className="p-8 flex justify-center">
         <Spinner />
       </div>
     );
   if (!isAdmin) return null;
-  if (loading)
-    return (
-      <div className="p-8 flex justify-center">
-        <Spinner />
-      </div>
-    );
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
@@ -123,9 +116,8 @@ export default function EditUserPage() {
             value={form.status}
             onChange={(e) => setForm({ ...form, status: e.target.value })}
           >
-            <option value="ACTIVE">Hoạt động</option>
-            <option value="LOCKED">Đã khóa</option>
-            <option value="INACTIVE">Không hoạt động</option>
+            <option value="active">Hoạt động</option>
+            <option value="locked">Đã khóa</option>
           </select>
         </div>
         <div className="flex gap-2">

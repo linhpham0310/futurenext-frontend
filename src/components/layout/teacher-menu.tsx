@@ -23,7 +23,6 @@ import {
   DollarSign,
   Users,
   Bot,
-  Megaphone,
   Award,
   FileText,
   CreditCard,

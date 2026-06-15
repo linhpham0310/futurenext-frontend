@@ -8,57 +8,67 @@ export * from './auth.api';
 export interface Course {
   id: string;
   title: string;
-  description: string;
-  thumbnail?: string;
-  instructor: {
-    id: string;
-    name: string;
-    avatar: string;
-  };
-  category: string;
-  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  slug: string;
+  description: string | null;
+  thumbnailUrl: string | null;
   price: number;
-  originalPrice?: number;
-  rating?: number;
-  totalRatings: number;
-  totalStudents: number;
-  duration?: string;
-  lessons: number;
-  lastUpdated: string;
-  tags: string[];
-  bestseller?: boolean;
-  featured?: boolean;
+  status: 'DRAFT' | 'SUBMITTED' | 'PUBLISHED' | 'REJECTED';
   instructorId: string;
-  students?: number;
-  assignments: Assignment[];
-  isEnrolled?: boolean;
-  progress?: number;
+  instructor?: {
+    id: string;
+    fullName: string;
+    avatarUrl?: string | null;
+  };
   outcomes?: string[];
+  createdAt: string;
+  updatedAt: string;
+  students?: number; // tổng số học viên đã mua
+  progress?: number; // tiến độ của học viên (0-100)
+  isEnrolled?: boolean; // học viên hiện tại đã ghi danh chưa
+  sections?: Section[]; // nếu include
 }
 
-export interface CourseFilters {
-  search: string;
-  category: string;
-  level: string;
-  priceRange: string;
-  rating: string;
+export interface Section {
+  id: string;
+  title: string;
+  orderIndex: number;
+  courseId: string;
+  lessons?: Lesson[];
+  createdAt: string;
+  updatedAt: string;
 }
-
-// ========== Learning Types ==========
-
-export type LessonType = 'VIDEO' | 'ARTICLE' | 'QUIZ';
 
 export interface Lesson {
   id: string;
   title: string;
-  type: LessonType;
+  slug: string;
+  type: 'VIDEO' | 'ARTICLE' | 'QUIZ' | 'LAB';
+  content?: string; // nội dung hoặc URL video
+  duration?: number; // phút
+  isFreePreview: boolean;
+  orderIndex: number;
+  sectionId: string;
+  courseId?: string;
+  aiMetadata?: any;
+  createdAt: string;
+  updatedAt: string;
+  userProgress?: {
+    status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+    lastPosition: number;
+    score?: number;
+  };
+}
 
-  description: string;
-  videoUrl?: string;
-  content: string;
-  duration: number;
-  isCompleted: boolean;
-  order: number;
+// ========== Learning Types  ==========
+export type LessonProgressStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+
+export interface LessonProgress {
+  lessonId: string;
+  status: LessonProgressStatus;
+  lastPosition: number;
+  score?: number;
+  metadata?: Record<string, any>;
+  completedAt?: string;
 }
 
 export interface Assignment {

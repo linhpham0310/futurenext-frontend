@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { Label } from '@/components/ui/label'; // [KẾ THỪA S1]
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ResetPasswordSchema, ResetPasswordInput } from '@/lib/schemas/auth.schema';
+import { resetPasswordSchema, ResetPasswordFormData } from '@/lib/schemas/auth.schema';
 import { useResetPassword } from '@/hooks/auth/useResetPassword';
 
 export const ResetPasswordForm = () => {
@@ -19,9 +19,9 @@ export const ResetPasswordForm = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ResetPasswordInput>({
-    resolver: zodResolver(ResetPasswordSchema),
-    defaultValues: { email: emailFromUrl },
+  } = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: { email: emailFromUrl, otp: '', newPassword: '', confirmNewPassword: '' },
   });
 
   return (
@@ -44,21 +44,23 @@ export const ResetPasswordForm = () => {
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="password">Mật khẩu mới</Label>
-        <Input {...register('password')} id="password" type="password" disabled={isLoading} />
-        {errors.password && <p className="text-xs text-red-1000">{errors.password.message}</p>}
+        <Label htmlFor="newPassword">Mật khẩu mới</Label>
+        <Input {...register('newPassword')} id="newPassword" type="password" disabled={isLoading} />
+        {errors.newPassword && (
+          <p className="text-xs text-red-1000">{errors.newPassword.message}</p>
+        )}
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
+        <Label htmlFor="confirmNewPassword">Xác nhận mật khẩu</Label>
         <Input
-          {...register('confirmPassword')}
-          id="confirmPassword"
+          {...register('confirmNewPassword')}
+          id="confirmNewPassword"
           type="password"
           disabled={isLoading}
         />
-        {errors.confirmPassword && (
-          <p className="text-xs text-red-500">{errors.confirmPassword.message}</p>
+        {errors.confirmNewPassword && (
+          <p className="text-xs text-red-500">{errors.confirmNewPassword.message}</p>
         )}
       </div>
 

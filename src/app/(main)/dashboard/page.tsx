@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { courseApi, apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -33,8 +33,8 @@ export default function StudentDashboard() {
     const fetchDashboard = async () => {
       try {
         const [statsRes, coursesRes] = await Promise.all([
-          apiClient.get('/student/dashboard/stats'),
-          apiClient.get('/student/dashboard/recent-courses', { params: { limit: 3 } }),
+          apiClient.get('/dashboard/student/stats'), // sửa endpoint
+          apiClient.get('/dashboard/student/recent-courses', { params: { limit: 3 } }), // sửa endpoint
         ]);
         setStats(statsRes.data);
         setRecentCourses(coursesRes.data);
@@ -112,7 +112,6 @@ export default function StudentDashboard() {
         </p>
       </div>
 
-      {/* Thống kê nhanh */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {statItems.map((stat) => (
           <Link href={stat.href} key={stat.title}>
@@ -131,7 +130,6 @@ export default function StudentDashboard() {
         ))}
       </div>
 
-      {/* Hành động nhanh */}
       <Card>
         <CardHeader>
           <CardTitle>Hành động nhanh</CardTitle>
@@ -148,7 +146,6 @@ export default function StudentDashboard() {
         </CardContent>
       </Card>
 
-      {/* Khóa học gần đây */}
       <Card>
         <CardHeader>
           <CardTitle>Tiếp tục học</CardTitle>

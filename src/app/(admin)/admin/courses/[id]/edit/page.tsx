@@ -34,7 +34,7 @@ export default function EditCoursePage() {
             price: data.price,
             status: data.status,
           });
-        } catch (error) {
+        } catch {
           toast.error('Không tải được thông tin khóa học');
         } finally {
           setLoading(false);
@@ -51,26 +51,20 @@ export default function EditCoursePage() {
       await apiClient.put(`/admin/courses/${id}`, form);
       toast.success('Cập nhật khóa học thành công');
       router.push(`/admin/courses/${id}`);
-    } catch (error) {
+    } catch {
       toast.error('Cập nhật thất bại');
     } finally {
       setSaving(false);
     }
   };
 
-  if (authLoading)
+  if (authLoading || loading)
     return (
       <div className="p-8 flex justify-center">
         <Spinner />
       </div>
     );
   if (!isAdmin) return null;
-  if (loading)
-    return (
-      <div className="p-8 flex justify-center">
-        <Spinner />
-      </div>
-    );
 
   return (
     <div className="p-6 max-w-3xl mx-auto">

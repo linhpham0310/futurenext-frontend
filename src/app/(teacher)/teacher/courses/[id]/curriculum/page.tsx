@@ -18,7 +18,7 @@ export default function CurriculumMappingPage({ params }: { params: { id: string
 
   const handleUpdateTags = async (lessonId: string, concepts: string[]) => {
     try {
-      await apiClient.patch(`/courses/${params.id}/lessons/${lessonId}/metadata`, {
+      await apiClient.patch(`/teacher/courses/${params.id}/lessons/${lessonId}/metadata`, {
         keyConcepts: concepts,
       });
       toast.success('Đã cập nhật AI Metadata');

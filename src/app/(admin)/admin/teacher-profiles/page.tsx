@@ -24,13 +24,11 @@ import { useAuth } from '@/hooks/auth/useAuth';
 
 interface TeacherProfile {
   id: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  expertise: string;
+  user: { fullName: string; email: string };
   bio: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  submittedAt: string;
+  expertise: string[];
+  status: 'pending_review' | 'approved' | 'rejected';
+  createdAt: string;
 }
 
 export default function AdminTeacherProfilesPage() {
@@ -60,10 +58,10 @@ export default function AdminTeacherProfilesPage() {
     setLoading(true);
     try {
       const response = await apiClient.get('/admin/teacher-profiles', {
-        params: { q: search || undefined, status: statusFilter || undefined, page, limit },
+        params: { q: search, status: statusFilter || undefined, page, limit },
       });
-      setProfiles(response.data.data);
-      setTotalPages(response.data.totalPages);
+      setProfiles(response.data.data.items);
+      setTotalPages(response.data.data.meta.totalPages);
     } catch {
       toast.error('Không thể tải danh sách hồ sơ giáo viên');
     } finally {
@@ -130,19 +128,19 @@ export default function AdminTeacherProfilesPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'APPROVED':
+      case 'approved':
         return (
           <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
             Đã duyệt
           </span>
         );
-      case 'PENDING':
+      case 'pending_review':
         return (
           <span className="text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full text-xs">
             Chờ duyệt
           </span>
         );
-      case 'REJECTED':
+      case 'rejected':
         return (
           <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Từ chối</span>
         );
@@ -176,9 +174,9 @@ export default function AdminTeacherProfilesPage() {
           label="Trạng thái"
           options={[
             { label: 'Tất cả', value: '' },
-            { label: 'Chờ duyệt', value: 'PENDING' },
-            { label: 'Đã duyệt', value: 'APPROVED' },
-            { label: 'Từ chối', value: 'REJECTED' },
+            { label: 'Chờ duyệt', value: 'pending_review' },
+            { label: 'Đã duyệt', value: 'approved' },
+            { label: 'Từ chối', value: 'rejected' },
           ]}
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -213,19 +211,19 @@ export default function AdminTeacherProfilesPage() {
               ) : (
                 profiles.map((profile) => (
                   <tr key={profile.id} className="border-t hover:bg-muted/50">
-                    <td className="p-4 font-medium">{profile.fullName}</td>
-                    <td className="p-4">{profile.email}</td>
-                    <td className="p-4">{profile.expertise}</td>
+                    <td className="p-4 font-medium">{profile.user.fullName}</td>
+                    <td className="p-4">{profile.user.email}</td>
+                    <td className="p-4">{profile.expertise?.join(', ') || ''}</td>
                     <td className="p-4">{getStatusBadge(profile.status)}</td>
                     <td className="p-4">
-                      {new Date(profile.submittedAt).toLocaleDateString('vi-VN')}
+                      {new Date(profile.createdAt).toLocaleDateString('vi-VN')}
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">
                         <Button variant="ghost" size="icon" onClick={() => viewDetail(profile)}>
                           <Eye className="h-4 w-4" />
                         </Button>
-                        {profile.status === 'PENDING' && (
+                        {profile.status === 'pending_review' && (
                           <>
                             <Button
                               variant="ghost"
@@ -299,23 +297,29 @@ export default function AdminTeacherProfilesPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Họ tên</p>
-                  <p className="font-medium">{viewingProfile.fullName}</p>
+                  <p className="font-medium">{viewingProfile.user.fullName}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="font-medium">{viewingProfile.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Số điện thoại</p>
-                  <p className="font-medium">{viewingProfile.phone}</p>
+                  <p className="font-medium">{viewingProfile.user.email}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Chuyên môn</p>
-                  <p className="font-medium">{viewingProfile.expertise}</p>
+                  <p className="font-medium">{viewingProfile.expertise?.join(', ') || ''}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Trạng thái</p>
+                  <p className="font-medium">
+                    {viewingProfile.status === 'approved'
+                      ? 'Đã duyệt'
+                      : viewingProfile.status === 'pending_review'
+                        ? 'Chờ duyệt'
+                        : 'Từ chối'}
+                  </p>
                 </div>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Giới thiệu / Tiểu sử</p>
+                <p className="text-sm text-muted-foreground">Tiểu sử</p>
                 <p className="mt-1 whitespace-pre-wrap">{viewingProfile.bio}</p>
               </div>
             </div>

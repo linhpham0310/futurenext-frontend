@@ -6,8 +6,8 @@ import { DollarSign, TrendingUp, CreditCard } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Spinner } from '@/components/ui/spinner';
 import { apiClient } from '@/lib/api';
-import { useAuth } from '@/hooks/auth/useAuth';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/auth/useAuth';
 
 interface RevenueStats {
   monthlyRevenue: number;

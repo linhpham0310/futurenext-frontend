@@ -14,6 +14,7 @@ import {
   FileText,
   HelpCircle,
   Plus,
+  Trash2,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { toast } from 'sonner';
@@ -95,6 +96,17 @@ export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitl
     }
   };
 
+  const handleDeleteLesson = async (lessonId: string) => {
+    if (!confirm('Xóa bài học này?')) return;
+    try {
+      await apiClient.delete(`/teacher/courses/${courseId}/lessons/${lessonId}`);
+      setLocalLessons((prev) => prev.filter((l) => l.id !== lessonId));
+      toast.success('Xóa bài học thành công');
+    } catch {
+      toast.error('Xóa thất bại');
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -160,6 +172,12 @@ export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitl
                 className="text-xs text-blue-500 hover:underline"
               >
                 Sửa nội dung
+              </button>
+              <button
+                onClick={() => handleDeleteLesson(lesson.id)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <Trash2 className="h-4 w-4" />
               </button>
             </div>
           ))}

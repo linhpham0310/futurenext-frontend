@@ -16,7 +16,7 @@ export default function EditStudentPage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ fullName: '', email: '', phone: '', status: 'ACTIVE' });
+  const [form, setForm] = useState({ fullName: '', email: '', phone: '', status: 'active' });
 
   useEffect(() => {
     if (!authLoading && !isAdmin) router.push('/forbidden');
@@ -33,7 +33,7 @@ export default function EditStudentPage() {
             phone: data.phone || '',
             status: data.status,
           });
-        } catch (error) {
+        } catch {
           toast.error('Không tải được thông tin học viên');
         } finally {
           setLoading(false);
@@ -50,26 +50,20 @@ export default function EditStudentPage() {
       await apiClient.put(`/admin/students/${id}`, form);
       toast.success('Cập nhật học viên thành công');
       router.push(`/admin/students/${id}`);
-    } catch (error) {
+    } catch {
       toast.error('Cập nhật thất bại');
     } finally {
       setSaving(false);
     }
   };
 
-  if (authLoading)
+  if (authLoading || loading)
     return (
       <div className="p-8 flex justify-center">
         <Spinner />
       </div>
     );
   if (!isAdmin) return null;
-  if (loading)
-    return (
-      <div className="p-8 flex justify-center">
-        <Spinner />
-      </div>
-    );
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
@@ -103,9 +97,8 @@ export default function EditStudentPage() {
             value={form.status}
             onChange={(e) => setForm({ ...form, status: e.target.value })}
           >
-            <option value="ACTIVE">Hoạt động</option>
-            <option value="LOCKED">Đã khóa</option>
-            <option value="INACTIVE">Không hoạt động</option>
+            <option value="active">Hoạt động</option>
+            <option value="locked">Đã khóa</option>
           </select>
         </div>
         <div className="flex gap-2">

@@ -26,7 +26,7 @@ interface Course {
   id: string;
   title: string;
   instructor: { id: string; fullName: string; email: string } | string;
-  status: 'PENDING' | 'PUBLISHED' | 'REJECTED' | 'DRAFT';
+  status: 'DRAFT' | 'SUBMITTED' | 'PUBLISHED' | 'REJECTED';
   students: number;
   revenue: number;
   createdAt: string;
@@ -126,7 +126,7 @@ export default function AdminCoursesPage() {
             Đã xuất bản
           </span>
         );
-      case 'PENDING':
+      case 'SUBMITTED':
         return (
           <span className="text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full text-xs">
             Chờ duyệt
@@ -167,7 +167,7 @@ export default function AdminCoursesPage() {
           label="Trạng thái"
           options={[
             { label: 'Tất cả', value: '' },
-            { label: 'Chờ duyệt', value: 'PENDING' },
+            { label: 'Chờ duyệt', value: 'SUBMITTED' },
             { label: 'Đã xuất bản', value: 'PUBLISHED' },
             { label: 'Từ chối', value: 'REJECTED' },
             { label: 'Bản nháp', value: 'DRAFT' },
@@ -230,7 +230,7 @@ export default function AdminCoursesPage() {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        {course.status === 'PENDING' && (
+                        {course.status === 'SUBMITTED' && (
                           <>
                             <Button
                               variant="ghost"

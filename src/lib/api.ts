@@ -1,7 +1,7 @@
 // src/lib/api.ts
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { AuthUser, RegisterRequest, RegisterResponse } from '@/types/auth.api';
-import { LoginFormData, VerifyEmailFormData } from './schemas/auth.schema';
+import { LoginFormData, VerifyEmailFormData, ResetPasswordFormData } from './schemas/auth.schema';
 import { useAuthStore } from '@/store/authStore';
 import { UpdateProfileFormData } from './schemas/user.schema';
 
@@ -135,10 +135,12 @@ apiClient.interceptors.response.use(
   }
 );
 
+// ==================== AUTH API ====================
 export const authApi = {
   register: (data: RegisterRequest) => apiClient.post<RegisterResponse>('/auth/register', data),
   verifyEmail: (data: VerifyEmailFormData) =>
     apiClient.post<{ message: string }>('/auth/verify-email', data),
+  // Backend không có endpoint resend-otp, có thể bỏ hoặc giữ để sau
   resendOtp: (data: { email: string }) =>
     apiClient.post<{ message: string }>('/auth/resend-otp', data),
   login: async (data: LoginFormData): Promise<LoginSuccessResponse> => {
@@ -160,12 +162,12 @@ export const authApi = {
     return response.data;
   },
   forgotPassword: (data: { email: string }) => apiClient.post('/auth/forgot-password', data),
-  resetPassword: (data: { email: string; otp: string; newPassword: string }) =>
-    apiClient.post('/auth/reset-password', data),
+  resetPassword: (data: ResetPasswordFormData) => apiClient.post('/auth/reset-password', data),
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
     apiClient.patch('/auth/change-password', data),
 };
 
+// ==================== USERS API ====================
 export const usersApi = {
   getProfile: () => apiClient.get<AuthUser>('/users/me/profile'),
   updateProfile: (data: UpdateProfileFormData) =>
@@ -173,6 +175,7 @@ export const usersApi = {
   getMyCourses: () => apiClient.get('/courses/my-courses'),
 };
 
+// ==================== TEACHER PROFILES API ====================
 export const teacherProfilesApi = {
   submit: (data: { bio: string; expertise: string[] }) =>
     apiClient.post('/teacher-profiles/submit', data),
@@ -181,6 +184,7 @@ export const teacherProfilesApi = {
   getMyProfile: () => apiClient.get('/teacher-profiles/my-profile'),
 };
 
+// ==================== COURSE API ====================
 export const courseApi = {
   getPublicCourses: (params?: { page?: number; limit?: number; search?: string; level?: string }) =>
     apiClient.get('/courses/public', { params }),
@@ -189,13 +193,18 @@ export const courseApi = {
   getCourse: (id: string) => apiClient.get(`/courses/${id}`),
   createDraft: (data: any) => apiClient.post('/courses/draft', data),
   updateCourse: (id: string, data: any) => apiClient.patch(`/courses/${id}`, data),
-  getUploadUrl: (courseId: string, fileName: string, fileType: string) =>
-    apiClient.get(`/courses/${courseId}/upload-url`, { params: { fileName, fileType } }),
+  getUploadUrl: async (courseId: string, fileName: string, fileType: string) => {
+    const response = await apiClient.get(`/courses/${courseId}/upload-url`, {
+      params: { fileName, fileType },
+    });
+    return response.data;
+  },
   processReview: (courseId: string, action: string, reason?: string) =>
     apiClient.patch(`/courses/${courseId}/review`, { action, reason }),
   getAdminDetail: (courseId: string) => apiClient.get(`/courses/${courseId}/admin-detail`),
 };
 
+// ==================== ADMIN API ====================
 export const adminApi = {
   getDashboardStats: () => apiClient.get('/dashboard/admin/stats'),
   getRecentActivities: (limit?: number) =>
@@ -247,6 +256,7 @@ export const adminApi = {
     apiClient.get('/revenue/admin/transactions', { params: { limit } }),
 };
 
+// ==================== TEACHER API ====================
 export const teacherApi = {
   getDashboardStats: () => apiClient.get('/teacher/courses/dashboard/stats'),
   getMyCourses: (params?: { status?: string; page?: number; limit?: number }) =>
@@ -326,6 +336,7 @@ export const teacherApi = {
   exportStudentsReport: () => apiClient.get('/reports/students/export', { responseType: 'blob' }),
 };
 
+// ==================== STUDENT API ====================
 export const studentApi = {
   getMyCourses: () => apiClient.get('/courses/my-enrolled'),
   getPublicCourses: (params?: { search?: string; page?: number; limit?: number }) =>
@@ -357,6 +368,7 @@ export const studentApi = {
   search: (q: string) => apiClient.get('/search/courses', { params: { q } }),
 };
 
+// ==================== COMMON API ====================
 export const commonApi = {
   getNotifications: (params?: { limit?: number }) => apiClient.get('/notifications', { params }),
   getUnreadCount: () => apiClient.get('/notifications/unread-count'),
@@ -365,6 +377,7 @@ export const commonApi = {
   search: (q: string) => apiClient.get('/search/courses', { params: { q } }),
 };
 
+// ==================== LX API ====================
 export const lxApi = {
   testAiLog: (data: {
     lessonId: string;

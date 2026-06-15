@@ -7,7 +7,8 @@ export interface User {
   email: string;
   role: 'student' | 'teacher' | 'admin';
   avatarUrl?: string | null;
-  status: 'PENDING_EMAIL_VERIFY' | 'ACTIVE' | 'LOCKED';
+  phone?: string | null;
+  status: 'pending_email_verify' | 'active' | 'locked';
   locale: string;
   timezone: string;
   lastLoginAt?: string;
@@ -21,6 +22,7 @@ export interface RegisterRequest {
   fullName: string;
   email: string;
   password: string;
+  confirmPassword?: string;
   agreeTerms: boolean;
   role: 'student' | 'teacher';
 }
@@ -31,6 +33,7 @@ export interface LoginRequest {
 }
 
 export interface VerifyEmailRequest {
+  email: string;
   otp: string;
 }
 
@@ -41,17 +44,19 @@ export interface ResendOtpRequest {
 export interface UpdateProfileRequest {
   fullName?: string;
   avatarUrl?: string | null;
-  updatedAt: string; // Optimistic lock
+  phone?: string | null; // Optimistic lock
 }
 
 // ========== Auth Response Types ==========
 export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
-  user: Omit<
-    User,
-    'status' | 'locale' | 'timezone' | 'lastLoginAt' | 'lockedUntil' | 'createdAt' | 'updatedAt'
-  >;
+  user: {
+    id: string;
+    fullName: string;
+    email: string;
+    role: 'student' | 'teacher' | 'admin';
+  };
 }
 
 export interface RefreshTokenResponse {
@@ -87,12 +92,13 @@ export interface AuthUser {
   email: string;
   role: 'student' | 'teacher' | 'admin';
   avatarUrl?: string | null;
+  phone?: string | null;
   updatedAt?: string;
   teacherProfile?: {
     id: string;
     bio: string;
     expertise: string[];
-    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    status: 'pending_review' | 'approved' | 'rejected';
   };
 }
 
@@ -104,12 +110,12 @@ export enum UserRole {
 }
 
 export enum UserStatus {
-  PENDING_EMAIL_VERIFY = 'PENDING_EMAIL_VERIFY',
-  ACTIVE = 'ACTIVE',
-  LOCKED = 'LOCKED',
+  PENDING_EMAIL_VERIFY = 'pending_email_verify',
+  ACTIVE = 'active',
+  LOCKED = 'locked',
 }
 
-export type TeacherProfileStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type TeacherProfileStatus = 'pending_review' | 'approved' | 'rejected';
 
 export interface TeacherProfile {
   id: string;

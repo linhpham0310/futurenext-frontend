@@ -66,7 +66,7 @@ export const useAuth = () => {
   const isAdmin = user?.role === 'admin';
   const isTeacher = user?.role === 'teacher';
   const isStudent = user?.role === 'student';
-  const isPendingTeacher = user?.teacherProfile?.status === 'PENDING';
+  const isPendingTeacher = user?.teacherProfile?.status === 'pending_review';
 
   return {
     user,

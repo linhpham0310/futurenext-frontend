@@ -5,6 +5,7 @@ import { useLXStore } from '@/store/use-lx-store';
 import { Spinner } from '@/components/ui/spinner';
 import { LessonNavigationControls } from './_components/lesson-navigation-controls';
 import { CourseWelcomeOverview } from './_components/course-welcome-overview';
+import DOMPurify from 'dompurify';
 
 export default function LxPage() {
   const searchParams = useSearchParams();
@@ -33,7 +34,7 @@ export default function LxPage() {
         ) : (
           <div
             className="prose max-w-none p-6 bg-white text-black rounded-xl"
-            dangerouslySetInnerHTML={{ __html: activeLesson.content || '' }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(activeLesson.content || '') }}
           />
         )}
       </div>

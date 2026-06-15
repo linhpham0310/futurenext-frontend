@@ -16,7 +16,7 @@ interface CourseDetail {
   id: string;
   title: string;
   description: string;
-  status: 'DRAFT' | 'PENDING_REVIEW' | 'PUBLISHED' | 'REJECTED';
+  status: 'DRAFT' | 'SUBMITTED' | 'PUBLISHED' | 'REJECTED';
   price: number;
   thumbnailUrl: string;
   sections: { id: string; title: string; lessons: { id: string; title: string; type: string }[] }[];
@@ -93,7 +93,7 @@ export default function CourseDetailPage() {
     switch (course.status) {
       case 'PUBLISHED':
         return <Badge className="bg-green-100 text-green-800">Đã xuất bản</Badge>;
-      case 'PENDING_REVIEW':
+      case 'SUBMITTED':
         return <Badge className="bg-yellow-100 text-yellow-800">Chờ duyệt</Badge>;
       case 'REJECTED':
         return <Badge className="bg-red-100 text-red-800">Bị từ chối</Badge>;
@@ -120,7 +120,7 @@ export default function CourseDetailPage() {
               <Send className="h-4 w-4 mr-1" /> Gửi duyệt
             </Button>
           )}
-          {course.status === 'PENDING_REVIEW' && (
+          {course.status === 'SUBMITTED' && (
             <Button disabled variant="outline">
               Đang chờ duyệt
             </Button>

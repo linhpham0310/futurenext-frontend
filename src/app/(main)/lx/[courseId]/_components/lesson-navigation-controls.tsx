@@ -29,7 +29,7 @@ export const LessonNavigationControls = () => {
       await apiClient.patch(`/lx/lessons/${activeLesson.id}/progress`, {
         status: 'COMPLETED',
       });
-      updateLessonProgressLocal(activeLesson.id, 'COMPLETED', Number(courseId));
+      updateLessonProgressLocal(activeLesson.id, 'COMPLETED', activeLesson.lastPosition ?? 0);
       toast.success('Chúc mừng! Bạn đã hoàn thành bài học này.');
       if (nextLesson) await navigateToLesson(nextLesson.id);
     } catch {

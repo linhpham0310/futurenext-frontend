@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { apiClient } from '@/lib/api';
+import { apiClient, commonApi } from '@/lib/api';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ThemeToggle } from './theme-toggle';
 import { StudentMenu } from './student-menu';
@@ -36,7 +36,7 @@ interface Notification {
 interface SearchResult {
   id: string;
   label: string;
-  type: 'user' | 'course';
+  type: 'course';
   link: string;
 }
 
@@ -57,8 +57,8 @@ export const StudentHeader = () => {
     try {
       setNotifLoading(true);
       const [notifRes, countRes] = await Promise.all([
-        apiClient.get('/student/notifications', { params: { limit: 20 } }),
-        apiClient.get('/student/notifications/unread-count'),
+        commonApi.getNotifications({ limit: 20 }),
+        commonApi.getUnreadCount(),
       ]);
       setNotifications(notifRes.data);
       setUnreadCount(countRes.data.count);
@@ -71,7 +71,7 @@ export const StudentHeader = () => {
 
   const markAsRead = async (id: string, link: string) => {
     try {
-      await apiClient.patch(`/student/notifications/${id}/read`);
+      await commonApi.markNotificationRead(id);
       setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
       setUnreadCount((prev) => Math.max(0, prev - 1));
       router.push(link);
@@ -83,7 +83,7 @@ export const StudentHeader = () => {
 
   const markAllAsRead = async () => {
     try {
-      await apiClient.patch('/student/notifications/mark-all-read');
+      await commonApi.markAllNotificationsRead();
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
       toast.success('Đã đánh dấu tất cả thông báo là đã đọc');
@@ -100,8 +100,17 @@ export const StudentHeader = () => {
     }
     setSearchLoading(true);
     try {
-      const res = await apiClient.get('/student/search', { params: { q } });
-      setSearchResults(res.data);
+      const res = await apiClient.get('/search/courses', { params: { q } });
+      const courses = res.data?.items ?? res.data ?? [];
+
+      setSearchResults(
+        courses.map((c: any) => ({
+          id: c.id,
+          label: c.title,
+          type: 'course',
+          link: `/courses/${c.id}`,
+        }))
+      );
     } catch (error) {
       console.error(error);
       setSearchResults([]);
@@ -193,9 +202,7 @@ export const StudentHeader = () => {
                 >
                   <div>
                     <p className="text-sm font-medium">{item.label}</p>
-                    <p className="text-xs text-slate-400">
-                      {item.type === 'user' ? 'Người dùng' : 'Khóa học'}
-                    </p>
+                    <p className="text-xs text-slate-400">Khóa học</p>
                   </div>
                   <ChevronRight className="h-4 w-4 text-slate-400" />
                 </div>

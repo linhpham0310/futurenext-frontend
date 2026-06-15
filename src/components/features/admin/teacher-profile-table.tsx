@@ -1,13 +1,12 @@
 'use client';
 
-// [Task: S3-FE-02] Component Table hiển thị danh sách hồ sơ giảng viên cho Admin
 import React from 'react';
 import { AdminTeacherProfile } from '@/hooks/admin/use-admin-teacher-profiles';
 
 interface TeacherProfileTableProps {
   profiles: AdminTeacherProfile[];
   isLoading: boolean;
-  onReview: (id: string, status: 'APPROVED' | 'REJECTED') => void;
+  onReview: (id: string, status: 'approved' | 'rejected') => void; // sửa status thành lowercase
 }
 
 export function TeacherProfileTable({ profiles, isLoading, onReview }: TeacherProfileTableProps) {
@@ -33,15 +32,15 @@ export function TeacherProfileTable({ profiles, isLoading, onReview }: TeacherPr
               {/* Cột 1: Thông tin User */}
               <td className="p-4">
                 <div className="font-medium text-gray-900">
-                  {profile.user.full_name || 'Chưa cập nhật tên'}
+                  {profile.user.fullName || 'Chưa cập nhật tên'}
                 </div>
                 <div className="text-sm text-gray-500">{profile.user.email}</div>
                 <div className="text-xs text-gray-400 mt-1">
-                  Ngày nộp: {new Date(profile.created_at).toLocaleDateString()}
+                  Ngày nộp: {new Date(profile.createdAt).toLocaleDateString()}
                 </div>
               </td>
 
-              {/* Cột 2: Bio (Truncate nếu quá dài) */}
+              {/* Cột 2: Bio */}
               <td className="p-4">
                 <p className="text-sm text-gray-700 line-clamp-3" title={profile.bio}>
                   {profile.bio}
@@ -66,30 +65,33 @@ export function TeacherProfileTable({ profiles, isLoading, onReview }: TeacherPr
               <td className="p-4 text-center">
                 <span
                   className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                    profile.status === 'PENDING'
+                    profile.status === 'pending_review'
                       ? 'bg-yellow-100 text-yellow-800'
-                      : profile.status === 'APPROVED'
+                      : profile.status === 'approved'
                         ? 'bg-green-100 text-green-800'
                         : 'bg-red-100 text-red-800'
                   }`}
                 >
-                  {profile.status}
+                  {profile.status === 'pending_review'
+                    ? 'Chờ duyệt'
+                    : profile.status === 'approved'
+                      ? 'Đã duyệt'
+                      : 'Từ chối'}
                 </span>
               </td>
 
               {/* Cột 5: Actions */}
               <td className="p-4 text-right space-x-2">
-                {/* [Task: S3-FE-02] Nút thao tác chỉ hiện khi hồ sơ đang chờ duyệt */}
-                {profile.status === 'PENDING' ? (
+                {profile.status === 'pending_review' ? (
                   <>
                     <button
                       onClick={() => {
                         if (
                           window.confirm(
-                            'Bạn có chắc chắn muốn DUYỆT hồ sơ này? User sẽ trở thành Giáo viên.'
+                            'Bạn có chắc chắn muốn DUYỆT hồ sơ này? Người dùng sẽ trở thành Giáo viên.'
                           )
                         ) {
-                          onReview(profile.id, 'APPROVED');
+                          onReview(profile.id, 'approved');
                         }
                       }}
                       className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition"
@@ -99,7 +101,7 @@ export function TeacherProfileTable({ profiles, isLoading, onReview }: TeacherPr
                     <button
                       onClick={() => {
                         if (window.confirm('Bạn có chắc chắn muốn TỪ CHỐI hồ sơ này?')) {
-                          onReview(profile.id, 'REJECTED');
+                          onReview(profile.id, 'rejected');
                         }
                       }}
                       className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition"

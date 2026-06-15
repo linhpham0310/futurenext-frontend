@@ -7,14 +7,13 @@ import { apiClient } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { BookOpen, Plus, Pencil, Trash2, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Course {
   id: string;
   title: string;
-  status: 'DRAFT' | 'PENDING_REVIEW' | 'PUBLISHED' | 'REJECTED';
+  status: 'DRAFT' | 'SUBMITTED' | 'PUBLISHED' | 'REJECTED';
   thumbnailUrl?: string;
   price: number;
   createdAt: string;
@@ -26,7 +25,7 @@ const STATUS_CONFIG: Record<
   { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }
 > = {
   DRAFT: { label: 'Bản nháp', variant: 'secondary' },
-  PENDING_REVIEW: { label: 'Chờ duyệt', variant: 'outline' },
+  SUBMITTED: { label: 'Chờ duyệt', variant: 'outline' },
   PUBLISHED: { label: 'Đã xuất bản', variant: 'default' },
   REJECTED: { label: 'Bị từ chối', variant: 'destructive' },
 };

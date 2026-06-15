@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ForgotPasswordInput, ForgotPasswordSchema } from '@/lib/schemas/auth.schema';
+import { ForgotPasswordInput, forgotPasswordSchema } from '@/lib/schemas/auth.schema';
 import { useForgotPassword } from '@/hooks/auth/useForgotPassword';
 
 export const ForgotPasswordForm = () => {
@@ -16,7 +16,7 @@ export const ForgotPasswordForm = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<ForgotPasswordInput>({
-    resolver: zodResolver(ForgotPasswordSchema),
+    resolver: zodResolver(forgotPasswordSchema),
   });
 
   if (isSuccess) {

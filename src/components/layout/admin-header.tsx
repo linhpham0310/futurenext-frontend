@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { apiClient } from '@/lib/api';
+import { apiClient, commonApi } from '@/lib/api';
 import { vi } from 'zod/v4/locales';
 import { ScrollArea } from '../ui/scroll-area';
 import { ThemeToggle } from './theme-toggle';
@@ -56,8 +56,8 @@ export const AdminHeader = () => {
     try {
       setNotifLoading(true);
       const [notifRes, countRes] = await Promise.all([
-        apiClient.get('/admin/notifications', { params: { limit: 20 } }),
-        apiClient.get('/admin/notifications/unread-count'),
+        commonApi.getNotifications({ limit: 20 }),
+        commonApi.getUnreadCount(),
       ]);
       setNotifications(notifRes.data);
       setUnreadCount(countRes.data.count);
@@ -71,7 +71,7 @@ export const AdminHeader = () => {
   // Đánh dấu một thông báo đã đọc
   const markAsRead = async (id: string, link: string) => {
     try {
-      await apiClient.patch(`/admin/notifications/${id}/read`);
+      await commonApi.markNotificationRead(id);
       // Cập nhật local state
       setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
       setUnreadCount((prev) => Math.max(0, prev - 1));
@@ -85,7 +85,7 @@ export const AdminHeader = () => {
   // Đánh dấu tất cả đã đọc
   const markAllAsRead = async () => {
     try {
-      await apiClient.patch('/admin/notifications/mark-all-read');
+      await commonApi.markAllNotificationsRead();
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
       toast.success('Đã đánh dấu tất cả thông báo là đã đọc');
@@ -102,8 +102,16 @@ export const AdminHeader = () => {
     }
     setSearchLoading(true);
     try {
-      const res = await apiClient.get('/admin/search', { params: { q } });
-      setSearchResults(res.data);
+      const res = await apiClient.get('/search/courses', { params: { q } });
+      const courses = res.data?.items ?? res.data ?? [];
+      setSearchResults(
+        courses.map((c: any) => ({
+          id: c.id,
+          label: c.title,
+          type: 'course',
+          link: `/admin/courses/${c.id}`,
+        }))
+      );
     } catch (error) {
       console.error(error);
       setSearchResults([]);
@@ -267,7 +275,7 @@ export const AdminHeader = () => {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="justify-center text-blue-600"
-              onClick={() => router.push('/admin/notifications')}
+              onClick={() => router.push('/notifications')}
             >
               Xem tất cả
             </DropdownMenuItem>

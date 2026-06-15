@@ -23,8 +23,11 @@ export const updateProfileSchema = z.object({
     .nullable() // Cho phép gửi null để xóa avatar
     .optional(), // Cho phép optional
 
-  // Trường này bắt buộc phải có để gửi đi, dùng để Optimistic Lock
-  updatedAt: z.string().datetime({ message: "Timestamp 'updatedAt' không hợp lệ." }),
+  phone: z
+    .string()
+    .max(20, { message: 'Số điện thoại không được vượt quá 20 ký tự.' })
+    .optional()
+    .nullable(),
 });
 
 // Type inferred from the schema

@@ -20,7 +20,7 @@ interface Student {
   phone?: string;
   coursesEnrolled: number;
   joinedAt: string;
-  status: 'active' | 'locked' | 'inactive';
+  status: 'active' | 'locked';
 }
 
 export default function AdminStudentsPage() {
@@ -83,24 +83,13 @@ export default function AdminStudentsPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return (
-          <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
-            Hoạt động
-          </span>
-        );
-      case 'locked':
-        return (
-          <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Đã khóa</span>
-        );
-      default:
-        return (
-          <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded-full text-xs">
-            Không hoạt động
-          </span>
-        );
-    }
+    if (status === 'active')
+      return (
+        <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
+          Hoạt động
+        </span>
+      );
+    return <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Đã khóa</span>;
   };
 
   if (authLoading)
@@ -130,7 +119,6 @@ export default function AdminStudentsPage() {
             { label: 'Tất cả', value: '' },
             { label: 'Hoạt động', value: 'active' },
             { label: 'Đã khóa', value: 'locked' },
-            { label: 'Không hoạt động', value: 'inactive' },
           ]}
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}

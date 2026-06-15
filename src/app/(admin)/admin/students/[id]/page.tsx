@@ -26,7 +26,7 @@ export default function StudentDetailPage() {
         try {
           const { data } = await apiClient.get(`/admin/students/${id}`);
           setStudent(data);
-        } catch (error) {
+        } catch {
           toast.error('Không tải được thông tin học viên');
         } finally {
           setLoading(false);
@@ -36,19 +36,13 @@ export default function StudentDetailPage() {
     }
   }, [id, isAdmin]);
 
-  if (authLoading)
+  if (authLoading || loading)
     return (
       <div className="p-8 flex justify-center">
         <Spinner />
       </div>
     );
   if (!isAdmin) return null;
-  if (loading)
-    return (
-      <div className="p-8 flex justify-center">
-        <Spinner />
-      </div>
-    );
   if (!student) return <div className="p-8">Không tìm thấy học viên</div>;
 
   return (
@@ -74,7 +68,7 @@ export default function StudentDetailPage() {
             <strong>Số điện thoại:</strong> {student.phone || 'Chưa cập nhật'}
           </p>
           <p>
-            <strong>Trạng thái:</strong> {student.status === 'ACTIVE' ? 'Hoạt động' : 'Đã khóa'}
+            <strong>Trạng thái:</strong> {student.status === 'active' ? 'Hoạt động' : 'Đã khóa'}
           </p>
           <p>
             <strong>Ngày tham gia:</strong> {new Date(student.joinedAt).toLocaleDateString('vi-VN')}

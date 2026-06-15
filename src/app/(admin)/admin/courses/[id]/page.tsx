@@ -16,7 +16,7 @@ interface CourseDetail {
   title: string;
   description: string;
   instructor: string;
-  status: 'PUBLISHED' | 'DRAFT' | 'PENDING' | 'REJECTED';
+  status: 'DRAFT' | 'SUBMITTED' | 'PUBLISHED' | 'REJECTED';
   price: number;
   students: number;
   rating: number;
@@ -47,7 +47,7 @@ export default function AdminCourseDetailPage() {
         try {
           const response = await apiClient.get(`/admin/courses/${id}`);
           setCourse(response.data);
-        } catch (error) {
+        } catch {
           toast.error('Không thể tải thông tin khóa học');
         } finally {
           setLoading(false);
@@ -64,7 +64,7 @@ export default function AdminCourseDetailPage() {
       await apiClient.delete(`/admin/courses/${id}`);
       toast.success('Xóa khóa học thành công');
       router.push('/admin/courses');
-    } catch (error) {
+    } catch {
       toast.error('Xóa thất bại');
       setDeleting(false);
     }
@@ -89,7 +89,7 @@ export default function AdminCourseDetailPage() {
     switch (course.status) {
       case 'PUBLISHED':
         return <Badge className="bg-green-100 text-green-800">Đã xuất bản</Badge>;
-      case 'PENDING':
+      case 'SUBMITTED':
         return <Badge className="bg-yellow-100 text-yellow-800">Chờ duyệt</Badge>;
       case 'REJECTED':
         return <Badge className="bg-red-100 text-red-800">Từ chối</Badge>;
@@ -168,7 +168,7 @@ export default function AdminCourseDetailPage() {
               <CardTitle>Nội dung khóa học</CardTitle>
             </CardHeader>
             <CardContent>
-              {course.sections && course.sections.length > 0 ? (
+              {course.sections?.length ? (
                 <div className="space-y-4">
                   {course.sections.map((section) => (
                     <div key={section.id} className="border rounded-lg p-4">

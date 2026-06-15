@@ -26,7 +26,7 @@ export default function UserDetailPage() {
         try {
           const { data } = await apiClient.get(`/admin/users/${id}`);
           setUser(data);
-        } catch (error) {
+        } catch {
           toast.error('Không tải được thông tin người dùng');
         } finally {
           setLoading(false);
@@ -36,19 +36,13 @@ export default function UserDetailPage() {
     }
   }, [id, isAdmin]);
 
-  if (authLoading)
+  if (authLoading || loading)
     return (
       <div className="p-8 flex justify-center">
         <Spinner />
       </div>
     );
   if (!isAdmin) return null;
-  if (loading)
-    return (
-      <div className="p-8 flex justify-center">
-        <Spinner />
-      </div>
-    );
   if (!user) return <div className="p-8">Không tìm thấy người dùng</div>;
 
   const roleLabel: Record<string, string> = {
@@ -56,11 +50,7 @@ export default function UserDetailPage() {
     teacher: 'Giảng viên',
     student: 'Học viên',
   };
-  const statusLabel: Record<string, string> = {
-    ACTIVE: 'Hoạt động',
-    LOCKED: 'Đã khóa',
-    INACTIVE: 'Không hoạt động',
-  };
+  const statusLabel: Record<string, string> = { active: 'Hoạt động', locked: 'Đã khóa' };
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">

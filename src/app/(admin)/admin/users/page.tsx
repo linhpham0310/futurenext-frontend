@@ -10,21 +10,6 @@ import { Pagination } from '@/components/ui/pagination';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Eye, Edit, Trash2 } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { apiClient } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 
@@ -33,13 +18,13 @@ interface User {
   fullName: string;
   email: string;
   role: 'admin' | 'teacher' | 'student';
-  status: 'active' | 'locked' | 'inactive';
+  status: 'active' | 'locked';
   createdAt: string;
 }
 
 export default function AdminUsersPage() {
-  const { isAdmin, isLoading: authLoading } = useAuth();
   const router = useRouter();
+  const { isAdmin, isLoading: authLoading } = useAuth();
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,11 +33,6 @@ export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
-
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [editRole, setEditRole] = useState<string>('');
-  const [editStatus, setEditStatus] = useState<string>('');
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isAdmin) router.push('/forbidden');
@@ -77,30 +57,6 @@ export default function AdminUsersPage() {
     if (isAdmin) fetchUsers();
   }, [isAdmin, fetchUsers]);
 
-  const openEditDialog = (user: User) => {
-    setEditingUser(user);
-    setEditRole(user.role);
-    setEditStatus(user.status);
-  };
-
-  const handleUpdateUser = async () => {
-    if (!editingUser) return;
-    setSubmitting(true);
-    try {
-      await apiClient.patch(`/admin/users/${editingUser.id}`, {
-        role: editRole,
-        status: editStatus,
-      });
-      toast.success('Cập nhật người dùng thành công');
-      setEditingUser(null);
-      fetchUsers();
-    } catch {
-      toast.error('Cập nhật thất bại');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Xóa người dùng "${name}"? Hành động không thể hoàn tác.`)) return;
     try {
@@ -111,8 +67,6 @@ export default function AdminUsersPage() {
       toast.error('Xóa thất bại');
     }
   };
-
-  const viewDetail = (id: string) => router.push(`/admin/users/${id}`);
 
   const getRoleLabel = (role: string) => {
     switch (role) {
@@ -126,24 +80,13 @@ export default function AdminUsersPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return (
-          <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
-            Hoạt động
-          </span>
-        );
-      case 'locked':
-        return (
-          <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Đã khóa</span>
-        );
-      default:
-        return (
-          <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded-full text-xs">
-            Không hoạt động
-          </span>
-        );
-    }
+    if (status === 'active')
+      return (
+        <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
+          Hoạt động
+        </span>
+      );
+    return <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Đã khóa</span>;
   };
 
   if (authLoading)
@@ -162,7 +105,6 @@ export default function AdminUsersPage() {
           Quản lý tất cả tài khoản (học viên, giảng viên, admin)
         </p>
       </div>
-
       <div className="flex flex-wrap gap-4">
         <Input
           placeholder="Tìm theo tên hoặc email..."
@@ -182,7 +124,6 @@ export default function AdminUsersPage() {
           onChange={(e) => setRoleFilter(e.target.value)}
         />
       </div>
-
       <Card>
         <CardContent className="p-0">
           <table className="w-full text-left">
@@ -219,10 +160,18 @@ export default function AdminUsersPage() {
                     <td className="p-4">{new Date(user.createdAt).toLocaleDateString('vi-VN')}</td>
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => viewDetail(user.id)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => router.push(`/admin/users/${user.id}`)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => openEditDialog(user)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => router.push(`/admin/users/${user.id}/edit`)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button
@@ -241,67 +190,12 @@ export default function AdminUsersPage() {
           </table>
         </CardContent>
       </Card>
-
       <Pagination
         currentPage={page}
         totalPages={totalPages}
         onPageChange={setPage}
         isLoading={loading}
       />
-
-      <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Chỉnh sửa người dùng</DialogTitle>
-          </DialogHeader>
-          {editingUser && (
-            <div className="space-y-4">
-              <div>
-                <Label>Họ tên</Label>
-                <Input value={editingUser.fullName} disabled />
-              </div>
-              <div>
-                <Label>Email</Label>
-                <Input value={editingUser.email} disabled />
-              </div>
-              <div>
-                <Label>Vai trò</Label>
-                <Select value={editRole} onValueChange={setEditRole}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="student">Học viên</SelectItem>
-                    <SelectItem value="teacher">Giảng viên</SelectItem>
-                    <SelectItem value="admin">Quản trị viên</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Trạng thái</Label>
-                <Select value={editStatus} onValueChange={setEditStatus}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Hoạt động</SelectItem>
-                    <SelectItem value="locked">Đã khóa</SelectItem>
-                    <SelectItem value="inactive">Không hoạt động</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingUser(null)}>
-              Hủy
-            </Button>
-            <Button onClick={handleUpdateUser} disabled={submitting}>
-              {submitting ? 'Đang lưu...' : 'Lưu thay đổi'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

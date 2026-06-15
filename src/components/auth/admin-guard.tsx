@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { UserRole } from '@/types';
+import { UserRole } from '@/types/auth.api';
 import { useAuth } from '@/hooks/auth/useAuth';
 
 interface AdminGuardProps {
@@ -14,22 +14,18 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
   const router = useRouter();
 
   useEffect(() => {
-    // Nếu đang tải thông tin user thì không làm gì cả
     if (isLoading) return;
 
-    // 1. Chưa đăng nhập -> Đá về Login
     if (!isAuthenticated) {
       router.replace('/sign-in');
       return;
     }
 
-    // 2. Đã đăng nhập nhưng không phải Admin -> Đá về trang cấm hoặc trang chủ
     if (user && user.role !== UserRole.ADMIN) {
-      router.replace('/forbidden'); // Hoặc router.push("/")
+      router.replace('/forbidden');
     }
   }, [user, isLoading, isAuthenticated, router]);
 
-  // Hiển thị loading trong lúc chờ check quyền để tránh lộ giao diện
   if (isLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-slate-50">
@@ -38,11 +34,9 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
     );
   }
 
-  // Nếu không phải admin, return null (để useEffect xử lý redirect)
   if (!user || user.role !== UserRole.ADMIN) {
     return null;
   }
 
-  // Nếu là Admin, render nội dung con
   return <>{children}</>;
 };
