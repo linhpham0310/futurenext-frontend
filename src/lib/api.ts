@@ -5,7 +5,9 @@ import { LoginFormData, VerifyEmailFormData, ResetPasswordFormData } from './sch
 import { useAuthStore } from '@/store/authStore';
 import { UpdateProfileFormData } from './schemas/user.schema';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ??
+  'https://futurenext-core-service-staging-xxxxx-asia-southeast1.a.run.app';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
