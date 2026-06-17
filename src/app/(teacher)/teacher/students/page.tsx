@@ -47,7 +47,7 @@ export default function TeacherStudentsPage() {
   useEffect(() => {
     if (isTeacher) {
       apiClient
-        .get('/teacher/students', {
+        .get('/teacher/courses/students', {
           params: { q: search, courseId: courseFilter, page, limit: 10 },
         })
         .then((res) => {
