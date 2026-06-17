@@ -23,7 +23,7 @@ export function useLogin() {
     try {
       const response = await authApi.login(data);
       storeLogin(response.accessToken, response.user);
-      const role = (response.user.role as string)?.toUpperCase();
+      const role = response.user.role;
       if (role === UserRole.ADMIN) {
         router.push('/admin/dashboard');
       } else if (role === UserRole.TEACHER) {
