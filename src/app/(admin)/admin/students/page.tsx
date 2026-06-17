@@ -42,7 +42,7 @@ export default function AdminStudentsPage() {
   const fetchStudents = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get('/admin/students', {
+      const response = await apiClient.get('/admin/users/students', {
         params: { q: search, status: statusFilter || undefined, page, limit },
       });
       setStudents(response.data.data);
@@ -63,7 +63,7 @@ export default function AdminStudentsPage() {
     const action = newStatus === 'active' ? 'mở khóa' : 'khóa';
     if (!confirm(`Bạn có chắc muốn ${action} học viên "${student.fullName}"?`)) return;
     try {
-      await apiClient.patch(`/admin/students/${student.id}/status`, { status: newStatus });
+      await apiClient.patch(`/admin/users/students/${student.id}/status`, { status: newStatus });
       toast.success(`Đã ${action} học viên`);
       fetchStudents();
     } catch {
@@ -74,7 +74,7 @@ export default function AdminStudentsPage() {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Xóa học viên "${name}"? Hành động không thể hoàn tác.`)) return;
     try {
-      await apiClient.delete(`/admin/students/${id}`);
+      await apiClient.delete(`/admin/users/students/${id}`);
       toast.success('Xóa học viên thành công');
       fetchStudents();
     } catch {
@@ -166,7 +166,7 @@ export default function AdminStudentsPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => router.push(`/admin/students/${student.id}`)}
+                          onClick={() => router.push(`/admin/users/students/${student.id}`)}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
