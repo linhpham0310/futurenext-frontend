@@ -84,6 +84,9 @@ export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitl
       const res = await apiClient.post(`/teacher/courses/${courseId}/sections/${id}/lessons`, {
         title: newLessonTitle.trim(),
         type: newLessonType,
+        duration: 0,
+        content: '',
+        isFreePreview: false,
       });
       setLocalLessons([...localLessons, res.data]);
       setNewLessonTitle('');
