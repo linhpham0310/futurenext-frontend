@@ -41,19 +41,23 @@ export default function AdminDashboardPage() {
       const response = await apiClient.get('/dashboard/admin/stats');
       setStats(response.data);
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching stats:', error);
+      setStats(null);
     } finally {
       setStatsLoading(false);
     }
   };
+
   const fetchRecentActivities = async () => {
     try {
       const response = await apiClient.get('/dashboard/admin/activities/recent', {
         params: { limit: 10 },
       });
-      setActivities(response.data);
+      // Đảm bảo response.data là mảng
+      setActivities(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching activities:', error);
+      setActivities([]);
     } finally {
       setActivitiesLoading(false);
     }
@@ -78,6 +82,7 @@ export default function AdminDashboardPage() {
     if (diffHours < 24) return `${diffHours} giờ trước`;
     return `${diffDays} ngày trước`;
   };
+
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'USER_REGISTER':
@@ -93,12 +98,14 @@ export default function AdminDashboardPage() {
     }
   };
 
-  if (isLoading || statsLoading)
+  if (isLoading || statsLoading) {
     return (
       <div className="p-8 flex justify-center">
         <Spinner />
       </div>
     );
+  }
+
   if (!isAdmin) return null;
 
   return (
@@ -114,9 +121,9 @@ export default function AdminDashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalUsers?.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{stats?.totalUsers?.toLocaleString() ?? 0}</div>
             <p className="text-xs text-green-600">
-              +{stats?.userGrowthPercent || 0}% từ tháng trước
+              +{stats?.userGrowthPercent ?? 0}% từ tháng trước
             </p>
           </CardContent>
         </Card>
@@ -126,8 +133,8 @@ export default function AdminDashboardPage() {
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalCourses || 0}</div>
-            <p className="text-xs text-muted-foreground">{stats?.pendingCourses || 0} chờ duyệt</p>
+            <div className="text-2xl font-bold">{stats?.totalCourses ?? 0}</div>
+            <p className="text-xs text-muted-foreground">{stats?.pendingCourses ?? 0} chờ duyệt</p>
           </CardContent>
         </Card>
         <Card>
@@ -137,10 +144,10 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats?.monthlyRevenue?.toLocaleString('vi-VN')}đ
+              {(stats?.monthlyRevenue ?? 0).toLocaleString('vi-VN')}đ
             </div>
             <p className="text-xs text-green-600">
-              +{stats?.revenueGrowthPercent || 0}% so với tháng trước
+              +{stats?.revenueGrowthPercent ?? 0}% so với tháng trước
             </p>
           </CardContent>
         </Card>
@@ -150,7 +157,7 @@ export default function AdminDashboardPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.pendingTeacherProfiles || 0}</div>
+            <div className="text-2xl font-bold">{stats?.pendingTeacherProfiles ?? 0}</div>
             <p className="text-xs text-muted-foreground">hồ sơ giáo viên</p>
           </CardContent>
         </Card>
