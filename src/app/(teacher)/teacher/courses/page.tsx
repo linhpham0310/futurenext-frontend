@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { apiClient } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
@@ -42,24 +42,18 @@ export default function TeacherCoursesPage() {
 
   useEffect(() => {
     if (isTeacher) {
-      const fetchCourses = async () => {
-        try {
-          const res = await apiClient.get('/teacher/courses');
-          setCourses(res.data);
-        } catch (error) {
-          toast.error('Không thể tải danh sách khóa học');
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchCourses();
+      teacherApi
+        .getMyCourses()
+        .then((res) => setCourses(res.data))
+        .catch(() => toast.error('Không thể tải danh sách khóa học'))
+        .finally(() => setLoading(false));
     }
   }, [isTeacher]);
 
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Xóa khóa học "${title}"? Hành động không thể hoàn tác.`)) return;
     try {
-      await apiClient.delete(`/teacher/courses/${id}`);
+      await teacherApi.deleteCourse(id);
       toast.success('Xóa khóa học thành công');
       setCourses(courses.filter((c) => c.id !== id));
     } catch (error) {

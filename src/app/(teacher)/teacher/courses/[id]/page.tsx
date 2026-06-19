@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { apiClient } from '@/lib/api';
+import { apiClient, teacherApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
@@ -36,17 +36,11 @@ export default function CourseDetailPage() {
 
   useEffect(() => {
     if (isTeacher && id) {
-      const fetchCourse = async () => {
-        try {
-          const res = await apiClient.get(`/teacher/courses/${id}`);
-          setCourse(res.data);
-        } catch (error) {
-          toast.error('Không thể tải chi tiết khóa học');
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchCourse();
+      teacherApi
+        .getCourseDetail(id as string)
+        .then((res) => setCourse(res.data))
+        .catch(() => toast.error('Không thể tải chi tiết khóa học'))
+        .finally(() => setLoading(false));
     }
   }, [id, isTeacher]);
 
@@ -70,9 +64,9 @@ export default function CourseDetailPage() {
       return;
     setIsSubmitting(true);
     try {
-      await apiClient.patch(`/teacher/courses/${id}/submit`);
+      await teacherApi.submitCourse(id as string);
       toast.success('Đã gửi yêu cầu duyệt, vui lòng chờ phản hồi từ admin.');
-      const res = await apiClient.get(`/teacher/courses/${id}`);
+      const res = await teacherApi.getCourseDetail(id as string);
       setCourse(res.data);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Gửi thất bại');

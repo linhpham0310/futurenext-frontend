@@ -102,7 +102,7 @@ export function TeacherMenu() {
             <FileText className="mr-2 h-4 w-4" /> Báo cáo
           </DropdownMenuItem>
         </Link>
-        <Link href="/teacher/payment-settings">
+        <Link href="/teacher/payment">
           <DropdownMenuItem className="cursor-pointer">
             <CreditCard className="mr-2 h-4 w-4" /> Thanh toán
           </DropdownMenuItem>

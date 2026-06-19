@@ -18,7 +18,7 @@ import {
 } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableSectionItem } from './_components/sortable-section-item';
-import { apiClient } from '@/lib/api';
+import { apiClient, teacherApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
@@ -43,14 +43,17 @@ export default function CourseBuilderPage() {
 
   useEffect(() => {
     if (isTeacher && courseId) {
-      apiClient
-        .get(`/teacher/courses/${courseId}/builder`)
-        .then((res) => {
-          setSections(res.data.sections || []);
-          setLoading(false);
+      // Lấy dữ liệu builder và thông tin course
+      Promise.all([
+        teacherApi.getCourseBuilder(courseId as string),
+        teacherApi.getCourseDetail(courseId as string),
+      ])
+        .then(([builderRes, courseRes]) => {
+          setSections(builderRes.data.sections || []);
+          setCourseStatus(courseRes.data.status);
         })
-        .catch(() => toast.error('Không thể tải cấu trúc'));
-      apiClient.get(`/teacher/courses/${courseId}`).then((res) => setCourseStatus(res.data.status));
+        .catch(() => toast.error('Không thể tải cấu trúc'))
+        .finally(() => setLoading(false));
     }
   }, [courseId, isTeacher]);
 
@@ -71,7 +74,7 @@ export default function CourseBuilderPage() {
       setSections(reordered);
       try {
         const orders = reordered.map((s, idx) => ({ id: s.id, orderIndex: idx + 1 }));
-        await apiClient.patch(`/teacher/courses/${courseId}/sections/reorder`, { orders });
+        await teacherApi.reorderSections(courseId as string, orders);
       } catch {
         setSections(oldSections);
         toast.error('Lưu thứ tự thất bại');
@@ -83,9 +86,10 @@ export default function CourseBuilderPage() {
     if (!newSectionTitle.trim()) return;
     setIsAdding(true);
     try {
-      const res = await apiClient.post(`/teacher/courses/${courseId}/sections`, {
+      const res = await teacherApi.addSection(courseId as string, {
         title: newSectionTitle.trim(),
       });
+
       setSections([...sections, { ...res.data, lessons: [] }]);
       setNewSectionTitle('');
       setShowAddForm(false);

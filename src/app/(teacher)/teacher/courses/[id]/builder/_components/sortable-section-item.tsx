@@ -16,7 +16,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
-import { apiClient } from '@/lib/api';
+import { apiClient, teacherApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { Lesson } from '@/types';
@@ -64,9 +64,8 @@ export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitl
     }
     setIsSaving(true);
     try {
-      await apiClient.patch(`/teacher/courses/${courseId}/sections/${id}`, {
-        title: editTitle.trim(),
-      });
+      await teacherApi.updateSection(courseId, id, { title: editTitle.trim() });
+
       onUpdateTitle(id, editTitle.trim());
       setIsEditing(false);
       toast.success('Đã cập nhật tên chương');
@@ -81,7 +80,7 @@ export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitl
     if (!newLessonTitle.trim()) return;
     setIsAdding(true);
     try {
-      const res = await apiClient.post(`/teacher/courses/${courseId}/sections/${id}/lessons`, {
+      const res = await teacherApi.addLesson(courseId, id, {
         title: newLessonTitle.trim(),
         type: newLessonType,
         duration: 0,
@@ -102,7 +101,7 @@ export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitl
   const handleDeleteLesson = async (lessonId: string) => {
     if (!confirm('Xóa bài học này?')) return;
     try {
-      await apiClient.delete(`/teacher/courses/${courseId}/lessons/${lessonId}`);
+      await teacherApi.deleteLesson(courseId, lessonId);
       setLocalLessons((prev) => prev.filter((l) => l.id !== lessonId));
       toast.success('Xóa bài học thành công');
     } catch {

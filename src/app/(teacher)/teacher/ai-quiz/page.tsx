@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { apiClient } from '@/lib/api';
+import { apiClient, teacherApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,7 +32,7 @@ export default function TeacherAIQuizPage() {
     }
     setGenerating(true);
     try {
-      const response = await apiClient.post('/teacher/exams/generate', {
+      const response = await teacherApi.generateQuiz({
         topic: content,
         type: 'MCQ',
         duration: 60,

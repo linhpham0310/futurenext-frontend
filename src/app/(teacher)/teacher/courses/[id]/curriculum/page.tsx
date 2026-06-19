@@ -3,7 +3,7 @@
 
 import { useCourseBuilderStore } from '@/store/use-course-builder-store';
 import { TagInput } from '@/components/shared/tag-input';
-import { apiClient } from '@/lib/api';
+import { apiClient, teacherApi } from '@/lib/api';
 import { toast } from 'sonner';
 
 interface Lesson {
@@ -18,9 +18,8 @@ export default function CurriculumMappingPage({ params }: { params: { id: string
 
   const handleUpdateTags = async (lessonId: string, concepts: string[]) => {
     try {
-      await apiClient.patch(`/teacher/courses/${params.id}/lessons/${lessonId}/metadata`, {
-        keyConcepts: concepts,
-      });
+      await teacherApi.updateLesson(params.id, lessonId, { keyConcepts: concepts });
+
       toast.success('Đã cập nhật AI Metadata');
     } catch (error) {
       toast.error('Lỗi cập nhật');

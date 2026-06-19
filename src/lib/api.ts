@@ -296,6 +296,8 @@ export const teacherApi = {
       isFreePreview?: boolean;
     }
   ) => apiClient.post(`/teacher/courses/${courseId}/sections/${sectionId}/lessons`, data),
+  getLesson: (courseId: string, lessonId: string) =>
+    apiClient.get(`/teacher/courses/${courseId}/lessons/${lessonId}`),
   updateLesson: (courseId: string, lessonId: string, data: any) =>
     apiClient.patch(`/teacher/courses/${courseId}/lessons/${lessonId}`, data),
   deleteLesson: (courseId: string, lessonId: string) =>

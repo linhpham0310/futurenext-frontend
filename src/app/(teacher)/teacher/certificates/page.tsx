@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { apiClient } from '@/lib/api';
+import { apiClient, teacherApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,8 +25,8 @@ export default function TeacherCertificatesPage() {
 
   useEffect(() => {
     if (isTeacher) {
-      apiClient
-        .get('/teacher/certificates')
+      teacherApi
+        .getCertificates()
         .then((res) => setCertificates(res.data))
         .catch(() => toast.error('Không thể tải danh sách chứng chỉ'))
         .finally(() => setLoading(false));

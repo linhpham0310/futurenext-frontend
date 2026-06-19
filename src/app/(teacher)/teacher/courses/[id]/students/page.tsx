@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { apiClient } from '@/lib/api';
+import { apiClient, teacherApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
@@ -31,8 +31,8 @@ export default function CourseStudentsPage() {
   useEffect(() => {
     if (isTeacher && id) {
       Promise.all([
-        apiClient.get(`/teacher/courses/${id}`),
-        apiClient.get(`/teacher/courses/${id}/students`),
+        teacherApi.getCourseDetail(id as string),
+        teacherApi.getCourseStudents(id as string),
       ])
         .then(([courseRes, studentsRes]) => {
           setCourseTitle(courseRes.data.title);

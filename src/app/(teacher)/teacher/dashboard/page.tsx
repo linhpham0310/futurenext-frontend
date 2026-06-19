@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Users, DollarSign, Award } from 'lucide-react';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { apiClient } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 
 interface DashboardStats {
@@ -26,8 +26,8 @@ export default function TeacherDashboardPage() {
 
   useEffect(() => {
     if (isTeacher) {
-      apiClient
-        .get('/dashboard/teacher/stats')
+      teacherApi
+        .getDashboardStats()
         .then((res) => setStats(res.data))
         .finally(() => setLoading(false));
     }

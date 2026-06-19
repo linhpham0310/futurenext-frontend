@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { apiClient } from '@/lib/api';
+import { apiClient, teacherApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
@@ -26,25 +26,20 @@ export default function EditCoursePage() {
 
   useEffect(() => {
     if (isTeacher && id) {
-      Promise.all([
-        apiClient.get(`/teacher/courses/${id}`),
-        apiClient.get(`/teacher/courses/${id}`).then((res) => res.data.outcomes || []),
-      ])
-        .then(([courseRes, outcomesRes]) => {
-          const c = courseRes.data;
+      teacherApi
+        .getCourseDetail(id as string)
+        .then((res) => {
+          const c = res.data;
           setForm({
             title: c.title,
             description: c.description || '',
             price: c.price,
             thumbnailUrl: c.thumbnailUrl || '',
           });
-          setOutcomes(outcomesRes);
-          setLoading(false);
+          setOutcomes(c.outcomes || []);
         })
-        .catch(() => {
-          toast.error('Không tải được dữ liệu');
-          setLoading(false);
-        });
+        .catch(() => toast.error('Không tải được dữ liệu'))
+        .finally(() => setLoading(false));
     }
   }, [id, isTeacher]);
 
@@ -52,7 +47,7 @@ export default function EditCoursePage() {
     e.preventDefault();
     setSaving(true);
     try {
-      await apiClient.put(`/teacher/courses/${id}`, form);
+      await teacherApi.updateCourse(id as string, form);
       toast.success('Cập nhật thành công');
       router.push(`/teacher/courses/${id}`);
     } catch {
@@ -72,7 +67,7 @@ export default function EditCoursePage() {
   const handleSaveOutcomes = async () => {
     setLoadingOutcomes(true);
     try {
-      await apiClient.patch(`/teacher/courses/${id}/outcomes`, { outcomes });
+      await teacherApi.updateOutcomes(id as string, outcomes);
       toast.success('Cập nhật outcomes thành công');
     } catch {
       toast.error('Lỗi cập nhật outcomes');
