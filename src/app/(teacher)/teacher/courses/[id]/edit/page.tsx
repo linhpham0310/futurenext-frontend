@@ -120,7 +120,7 @@ export default function EditCoursePage() {
           />
         </div>
         <div className="border-t pt-4">
-          <label className="block text-sm font-medium mb-2">Kết quả đạt được (Outcomes)</label>
+          <label className="block text-sm font-medium mb-2">Kết quả đạt được </label>
           {outcomes.map((outcome, idx) => (
             <div key={idx} className="flex gap-2 mb-2">
               <input
@@ -147,7 +147,7 @@ export default function EditCoursePage() {
             disabled={loadingOutcomes}
             className="ml-2 text-green-600 text-sm"
           >
-            {loadingOutcomes ? 'Đang lưu...' : 'Lưu outcomes'}
+            {loadingOutcomes ? 'Đang lưu...' : 'Lưu kết quả'}
           </button>
         </div>
         <div className="flex gap-2 pt-4">

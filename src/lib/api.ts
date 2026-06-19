@@ -318,9 +318,9 @@ export const teacherApi = {
   getProfile: () => apiClient.get('/teacher-profiles/my-profile'),
   updateProfile: (data: { fullName: string; phone?: string; bio?: string; expertise?: string[] }) =>
     apiClient.put('/teacher-profiles/update', data),
-  getPaymentSettings: () => apiClient.get('/payment/settings'),
+  getPaymentSettings: () => apiClient.get('/payment'),
   updatePaymentSettings: (data: { bankAccount: string; bankName: string; accountHolder: string }) =>
-    apiClient.put('/payment/settings', data),
+    apiClient.put('/payment', data),
   getExams: (params?: { status?: string; page?: number; limit?: number }) =>
     apiClient.get('/teacher/exams', { params }),
   generateQuiz: (data: { topic: string; type: string; duration: number; numQuestions: number }) =>
