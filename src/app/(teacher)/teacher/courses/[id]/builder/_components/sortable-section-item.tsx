@@ -16,7 +16,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
-import { apiClient, teacherApi } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { Lesson } from '@/types';

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { apiClient, teacherApi } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';

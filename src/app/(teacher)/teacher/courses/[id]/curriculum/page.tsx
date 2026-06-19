@@ -3,7 +3,7 @@
 
 import { useCourseBuilderStore } from '@/store/use-course-builder-store';
 import { TagInput } from '@/components/shared/tag-input';
-import { apiClient, teacherApi } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { toast } from 'sonner';
 
 interface Lesson {

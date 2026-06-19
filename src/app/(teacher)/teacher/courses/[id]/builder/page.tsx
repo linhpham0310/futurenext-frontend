@@ -18,7 +18,7 @@ import {
 } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableSectionItem } from './_components/sortable-section-item';
-import { apiClient, teacherApi } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
