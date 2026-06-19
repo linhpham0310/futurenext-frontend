@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { apiClient } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,13 +19,14 @@ export default function PaymentSettingsPage() {
 
   useEffect(() => {
     if (isTeacher) {
-      apiClient
-        .get('/payment')
+      teacherApi
+        .getPaymentSettings()
         .then((res) => {
           setBankAccount(res.data.bankAccount || '');
           setBankName(res.data.bankName || '');
           setAccountHolder(res.data.accountHolder || '');
         })
+        .catch(() => toast.error('Không thể tải thông tin thanh toán'))
         .finally(() => setLoading(false));
     }
   }, [isTeacher]);
@@ -34,7 +35,7 @@ export default function PaymentSettingsPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      await apiClient.put('/payment', { bankAccount, bankName, accountHolder });
+      await teacherApi.updatePaymentSettings({ bankAccount, bankName, accountHolder });
       toast.success('Cập nhật thông tin thanh toán thành công');
     } catch {
       toast.error('Cập nhật thất bại');

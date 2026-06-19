@@ -3,17 +3,11 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { apiClient } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 interface Exam {
@@ -39,8 +33,8 @@ export default function TeacherExamsPage() {
   const [selectedCourse, setSelectedCourse] = useState('');
 
   const fetchExams = () => {
-    apiClient
-      .get('/teacher/exams')
+    teacherApi
+      .getExams()
       .then((res) => setExams(res.data))
       .catch(() => toast.error('Không thể tải danh sách'))
       .finally(() => setLoading(false));
@@ -49,7 +43,7 @@ export default function TeacherExamsPage() {
   useEffect(() => {
     if (isTeacher) {
       fetchExams();
-      apiClient.get('/teacher/courses').then((res) => setCourses(res.data));
+      teacherApi.getMyCourses().then((res) => setCourses(res.data));
     }
   }, [isTeacher]);
 
@@ -59,9 +53,8 @@ export default function TeacherExamsPage() {
       return;
     }
     try {
-      await apiClient.post(`/teacher/exams/${publishDialog.examId}/publish`, {
-        courseId: selectedCourse,
-      });
+      await teacherApi.publishExam(publishDialog.examId, { courseId: selectedCourse });
+
       toast.success('Đã gán đề thi cho khóa học');
       setPublishDialog({ open: false, examId: null });
       setSelectedCourse('');
@@ -74,7 +67,7 @@ export default function TeacherExamsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Xóa đề thi này?')) return;
     try {
-      await apiClient.delete(`/teacher/exams/${id}`);
+      await teacherApi.deleteExam(id);
       setExams(exams.filter((e) => e.id !== id));
       toast.success('Xóa thành công');
     } catch {
