@@ -150,6 +150,20 @@ export const authApi = {
     if (response.data.accessToken) setAccessToken(response.data.accessToken);
     return response.data;
   },
+  loginWithSocial: (provider: 'google' | 'apple' | 'facebook') => {
+    window.location.href = `${API_BASE_URL}/auth/${provider}`;
+  },
+  handleSocialCallback: async (accessToken: string): Promise<AuthUser> => {
+    setAccessToken(accessToken);
+    const response = await usersApi.getProfile();
+    const user = response.data;
+
+    useAuthStore.getState().setUser(user);
+    localStorage.setItem('user', JSON.stringify(user));
+
+    return user;
+  },
+
   logout: async (): Promise<{ message: string }> => {
     const response = await apiClient.post('/auth/logout');
     clearAccessToken();
