@@ -8,7 +8,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'react-hot-toast';
-import { apiClient } from '@/lib/api';
+import { adminApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 
 interface CourseDetail {
@@ -45,7 +45,7 @@ export default function AdminCourseDetailPage() {
     if (isAdmin) {
       const fetchCourse = async () => {
         try {
-          const response = await apiClient.get(`/admin/courses/${id}`);
+          const response = await adminApi.getCourseDetail(id as string);
           setCourse(response.data);
         } catch {
           toast.error('Không thể tải thông tin khóa học');
@@ -61,7 +61,7 @@ export default function AdminCourseDetailPage() {
     if (!confirm('Bạn có chắc muốn xóa khóa học này?')) return;
     setDeleting(true);
     try {
-      await apiClient.delete(`/admin/courses/${id}`);
+      await adminApi.deleteCourse(id as string);
       toast.success('Xóa khóa học thành công');
       router.push('/admin/courses');
     } catch {

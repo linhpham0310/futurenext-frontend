@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { apiClient, teacherApi } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
@@ -47,7 +47,7 @@ export default function CourseDetailPage() {
   const handleDelete = async () => {
     if (!confirm('Xóa khóa học này?')) return;
     try {
-      await apiClient.delete(`/teacher/courses/${id}`);
+      await teacherApi.deleteCourse(id as string);
       toast.success('Xóa thành công');
       router.push('/teacher/courses');
     } catch (error) {

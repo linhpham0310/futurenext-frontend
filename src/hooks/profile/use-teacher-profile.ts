@@ -1,6 +1,6 @@
 // [Task: S3-FE-01] Hook quản lý logic nộp và cập nhật Teacher Profile
 import { useState } from 'react';
-import { apiClient, teacherProfilesApi } from '@/lib/api';
+import { teacherProfilesApi } from '@/lib/api';
 
 interface SubmitProfilePayload {
   bio: string;
@@ -23,9 +23,9 @@ export function useTeacherProfile() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await apiClient.post('/teacher-profiles/submit', payload);
+      const response = await teacherProfilesApi.submit(payload);
       return response.data;
-    } catch (err: unknown) {
+    } catch (err: any) {
       const apiError = err as ApiError;
 
       const message = apiError.response?.data?.message || 'Lỗi khi nộp hồ sơ';
@@ -40,9 +40,9 @@ export function useTeacherProfile() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await apiClient.put('/teacher-profiles/update', payload);
+      const response = await teacherProfilesApi.update(payload);
       return response.data;
-    } catch (err: unknown) {
+    } catch (err: any) {
       const apiError = err as ApiError;
       const message = apiError.response?.data?.message || 'Lỗi khi cập nhật hồ sơ';
       setError(message);

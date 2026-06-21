@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { apiClient } from '@/lib/api';
+import { studentApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -38,8 +38,8 @@ export default function TakeExamPage() {
 
   useEffect(() => {
     if (user && id) {
-      apiClient
-        .get(`/student/exams/${id}/take`)
+      studentApi
+        .takeExam(id as string)
         .then((res) => {
           if (res.data.status === 'COMPLETED') {
             toast.error('Bạn đã hoàn thành bài thi này');
@@ -95,7 +95,7 @@ export default function TakeExamPage() {
     setSubmitting(true);
     try {
       const currentAnswers = answersRef.current;
-      await apiClient.post(`/student/exams/${id}/submit`, { answers: currentAnswers });
+      await studentApi.submitExam(id as string, currentAnswers);
       localStorage.removeItem(`exam_${id}_answers`);
       toast.success(auto ? 'Hết giờ! Bài đã được nộp.' : 'Nộp bài thành công');
       router.push(`/exams/${id}/result`);
@@ -119,7 +119,7 @@ export default function TakeExamPage() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [exam]);
+  });
 
   if (authLoading || loading)
     return (

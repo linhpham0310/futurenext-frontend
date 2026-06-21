@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { apiClient } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
@@ -27,8 +27,8 @@ export default function ExamResultsPage() {
 
   useEffect(() => {
     if (isTeacher && id) {
-      apiClient
-        .get(`/teacher/exams/${id}/results`)
+      teacherApi
+        .getExamResults(id as string)
         .then((res) => {
           setExamTitle(res.data.examTitle);
           setResults(res.data.results);

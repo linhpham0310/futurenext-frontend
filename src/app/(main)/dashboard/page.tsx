@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiClient } from '@/lib/api';
+import { studentApi } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -33,8 +33,8 @@ export default function StudentDashboard() {
     const fetchDashboard = async () => {
       try {
         const [statsRes, coursesRes] = await Promise.all([
-          apiClient.get('/dashboard/student/stats'), // sửa endpoint
-          apiClient.get('/dashboard/student/recent-courses', { params: { limit: 3 } }), // sửa endpoint
+          studentApi.getStudentStats(),
+          studentApi.getStudentRecentCourses({ limit: 3 }),
         ]);
         setStats(statsRes.data);
         setRecentCourses(coursesRes.data);

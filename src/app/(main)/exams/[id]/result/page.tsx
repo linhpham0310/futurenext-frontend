@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { apiClient } from '@/lib/api';
+import { studentApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, XCircle } from 'lucide-react';
@@ -30,8 +30,8 @@ export default function ExamResultPage() {
 
   useEffect(() => {
     if (user && id) {
-      apiClient
-        .get(`/student/exams/${id}/result`)
+      studentApi
+        .getExamResult(id as string)
         .then((res) => setResult(res.data))
         .catch(() => {})
         .finally(() => setLoading(false));

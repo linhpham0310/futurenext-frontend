@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { apiClient, commonApi } from '@/lib/api';
+import { commonApi } from '@/lib/api';
 import { vi } from 'zod/v4/locales';
 import { ScrollArea } from '../ui/scroll-area';
 import { ThemeToggle } from './theme-toggle';
@@ -102,7 +102,7 @@ export const AdminHeader = () => {
     }
     setSearchLoading(true);
     try {
-      const res = await apiClient.get('/search/courses', { params: { q } });
+      const res = await commonApi.search(q);
       const courses = res.data?.items ?? res.data ?? [];
       setSearchResults(
         courses.map((c: any) => ({

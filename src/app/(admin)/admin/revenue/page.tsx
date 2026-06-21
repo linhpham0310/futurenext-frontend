@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, TrendingUp, CreditCard } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Spinner } from '@/components/ui/spinner';
-import { apiClient } from '@/lib/api';
+import { adminApi } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/auth/useAuth';
 
@@ -38,7 +38,7 @@ export default function AdminRevenuePage() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const response = await apiClient.get('/revenue/admin/stats');
+      const response = await adminApi.getRevenueStats();
       setStats(response.data);
     } catch (error) {
       console.error(error);
@@ -48,9 +48,7 @@ export default function AdminRevenuePage() {
   const fetchTransactions = useCallback(async () => {
     setTxLoading(true);
     try {
-      const response = await apiClient.get('/revenue/admin/transactions', {
-        params: { limit: 20 },
-      });
+      const response = await adminApi.getTransactions(20);
       setTransactions(response.data);
     } catch (error) {
       console.error(error);

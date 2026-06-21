@@ -10,7 +10,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { Button } from '@/components/ui/button';
 import { Eye, Lock, Unlock, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { apiClient } from '@/lib/api';
+import { adminApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 
 interface Student {
@@ -42,8 +42,11 @@ export default function AdminStudentsPage() {
   const fetchStudents = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get('/admin/users/students', {
-        params: { q: search, status: statusFilter || undefined, page, limit },
+      const response = await adminApi.getStudents({
+        q: search,
+        status: statusFilter || undefined,
+        page,
+        limit,
       });
       setStudents(response.data.data);
       setTotalPages(response.data.meta.totalPages);
@@ -52,7 +55,7 @@ export default function AdminStudentsPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, page]);
+  }, [search, statusFilter, page, limit]);
 
   useEffect(() => {
     if (isAdmin) fetchStudents();
@@ -63,7 +66,7 @@ export default function AdminStudentsPage() {
     const action = newStatus === 'active' ? 'mở khóa' : 'khóa';
     if (!confirm(`Bạn có chắc muốn ${action} học viên "${student.fullName}"?`)) return;
     try {
-      await apiClient.patch(`/admin/users/students/${student.id}/status`, { status: newStatus });
+      await adminApi.updateStudentStatus(student.id, newStatus);
       toast.success(`Đã ${action} học viên`);
       fetchStudents();
     } catch {
@@ -74,7 +77,7 @@ export default function AdminStudentsPage() {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Xóa học viên "${name}"? Hành động không thể hoàn tác.`)) return;
     try {
-      await apiClient.delete(`/admin/users/students/${id}`);
+      await adminApi.deleteStudent(id);
       toast.success('Xóa học viên thành công');
       fetchStudents();
     } catch {

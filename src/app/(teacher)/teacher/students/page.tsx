@@ -7,7 +7,7 @@ import { SelectFilter } from '@/components/ui/select-filter';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Pagination } from '@/components/ui/pagination';
 import { Search } from 'lucide-react';
-import { apiClient } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { useRouter } from 'next/navigation';
@@ -38,21 +38,24 @@ export default function TeacherStudentsPage() {
 
   useEffect(() => {
     if (isTeacher) {
-      apiClient
-        .get('/teacher/courses')
-        .then((res) => setCourses(res.data.map((c: any) => ({ id: c.id, title: c.title }))));
+      teacherApi
+        .getMyCourses()
+        .then((res) => {
+          const courseList = Array.isArray(res.data) ? res.data : [];
+          setCourses(courseList.map((c: any) => ({ id: c.id, title: c.title })));
+        })
+        .catch(() => {});
     }
   }, [isTeacher]);
 
   useEffect(() => {
     if (isTeacher) {
-      apiClient
-        .get('/teacher/courses/students', {
-          params: { q: search, courseId: courseFilter, page, limit: 10 },
-        })
+      setLoading(true);
+      teacherApi
+        .getStudents({ q: search, courseId: courseFilter, page, limit: 10 })
         .then((res) => {
-          setStudents(res.data.data);
-          setTotalPages(res.data.totalPages);
+          setStudents(res.data.data || []);
+          setTotalPages(res.data.totalPages || 1);
         })
         .catch(() => {})
         .finally(() => setLoading(false));

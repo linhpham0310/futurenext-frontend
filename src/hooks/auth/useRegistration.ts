@@ -64,7 +64,7 @@ export function useRegistration() {
       setTimeout(() => {
         router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
       }, 3000);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Registration API Failed:', error);
 
       const apiError = error as ApiError;

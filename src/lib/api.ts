@@ -236,7 +236,7 @@ export const adminApi = {
     data: { fullName: string; email: string; phone?: string; status: string }
   ) => apiClient.put(`/admin/users/students/${id}`, data),
   deleteStudent: (id: string) => apiClient.delete(`/admin/users/students/${id}`),
-  getTeacherProfiles: (params?: { status?: string; page?: number; limit?: number }) =>
+  getTeacherProfiles: (params?: { status?: string; page?: number; limit?: number; q?: string }) =>
     apiClient.get('/admin/teacher-profiles', { params }),
   approveTeacherProfile: (id: string) => apiClient.patch(`/admin/teacher-profiles/${id}/approve`),
   rejectTeacherProfile: (id: string, reason?: string) =>
@@ -342,6 +342,9 @@ export const teacherApi = {
 
 // ==================== STUDENT API ====================
 export const studentApi = {
+  getStudentStats: () => apiClient.get('/dashboard/student/stats'),
+  getStudentRecentCourses: (params?: { limit?: number }) =>
+    apiClient.get('/dashboard/student/recent-courses', { params }),
   getMyCourses: () => apiClient.get('/courses/my-enrolled'),
   getPublicCourses: (params?: { search?: string; page?: number; limit?: number }) =>
     apiClient.get('/courses', { params }),

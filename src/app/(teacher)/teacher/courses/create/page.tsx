@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { apiClient } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
@@ -45,7 +45,7 @@ export default function CreateCoursePage() {
   const onSubmit = async (data: CourseFormValues) => {
     setIsSubmitting(true);
     try {
-      const response = await apiClient.post('/teacher/courses', data);
+      const response = await teacherApi.createCourse(data);
       toast.success('Tạo bản nháp thành công!');
       router.push(`/teacher/courses/${response.data.id}/builder`);
     } catch (error: any) {

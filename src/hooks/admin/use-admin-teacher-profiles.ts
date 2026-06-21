@@ -1,6 +1,6 @@
 // src/hooks/admin/useAdminTeacherProfiles.ts
 import { useState, useCallback, useEffect } from 'react';
-import { apiClient } from '@/lib/api';
+import { adminApi } from '@/lib/api';
 
 export interface AdminTeacherProfile {
   id: string;
@@ -30,10 +30,14 @@ export function useAdminTeacherProfiles() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get('/admin/teacher-profiles', { params: filters });
+      const response = await adminApi.getTeacherProfiles({
+        status: filters.status,
+        page: filters.page,
+        limit: filters.limit,
+      });
       const data = response.data;
-      setProfiles(data.data.items);
-      setTotalPages(data.data.meta.totalPages);
+      setProfiles(data.data?.items || []);
+      setTotalPages(data.data?.meta?.totalPages || 1);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Lỗi khi lấy danh sách');
     } finally {
@@ -47,11 +51,11 @@ export function useAdminTeacherProfiles() {
 
   const reviewProfile = async (profileId: string, status: 'approved' | 'rejected') => {
     try {
-      const endpoint =
-        status === 'approved'
-          ? `/admin/teacher-profiles/${profileId}/approve`
-          : `/admin/teacher-profiles/${profileId}/reject`;
-      await apiClient.patch(endpoint);
+      if (status === 'approved') {
+        await adminApi.approveTeacherProfile(profileId);
+      } else {
+        await adminApi.rejectTeacherProfile(profileId, 'Hồ sơ không đạt yêu cầu');
+      }
       setProfiles((prev) => prev.map((p) => (p.id === profileId ? { ...p, status } : p)));
       return true;
     } catch (err: any) {

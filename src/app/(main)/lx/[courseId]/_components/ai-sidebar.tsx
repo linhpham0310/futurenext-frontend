@@ -3,7 +3,7 @@
 import { Bot, Sparkles, Send } from 'lucide-react';
 import { useState } from 'react';
 import { useLXStore } from '@/store/use-lx-store';
-import { apiClient } from '@/lib/api';
+import { studentApi } from '@/lib/api';
 import { toast } from 'sonner';
 
 interface AiSidebarProps {
@@ -24,7 +24,10 @@ export const AiSidebar = ({ isOpen }: AiSidebarProps) => {
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
     try {
-      const res = await apiClient.post('/lx/ai/ask', { lessonId: activeLesson?.id, question });
+      const res = await studentApi.askAi({
+        lessonId: activeLesson?.id,
+        question,
+      });
       const assistantMsg = { role: 'assistant' as const, content: res.data.answer };
       setMessages((prev) => [...prev, assistantMsg]);
     } catch {

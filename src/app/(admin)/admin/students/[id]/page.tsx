@@ -6,7 +6,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'react-hot-toast';
-import { apiClient } from '@/lib/api';
+import { adminApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 
 export default function StudentDetailPage() {
@@ -24,7 +24,7 @@ export default function StudentDetailPage() {
     if (isAdmin) {
       const fetchStudent = async () => {
         try {
-          const { data } = await apiClient.get(`/admin/students/${id}`);
+          const { data } = await adminApi.getStudentById(id as string);
           setStudent(data);
         } catch {
           toast.error('Không tải được thông tin học viên');

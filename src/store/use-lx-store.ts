@@ -1,4 +1,4 @@
-import { apiClient } from '@/lib/api';
+import { studentApi } from '@/lib/api';
 import { create } from 'zustand';
 // Định nghĩa cấu trúc dữ liệu theo thiết kế LLD của module LX
 export interface LXLesson {
@@ -53,7 +53,7 @@ export const useLXStore = create<LXState>((set, get) => ({
   fetchRuntimeOverview: async (courseId: string) => {
     try {
       set({ isLoadingStructure: true });
-      const { data } = await apiClient.get(`/lx/runtime/${courseId}`);
+      const { data } = await studentApi.getRuntimeOverview(courseId);
       set({
         courseId: data.courseId,
         courseTitle: data.courseTitle,
@@ -70,7 +70,7 @@ export const useLXStore = create<LXState>((set, get) => ({
   fetchLessonDetail: async (lessonId: string) => {
     try {
       set({ isLoadingLesson: true });
-      const { data } = await apiClient.get(`/lx/lesson/${lessonId}`);
+      const { data } = await studentApi.getLessonContent(lessonId);
       set({
         activeLesson: {
           id: data.id,

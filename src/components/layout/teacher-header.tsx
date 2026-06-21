@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { apiClient, commonApi } from '@/lib/api';
+import { commonApi } from '@/lib/api';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ThemeToggle } from './theme-toggle';
 import { TeacherMenu } from './teacher-menu';
@@ -98,8 +98,16 @@ export const TeacherHeader = () => {
     }
     setSearchLoading(true);
     try {
-      const res = await apiClient.get('/teacher/search', { params: { q } });
-      setSearchResults(res.data);
+      const res = await commonApi.search(q);
+      const courses = res.data?.items ?? res.data ?? [];
+      setSearchResults(
+        courses.map((c: any) => ({
+          id: c.id,
+          label: c.title,
+          type: 'course',
+          link: `/teacher/courses/${c.id}`,
+        }))
+      );
     } catch (error) {
       console.error(error);
       setSearchResults([]);

@@ -13,7 +13,6 @@ import {
   DollarSign,
   Settings,
   Megaphone,
-  FileCheck,
   LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';

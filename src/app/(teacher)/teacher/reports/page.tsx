@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { apiClient } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,9 +16,12 @@ export default function TeacherReportsPage() {
   const exportReport = async (type: 'revenue' | 'students') => {
     setExporting(true);
     try {
-      const response = await apiClient.get(`/teacher/reports/${type}/export`, {
-        responseType: 'blob',
-      });
+      let response;
+      if (type === 'revenue') {
+        response = await teacherApi.exportRevenueReport();
+      } else {
+        response = await teacherApi.exportStudentsReport();
+      }
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;

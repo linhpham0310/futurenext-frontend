@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { apiClient, commonApi } from '@/lib/api';
+import { commonApi } from '@/lib/api';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ThemeToggle } from './theme-toggle';
 import { StudentMenu } from './student-menu';
@@ -100,7 +100,7 @@ export const StudentHeader = () => {
     }
     setSearchLoading(true);
     try {
-      const res = await apiClient.get('/search/courses', { params: { q } });
+      const res = await commonApi.search(q);
       const courses = res.data?.items ?? res.data ?? [];
 
       setSearchResults(

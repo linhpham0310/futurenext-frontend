@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, BookOpen, DollarSign, Clock, Activity } from 'lucide-react';
-import { apiClient } from '@/lib/api';
+import { adminApi } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 
 interface DashboardStats {
@@ -38,7 +38,7 @@ export default function AdminDashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await apiClient.get('/dashboard/admin/stats');
+      const response = await adminApi.getDashboardStats();
       setStats(response.data);
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -50,9 +50,8 @@ export default function AdminDashboardPage() {
 
   const fetchRecentActivities = async () => {
     try {
-      const response = await apiClient.get('/dashboard/admin/activities/recent', {
-        params: { limit: 10 },
-      });
+      const response = await adminApi.getRecentActivities(10);
+
       // Đảm bảo response.data là mảng
       setActivities(Array.isArray(response.data) ? response.data : []);
     } catch (error) {

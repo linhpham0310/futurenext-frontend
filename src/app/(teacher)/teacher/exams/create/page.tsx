@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { apiClient } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,7 +40,7 @@ export default function CreateExamPage() {
     }
     setGenerating(true);
     try {
-      const res = await apiClient.post('/teacher/exams/generate', {
+      const res = await teacherApi.generateQuiz({
         topic,
         type: examType,
         duration,
@@ -88,7 +88,7 @@ export default function CreateExamPage() {
     }
     setSaving(true);
     try {
-      await apiClient.post('/teacher/exams', {
+      await teacherApi.createExam({
         title,
         topic,
         type: examType,

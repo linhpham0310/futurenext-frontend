@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, TrendingUp, CreditCard } from 'lucide-react';
+import { DollarSign } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Spinner } from '@/components/ui/spinner';
-import { apiClient } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useRouter } from 'next/navigation';
 
@@ -38,12 +38,12 @@ export default function TeacherRevenuePage() {
 
   useEffect(() => {
     if (isTeacher) {
-      apiClient
-        .get('/revenue/teacher/stats')
+      teacherApi
+        .getRevenueStats()
         .then((res) => setStats(res.data))
         .finally(() => setLoading(false));
-      apiClient
-        .get('/revenue/teacher/transactions', { params: { limit: 20 } })
+      teacherApi
+        .getTransactions(20)
         .then((res) => setTransactions(res.data))
         .finally(() => setTxLoading(false));
     }

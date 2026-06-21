@@ -6,7 +6,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'react-hot-toast';
-import { apiClient } from '@/lib/api';
+import { adminApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 
 export default function EditStudentPage() {
@@ -26,7 +26,7 @@ export default function EditStudentPage() {
     if (isAdmin) {
       const fetchStudent = async () => {
         try {
-          const { data } = await apiClient.get(`/admin/students/${id}`);
+          const { data } = await adminApi.getStudentById(id as string);
           setForm({
             fullName: data.fullName,
             email: data.email,
@@ -47,7 +47,7 @@ export default function EditStudentPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      await apiClient.put(`/admin/students/${id}`, form);
+      await adminApi.updateStudent(id as string, form);
       toast.success('Cập nhật học viên thành công');
       router.push(`/admin/students/${id}`);
     } catch {

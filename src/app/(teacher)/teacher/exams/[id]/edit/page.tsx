@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { apiClient } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,8 +35,8 @@ export default function EditExamPage() {
 
   useEffect(() => {
     if (isTeacher && id) {
-      apiClient
-        .get(`/teacher/exams/${id}`)
+      teacherApi
+        .getExam(id as string)
         .then((res) => {
           const data = res.data;
           setTitle(data.title);
@@ -83,7 +83,7 @@ export default function EditExamPage() {
     }
     setSaving(true);
     try {
-      await apiClient.put(`/teacher/exams/${id}`, {
+      await teacherApi.updateExam(id as string, {
         title,
         topic,
         type: examType,

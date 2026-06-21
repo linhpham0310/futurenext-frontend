@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiClient } from '@/lib/api';
+import { studentApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent } from '@/components/ui/card';
@@ -26,8 +26,8 @@ export default function MyReviewsPage() {
 
   useEffect(() => {
     if (user) {
-      apiClient
-        .get('/student/reviews')
+      studentApi
+        .getReviews()
         .then((res) => setReviews(res.data))
         .catch(() => toast.error('Không thể tải đánh giá'))
         .finally(() => setLoading(false));
@@ -37,7 +37,7 @@ export default function MyReviewsPage() {
   const deleteReview = async (reviewId: string) => {
     if (!confirm('Bạn có chắc muốn xóa đánh giá này?')) return;
     try {
-      await apiClient.delete(`/student/reviews/${reviewId}`);
+      await studentApi.deleteReview(reviewId);
       setReviews((prev) => prev.filter((r) => r.id !== reviewId));
       toast.success('Xóa đánh giá thành công');
     } catch {

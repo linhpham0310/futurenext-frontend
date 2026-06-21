@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiClient } from '@/lib/api';
+import { studentApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,8 +25,8 @@ export default function FavoritesPage() {
 
   useEffect(() => {
     if (user) {
-      apiClient
-        .get('/student/favorites')
+      studentApi
+        .getFavorites()
         .then((res) => setFavorites(res.data))
         .catch(() => toast.error('Không thể tải danh sách yêu thích'))
         .finally(() => setLoading(false));
@@ -35,7 +35,7 @@ export default function FavoritesPage() {
 
   const removeFavorite = async (courseId: string) => {
     try {
-      await apiClient.delete(`/student/favorites/${courseId}`);
+      await studentApi.removeFavorite(courseId);
       setFavorites((prev) => prev.filter((c) => c.id !== courseId));
       toast.success('Đã xóa khỏi danh sách yêu thích');
     } catch {

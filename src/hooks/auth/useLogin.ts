@@ -31,7 +31,7 @@ export function useLogin() {
       } else {
         router.push('/dashboard');
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       const err = error as { message?: string; statusCode?: number };
       if (err?.statusCode === 401) {
         setApiError(err.message || 'Email hoặc mật khẩu không chính xác.');

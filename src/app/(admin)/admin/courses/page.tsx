@@ -19,7 +19,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { apiClient } from '@/lib/api';
+import { adminApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 
 interface Course {
@@ -56,8 +56,11 @@ export default function AdminCoursesPage() {
   const fetchCourses = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get('/admin/courses', {
-        params: { q: search, status: statusFilter || undefined, page, limit },
+      const response = await adminApi.getCourses({
+        q: search,
+        status: statusFilter || undefined,
+        page,
+        limit,
       });
       setCourses(response.data.data);
       setTotalPages(response.data.meta.totalPages);
@@ -66,7 +69,7 @@ export default function AdminCoursesPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, page]);
+  }, [search, statusFilter, page, limit]);
 
   useEffect(() => {
     if (isAdmin) fetchCourses();
@@ -75,7 +78,7 @@ export default function AdminCoursesPage() {
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Bạn có chắc muốn xóa khóa học "${title}"? Hành động không thể hoàn tác.`)) return;
     try {
-      await apiClient.delete(`/admin/courses/${id}`);
+      await adminApi.deleteCourse(id);
       toast.success('Xóa khóa học thành công');
       fetchCourses();
     } catch {
@@ -85,7 +88,7 @@ export default function AdminCoursesPage() {
 
   const handleApprove = async (id: string) => {
     try {
-      await apiClient.patch(`/admin/courses/${id}/approve`);
+      await adminApi.approveCourse(id);
       toast.success('Khóa học đã được xuất bản');
       fetchCourses();
     } catch {
@@ -107,7 +110,7 @@ export default function AdminCoursesPage() {
     }
     setSubmitting(true);
     try {
-      await apiClient.patch(`/admin/courses/${selectedCourseId}/reject`, { reason: rejectReason });
+      await adminApi.rejectCourse(selectedCourseId, rejectReason);
       toast.success('Đã từ chối khóa học');
       setRejectDialogOpen(false);
       fetchCourses();

@@ -37,7 +37,7 @@ export function useProfile() {
         avatarUrl: response.data.avatarUrl || '',
         phone: response.data.phone || '',
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       const err = error as { message?: string };
       setFetchError(err.message || 'Không thể tải hồ sơ.');
     } finally {
@@ -63,7 +63,7 @@ export function useProfile() {
         avatarUrl: updatedUserData.avatarUrl || '',
         phone: updatedUserData.phone || '',
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       const err = error as { statusCode?: number; message?: string };
       if (err?.statusCode === 409) {
         setUpdateError('Dữ liệu đã được thay đổi bởi phiên khác. Vui lòng tải lại trang.');

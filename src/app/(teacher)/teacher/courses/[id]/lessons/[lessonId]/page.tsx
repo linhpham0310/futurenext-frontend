@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { apiClient, teacherApi } from '@/lib/api';
+import { teacherApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
@@ -22,8 +22,8 @@ export default function LessonEditorPage() {
 
   useEffect(() => {
     if (isTeacher && courseId && lessonId) {
-      apiClient
-        .get(`/teacher/courses/${courseId}/lessons/${lessonId}`)
+      teacherApi
+        .getLesson(courseId as string, lessonId as string)
         .then((res) => {
           setLesson(res.data);
           if (res.data.type === 'VIDEO') setVideoKey(res.data.content || '');

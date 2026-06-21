@@ -6,7 +6,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'react-hot-toast';
-import { apiClient } from '@/lib/api';
+import { adminApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 
 export default function EditUserPage() {
@@ -32,7 +32,7 @@ export default function EditUserPage() {
     if (isAdmin) {
       const fetchUser = async () => {
         try {
-          const { data } = await apiClient.get(`/admin/users/${id}`);
+          const { data } = await adminApi.getUserById(id as string);
           setForm({
             fullName: data.fullName,
             email: data.email,
@@ -54,7 +54,7 @@ export default function EditUserPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      await apiClient.put(`/admin/users/${id}`, form);
+      await adminApi.updateUser(id as string, form);
       toast.success('Cập nhật người dùng thành công');
       router.push(`/admin/users/${id}`);
     } catch {

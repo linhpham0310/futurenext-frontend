@@ -6,7 +6,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'react-hot-toast';
-import { apiClient } from '@/lib/api';
+import { adminApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 
 export default function UserDetailPage() {
@@ -24,7 +24,7 @@ export default function UserDetailPage() {
     if (isAdmin) {
       const fetchUser = async () => {
         try {
-          const { data } = await apiClient.get(`/admin/users/${id}`);
+          const { data } = await adminApi.getUserById(id as string);
           setUser(data);
         } catch {
           toast.error('Không tải được thông tin người dùng');

@@ -1,17 +1,7 @@
-import { apiClient } from '@/lib/api';
+import { adminApi, apiClient } from '@/lib/api';
 import { User, UserRole, UserStatus } from '@/types/auth.api';
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
-
-interface FetchUsersResponse {
-  items: User[];
-  meta: {
-    total: number;
-    totalPages: number;
-    page: number;
-    limit: number;
-  };
-}
 
 export const useUserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -33,11 +23,17 @@ export const useUserManagement = () => {
     setError(null);
 
     try {
-      const response = await apiClient.get<FetchUsersResponse>('/admin/users', { params: filters });
-      setUsers(response.data.items);
-      setTotal(response.data.meta.total);
-      setTotalPages(response.data.meta.totalPages);
-    } catch (error: unknown) {
+      const response = await adminApi.getUsers({
+        page: filters.page,
+        limit: filters.limit,
+        q: filters.q || undefined,
+        role: filters.role || undefined,
+        status: filters.status || undefined,
+      });
+      setUsers(response.data.data || []);
+      setTotal(response.data.meta?.total || 0);
+      setTotalPages(response.data.meta?.totalPages || 0);
+    } catch (error: any) {
       const err = error as { response?: { data?: { message?: string } } };
       toast.error(err?.response?.data?.message || 'Không thể tải danh sách người dùng');
     } finally {
@@ -60,10 +56,10 @@ export const useUserManagement = () => {
 
   const handleUpdateRole = async (userId: string, newRole: UserRole) => {
     try {
-      await apiClient.put(`/admin/users/${userId}/role`, { role: newRole });
+      await adminApi.updateUser(userId, { role: newRole });
       toast.success('Cập nhật vai trò thành công');
       await fetchUsers();
-    } catch (error: unknown) {
+    } catch (error: any) {
       const err = error as { response?: { data?: { message?: string } } };
       toast.error(err?.response?.data?.message || 'Cập nhật thất bại');
     }

@@ -19,7 +19,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { apiClient } from '@/lib/api';
+import { adminApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 
 interface TeacherProfile {
@@ -57,8 +57,11 @@ export default function AdminTeacherProfilesPage() {
   const fetchProfiles = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get('/admin/teacher-profiles', {
-        params: { q: search, status: statusFilter || undefined, page, limit },
+      const response = await adminApi.getTeacherProfiles({
+        q: search,
+        status: statusFilter || undefined,
+        page,
+        limit,
       });
       setProfiles(response.data.data.items);
       setTotalPages(response.data.data.meta.totalPages);
@@ -75,7 +78,7 @@ export default function AdminTeacherProfilesPage() {
 
   const handleApprove = async (profileId: string) => {
     try {
-      await apiClient.patch(`/admin/teacher-profiles/${profileId}/approve`);
+      await adminApi.approveTeacherProfile(profileId);
       toast.success('Hồ sơ giáo viên đã được duyệt');
       fetchProfiles();
     } catch {
@@ -97,9 +100,8 @@ export default function AdminTeacherProfilesPage() {
     }
     setSubmitting(true);
     try {
-      await apiClient.patch(`/admin/teacher-profiles/${selectedProfile.id}/reject`, {
-        reason: rejectReason,
-      });
+      await adminApi.rejectTeacherProfile(selectedProfile.id, rejectReason);
+
       toast.success('Đã từ chối hồ sơ');
       setRejectDialogOpen(false);
       fetchProfiles();
@@ -113,7 +115,7 @@ export default function AdminTeacherProfilesPage() {
   const handleDelete = async (profileId: string) => {
     if (!confirm('Bạn có chắc muốn xóa hồ sơ này?')) return;
     try {
-      await apiClient.delete(`/admin/teacher-profiles/${profileId}`);
+      await adminApi.deleteTeacherProfile(profileId);
       toast.success('Xóa hồ sơ thành công');
       fetchProfiles();
     } catch {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { apiClient } from '@/lib/api';
+import { studentApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,8 +25,8 @@ export default function StudentExamsPage() {
 
   useEffect(() => {
     if (user) {
-      apiClient
-        .get('/student/exams')
+      studentApi
+        .getAssignedExams()
         .then((res) => setExams(res.data))
         .catch(() => toast.error('Không thể tải bài kiểm tra'))
         .finally(() => setLoading(false));

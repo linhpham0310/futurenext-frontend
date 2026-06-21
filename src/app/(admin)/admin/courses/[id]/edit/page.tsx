@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'react-hot-toast';
-import { apiClient } from '@/lib/api';
+import { adminApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 
 export default function EditCoursePage() {
@@ -27,7 +27,7 @@ export default function EditCoursePage() {
     if (isAdmin) {
       const fetchCourse = async () => {
         try {
-          const { data } = await apiClient.get(`/admin/courses/${id}`);
+          const { data } = await adminApi.getCourseDetail(id as string);
           setForm({
             title: data.title,
             description: data.description,
@@ -48,7 +48,7 @@ export default function EditCoursePage() {
     e.preventDefault();
     setSaving(true);
     try {
-      await apiClient.put(`/admin/courses/${id}`, form);
+      await adminApi.updateCourse(id as string, form);
       toast.success('Cập nhật khóa học thành công');
       router.push(`/admin/courses/${id}`);
     } catch {

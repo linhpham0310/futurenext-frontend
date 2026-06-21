@@ -10,7 +10,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Eye, Edit, Trash2 } from 'lucide-react';
-import { apiClient } from '@/lib/api';
+import { adminApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 
 interface User {
@@ -41,8 +41,11 @@ export default function AdminUsersPage() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get('/admin/users', {
-        params: { q: search, role: roleFilter || undefined, page, limit },
+      const response = await adminApi.getUsers({
+        q: search,
+        role: roleFilter || undefined,
+        page,
+        limit,
       });
       setUsers(response.data.data);
       setTotalPages(response.data.meta.totalPages);
@@ -60,7 +63,7 @@ export default function AdminUsersPage() {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Xóa người dùng "${name}"? Hành động không thể hoàn tác.`)) return;
     try {
-      await apiClient.delete(`/admin/users/${id}`);
+      await adminApi.deleteUser(id);
       toast.success('Xóa người dùng thành công');
       fetchUsers();
     } catch {

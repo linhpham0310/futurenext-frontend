@@ -3,7 +3,7 @@
 import { useRouter, useParams } from 'next/navigation';
 import { useLXStore } from '@/store/use-lx-store';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
-import { apiClient } from '@/lib/api';
+import { studentApi } from '@/lib/api';
 import { toast } from 'sonner';
 
 export const LessonNavigationControls = () => {
@@ -26,8 +26,9 @@ export const LessonNavigationControls = () => {
 
   const handleCompleteAndNext = async () => {
     try {
-      await apiClient.patch(`/lx/lessons/${activeLesson.id}/progress`, {
+      await studentApi.updateLessonProgress(activeLesson.id, {
         status: 'COMPLETED',
+        lastPosition: activeLesson.lastPosition ?? 0,
       });
       updateLessonProgressLocal(activeLesson.id, 'COMPLETED', activeLesson.lastPosition ?? 0);
       toast.success('Chúc mừng! Bạn đã hoàn thành bài học này.');

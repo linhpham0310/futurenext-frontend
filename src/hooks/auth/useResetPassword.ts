@@ -26,7 +26,7 @@ export const useResetPassword = () => {
       });
       toast.success('Đặt lại mật khẩu thành công!');
       setTimeout(() => router.push('/sign-in'), 2000);
-    } catch (err: unknown) {
+    } catch (err: any) {
       let msg = 'Mã OTP không đúng hoặc đã hết hạn.';
       if (axios.isAxiosError(err)) {
         msg = err.response?.data?.message || msg;

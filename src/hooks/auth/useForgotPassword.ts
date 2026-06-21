@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { apiClient } from '@/lib/api'; // [KẾ THỪA S1]
+import { authApi } from '@/lib/api'; // [KẾ THỪA S1]
 import { ForgotPasswordInput } from '@/lib/schemas/auth.schema';
 import axios from 'axios';
 
@@ -13,9 +13,9 @@ export const useForgotPassword = () => {
     setError(null);
     try {
       // Gọi API đã triển khai ở Task S2-BE-01/03
-      await apiClient.post('/auth/forgot-password', data);
+      await authApi.forgotPassword(data);
       setIsSuccess(true);
-    } catch (err: unknown) {
+    } catch (err: any) {
       let message = 'Có lỗi xảy ra, vui lòng thử lại sau.';
 
       // Xử lý lỗi Rate Limit hoặc lỗi Server

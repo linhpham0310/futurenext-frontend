@@ -1,8 +1,8 @@
 'use client';
 import React, { useState } from 'react';
-import { Upload, FileVideo, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { Upload, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { apiClient } from '@/lib/api';
+import { courseApi } from '@/lib/api';
 
 interface VideoUploaderProps {
   courseId: string;
@@ -33,12 +33,7 @@ export const VideoUploader = ({ courseId, onSuccess }: VideoUploaderProps) => {
       setProgress(0);
 
       // 1. Lấy Presigned URL từ Backend (Gọi API từ Task 3.2)
-      const { data } = await apiClient.get(`/courses/${courseId}/upload-url`, {
-        params: {
-          fileName: file.name,
-          fileType: file.type,
-        },
-      });
+      const data = await courseApi.getUploadUrl(courseId, file.name, file.type);
 
       const { uploadUrl, fileKey } = data;
 
