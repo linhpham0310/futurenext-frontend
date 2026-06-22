@@ -10,27 +10,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { GraduationCap } from 'lucide-react';
-import { authApi } from '@/lib/api';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useAuthStore } from '@/store/authStore';
 
 export default function RegisterPage() {
-  const router = useRouter();
-
-  const [role, setRole] = useState<'student' | 'teacher'>('student');
-  const { isAuthenticated } = useAuthStore();
-
   const { form, onSubmit, isLoading, apiError, isSuccess } = useRegistration();
 
-  if (isAuthenticated) {
-    router.push('/dashboard');
-    return null;
-  }
-
-  const handleSocialRegister = (provider: 'google' | 'apple' | 'facebook') => {
-    authApi.registerWithSocial(provider, role);
-  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#EFF6FF] via-white to-[#F5F3FF] flex">
       {/* Left side - Image & Info */}
@@ -114,16 +97,15 @@ export default function RegisterPage() {
                     </span>
                   </div>
                 </div>
-                <div className="social-buttons">
-                  <button onClick={() => handleSocialRegister('google')} className="btn-google">
-                    Google
-                  </button>
+                <div className="grid grid-cols-3 gap-2">
                   <Button variant="outline" disabled>
                     {' '}
                     {/* Use Button component */}
                     {/* <Icons.apple className="mr-2 h-4 w-4" /> */} Apple
                   </Button>
-
+                  <Button variant="outline" disabled>
+                    {/* <Icons.google className="mr-2 h-4 w-4" /> */} Google
+                  </Button>
                   <Button variant="outline" disabled>
                     {/* <Icons.meta className="mr-2 h-4 w-4" /> */} Meta
                   </Button>
