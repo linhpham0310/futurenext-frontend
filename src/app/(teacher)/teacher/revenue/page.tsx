@@ -6,8 +6,8 @@ import { DollarSign } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Spinner } from '@/components/ui/spinner';
 import { teacherApi } from '@/lib/api';
-import { useAuth } from '@/hooks/auth/useAuth';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/auth/useAuth';
 
 interface RevenueStats {
   monthlyRevenue: number;
@@ -36,25 +36,17 @@ export default function TeacherRevenuePage() {
     if (!authLoading && !isTeacher) router.push('/forbidden');
   }, [isTeacher, authLoading, router]);
 
-  useEffect(() => {
-    if (isTeacher) {
-      teacherApi
-        .getRevenueStats()
-        .then((res) => setStats(res.data))
-        .finally(() => setLoading(false));
-      teacherApi
-        .getTransactions(20)
-        .then((res) => setTransactions(res.data))
-        .finally(() => setTxLoading(false));
-    }
-  }, [isTeacher]);
+  // XÓA block useEffect .then() cũ ở đây
 
   const fetchStats = useCallback(async () => {
+    setLoading(true);
     try {
       const response = await teacherApi.getRevenueStats();
       setStats(response.data);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
