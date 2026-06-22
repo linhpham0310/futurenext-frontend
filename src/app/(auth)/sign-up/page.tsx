@@ -116,7 +116,6 @@ export default function RegisterPage() {
                 </div>
                 <div className="social-buttons">
                   <button onClick={() => handleSocialRegister('google')} className="btn-google">
-                    <img src="/google-icon.svg" alt="Google" width={20} height={20} />
                     Google
                   </button>
                   <Button variant="outline" disabled>

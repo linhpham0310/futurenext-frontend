@@ -69,7 +69,6 @@ export default function LoginPage() {
                     onClick={() => loginWith('google')}
                     className="w-full"
                   >
-                    <img src="/google-icon.svg" alt="Google" width={20} height={20} />
                     Google
                   </Button>
                   <Button variant="outline" disabled>
