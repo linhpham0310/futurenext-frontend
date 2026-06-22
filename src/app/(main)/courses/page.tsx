@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { courseApi, studentApi } from '@/lib/api'; // thêm studentApi
+import { courseApi, studentApi } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { Spinner } from '@/components/ui/spinner';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 interface Course {
   id: string;
@@ -16,20 +17,34 @@ interface Course {
   description: string;
   price: number;
   thumbnail?: string;
-  isEnrolled?: boolean; // có thể thêm nếu API trả về
+  isEnrolled?: boolean;
 }
 
 export default function StudentCoursesPage() {
+  const router = useRouter();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [enrolling, setEnrolling] = useState<string | null>(null);
 
+  // Lấy danh sách khóa học công khai và danh sách đã đăng ký để đánh dấu
   const fetchCourses = async (keyword = '') => {
     setLoading(true);
     try {
-      const res = await courseApi.getPublicCourses({ search: keyword });
-      setCourses(res.data.data || res.data); // tùy cấu trúc API
+      const [publicRes, myCoursesRes] = await Promise.all([
+        courseApi.getPublicCourses({ search: keyword }),
+        studentApi.getMyCourses().catch(() => ({ data: [] })), // nếu chưa đăng nhập thì bỏ qua
+      ]);
+
+      const publicCourses = publicRes.data.data || publicRes.data || [];
+      const myCourseIds = new Set((myCoursesRes.data || []).map((c: any) => c.id));
+
+      const merged = publicCourses.map((c: Course) => ({
+        ...c,
+        isEnrolled: myCourseIds.has(c.id),
+      }));
+
+      setCourses(merged);
     } catch (error) {
       console.error(error);
       toast.error('Không thể tải danh sách khóa học');
@@ -42,7 +57,7 @@ export default function StudentCoursesPage() {
     fetchCourses();
   }, []);
 
-  // Debounce search
+  // Debounce tìm kiếm
   useEffect(() => {
     const timer = setTimeout(() => fetchCourses(search), 500);
     return () => clearTimeout(timer);
@@ -53,13 +68,17 @@ export default function StudentCoursesPage() {
     try {
       await studentApi.enrollCourse(courseId);
       toast.success('Đăng ký thành công!');
-      // Cập nhật trạng thái đã đăng ký trên UI
+      // Cập nhật trạng thái ngay lập tức
       setCourses((prev) => prev.map((c) => (c.id === courseId ? { ...c, isEnrolled: true } : c)));
     } catch (error) {
       toast.error('Đăng ký thất bại, vui lòng thử lại');
     } finally {
       setEnrolling(null);
     }
+  };
+
+  const goToLearning = (courseId: string) => {
+    router.push(`/lx/${courseId}`);
   };
 
   if (loading) {
@@ -84,6 +103,7 @@ export default function StudentCoursesPage() {
           />
         </div>
       </div>
+
       {courses.length === 0 ? (
         <div className="text-center py-12 text-gray-500">Không có khóa học nào phù hợp.</div>
       ) : (
@@ -100,8 +120,8 @@ export default function StudentCoursesPage() {
                     {course.price.toLocaleString('vi-VN')}đ
                   </span>
                   {course.isEnrolled ? (
-                    <Button variant="outline" size="sm" disabled>
-                      Đã đăng ký
+                    <Button size="sm" onClick={() => goToLearning(course.id)}>
+                      Vào học
                     </Button>
                   ) : (
                     <Button

@@ -2,7 +2,16 @@
 
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useLXStore } from '@/store/use-lx-store';
-import { CheckCircle2, Circle, PlayCircle, FileText, HelpCircle, Code2, Clock } from 'lucide-react';
+import {
+  CheckCircle2,
+  Circle,
+  PlayCircle,
+  FileText,
+  HelpCircle,
+  Code2,
+  Clock,
+  BookOpen,
+} from 'lucide-react';
 
 export const LessonSidebar = () => {
   const router = useRouter();
@@ -42,17 +51,32 @@ export const LessonSidebar = () => {
     }
   };
 
+  // Tính số bài đã hoàn thành
+  const totalLessons = sections.reduce((acc, s) => acc + s.lessons.length, 0);
+  const completedCount = sections.reduce(
+    (acc, s) => acc + s.lessons.filter((l) => l.status === 'COMPLETED').length,
+    0
+  );
+
   return (
-    <div className="w-80 h-full border-r bg-gray-50 flex flex-col overflow-y-auto">
-      <div className="p-4 border-b bg-white space-y-2">
-        <h2 className="font-bold text-sm text-gray-800">Tiến độ của bạn</h2>
-        <div className="flex items-center justify-between text-xs text-gray-500 font-medium">
-          <span>Tỷ lệ hoàn thành</span>
-          <span>{Math.round(progressPercentage)}%</span>
+    <div className="w-80 h-full border-r bg-white flex flex-col overflow-y-auto shadow-xl">
+      <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold text-sm text-gray-700 flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-blue-600" />
+            Nội dung khóa học
+          </h2>
+          <span className="text-xs font-medium text-gray-500 bg-white/80 px-2 py-1 rounded-full">
+            {completedCount}/{totalLessons}
+          </span>
         </div>
-        <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+        <div className="flex items-center justify-between text-xs text-gray-600 font-medium">
+          <span>Tiến độ</span>
+          <span className="font-bold text-blue-600">{Math.round(progressPercentage)}%</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
           <div
-            className="bg-emerald-500 h-full transition-all"
+            className="bg-gradient-to-r from-blue-500 to-indigo-500 h-full transition-all duration-500 rounded-full"
             style={{ width: `${progressPercentage}%` }}
           />
         </div>
@@ -73,11 +97,15 @@ export const LessonSidebar = () => {
                     <div
                       key={lesson.id}
                       onClick={() => handleLessonClick(lesson.id)}
-                      className={`flex items-center gap-x-2.5 px-3 py-3 rounded-lg text-xs font-semibold transition cursor-pointer select-none ${isActive ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-200/60 hover:text-gray-900'}`}
+                      className={`flex items-center gap-x-2.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer select-none ${
+                        isActive
+                          ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300'
+                          : 'text-gray-700 hover:bg-gray-100 hover:scale-[1.02]'
+                      }`}
                     >
                       {getProgressIcon(lesson.status)}
-                      <span className="truncate flex-1 font-medium">{lesson.title}</span>
-                      <div className={isActive ? 'text-white' : 'text-gray-400'}>
+                      <span className="truncate flex-1">{lesson.title}</span>
+                      <div className={isActive ? 'text-white/90' : 'text-gray-400'}>
                         {getLessonTypeIcon(lesson.type)}
                       </div>
                     </div>
