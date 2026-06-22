@@ -28,12 +28,10 @@ export default function StudentCoursesPage() {
   const [search, setSearch] = useState('');
   const [enrolling, setEnrolling] = useState<string | null>(null);
 
-  // Lấy danh sách khóa học công khai và danh sách đã đăng ký
   const fetchCourses = async (keyword = '') => {
     setLoading(true);
     setError(null);
     try {
-      // Gọi API public với tham số page, limit và search
       const publicRes = await courseApi.getPublicCourses({
         page: 1,
         limit: 20,
@@ -42,32 +40,21 @@ export default function StudentCoursesPage() {
 
       console.log('📦 Public courses response:', publicRes.data);
 
-      // Lấy mảng courses từ response (có thể là data.data hoặc data.items hoặc data trực tiếp)
-      let publicCourses: Course[] = [];
-      if (publicRes.data?.data && Array.isArray(publicRes.data.data)) {
-        publicCourses = publicRes.data.data;
-      } else if (publicRes.data?.items && Array.isArray(publicRes.data.items)) {
-        publicCourses = publicRes.data.items;
-      } else if (Array.isArray(publicRes.data)) {
-        publicCourses = publicRes.data;
-      } else {
-        console.warn('⚠️ Không thể parse courses từ response:', publicRes.data);
-        publicCourses = [];
-      }
+      // Response có cấu trúc: { data: [...], meta: {...} }
+      const publicCourses = publicRes.data?.data || [];
+      console.log('📦 Parsed courses:', publicCourses);
 
-      // Lấy danh sách khóa học đã đăng ký của student
+      // Lấy danh sách khóa học đã đăng ký
       let myCourseIds = new Set<string>();
       try {
         const myRes = await studentApi.getMyCourses();
         const myCourses = myRes.data?.data || myRes.data || [];
         myCourseIds = new Set(myCourses.map((c: any) => c.id));
       } catch (err) {
-        // Nếu chưa đăng nhập hoặc chưa có khóa học nào, bỏ qua
         console.log('Chưa có khóa học đã đăng ký hoặc chưa đăng nhập');
       }
 
-      // Gắn cờ isEnrolled
-      const merged = publicCourses.map((c) => ({
+      const merged = publicCourses.map((c: any) => ({
         ...c,
         isEnrolled: myCourseIds.has(c.id),
       }));
