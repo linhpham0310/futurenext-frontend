@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
@@ -48,6 +48,34 @@ export default function TeacherRevenuePage() {
         .finally(() => setTxLoading(false));
     }
   }, [isTeacher]);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const response = await teacherApi.getRevenueStats();
+      setStats(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  const fetchTransactions = useCallback(async () => {
+    setTxLoading(true);
+    try {
+      const response = await teacherApi.getTransactions(20);
+      setTransactions(response.data.items);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setTxLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isTeacher) {
+      fetchStats();
+      fetchTransactions();
+    }
+  }, [isTeacher, fetchStats, fetchTransactions]);
 
   if (authLoading || loading)
     return (
