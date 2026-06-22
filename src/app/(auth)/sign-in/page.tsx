@@ -11,22 +11,11 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { GraduationCap } from 'lucide-react';
 import { useLogin } from '@/hooks/auth/useLogin';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/authStore';
 import { useSocialLogin } from '@/hooks/auth/useSocialLogin';
 
 export default function LoginPage() {
-  const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
   const { form, onSubmit, isLoading, apiError } = useLogin();
   const { loginWith } = useSocialLogin();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/dashboard');
-    }
-  }, [isAuthenticated, router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#EFF6FF] via-white to-[#F5F3FF] flex">

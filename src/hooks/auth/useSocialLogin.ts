@@ -21,9 +21,9 @@ export function useSocialLogin() {
         setUser(user);
         localStorage.setItem('user', JSON.stringify(user));
 
-        if (user.role === 'admin') {
+        if (user.role.toLowerCase() === 'admin') {
           router.push('/admin/dashboard');
-        } else if (user.role === 'teacher') {
+        } else if (user.role.toLowerCase() === 'teacher') {
           router.push('/teacher/dashboard');
         } else {
           router.push('/dashboard');

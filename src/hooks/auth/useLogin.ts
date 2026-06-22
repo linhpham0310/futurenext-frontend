@@ -4,13 +4,12 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginFormData } from '@/lib/schemas/auth.schema';
 import { authApi } from '@/lib/api';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useRouter } from 'next/navigation';
-import { UserRole } from '@/types/auth.api';
-import { useAuth } from './useAuth';
 
 export function useLogin() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login: storeLogin } = useAuth();
   const [apiError, setApiError] = useState<string | null>(null);
 
   const form = useForm<LoginFormData>({
@@ -22,11 +21,11 @@ export function useLogin() {
     setApiError(null);
     try {
       const response = await authApi.login(data);
-      login(response.accessToken, response.user);
+      storeLogin(response.accessToken, response.user);
       const role = response.user.role;
-      if (role === UserRole.ADMIN) {
+      if (role.toLowerCase() === 'admin') {
         router.push('/admin/dashboard');
-      } else if (role === UserRole.TEACHER) {
+      } else if (role.toLowerCase() === 'teacher') {
         router.push('/teacher/dashboard');
       } else {
         router.push('/dashboard');
@@ -46,5 +45,10 @@ export function useLogin() {
     }
   };
 
-  return { form, onSubmit, isLoading: form.formState.isSubmitting, apiError };
+  return {
+    form,
+    onSubmit,
+    isLoading: form.formState.isSubmitting,
+    apiError,
+  };
 }
