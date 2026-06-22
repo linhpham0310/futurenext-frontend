@@ -100,39 +100,11 @@ export default function LoginPage() {
                     </svg>
                     Google
                   </Button>
-
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={() => loginWith('apple')}
-                    className="w-full"
-                  >
-                    <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-                      <path
-                        d="M12.15 3.5c.86-1.04 2.06-1.75 3.37-1.8.17 1.3-.42 2.59-1.22 3.5-.83.93-2.03 1.52-3.15 1.42-.16-1.27.46-2.64 1.0-3.12z"
-                        fill="currentColor"
-                      />
-                      <path
-                        d="M16.45 8.46c.78.91 1.28 2.02 1.27 3.18-.01 2.22-1.8 4.2-3.72 4.2-.96 0-1.72-.42-2.38-.42-.68 0-1.43.42-2.27.42-1.78 0-3.44-1.64-3.44-4.07 0-2.2 1.58-3.78 3.31-3.78.82 0 1.54.43 2.28.43.69 0 1.47-.43 2.33-.43.73 0 1.38.28 1.62.47z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                    Apple
+                  <Button variant="outline" disabled>
+                    {/* <Icons.google className="mr-2 h-4 w-4" /> */} Apple
                   </Button>
-
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={() => loginWith('facebook')}
-                    className="w-full"
-                  >
-                    <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-                      <path
-                        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
-                        fill="#1877F2"
-                      />
-                    </svg>
-                    Facebook
+                  <Button variant="outline" disabled>
+                    {/* <Icons.meta className="mr-2 h-4 w-4" /> */} Meta
                   </Button>
                 </div>
               </>
