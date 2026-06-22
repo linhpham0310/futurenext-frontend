@@ -29,7 +29,7 @@ export function useSocialLogin() {
       }
     } catch (error) {
       console.error('Social login failed:', error);
-      router.push('/login?error=social_login_failed');
+      router.push('/sign-in?error=social_login_failed');
     } finally {
       setIsLoading(false);
     }

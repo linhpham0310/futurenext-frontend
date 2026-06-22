@@ -49,7 +49,7 @@ export default function AdminRevenuePage() {
     setTxLoading(true);
     try {
       const response = await adminApi.getTransactions(20);
-      setTransactions(response.data);
+      setTransactions(response.data.items);
     } catch (error) {
       console.error(error);
     } finally {

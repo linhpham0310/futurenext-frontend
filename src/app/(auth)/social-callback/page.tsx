@@ -16,14 +16,14 @@ function SocialCallbackContent() {
     const error = searchParams.get('error');
 
     if (error) {
-      router.push('/login?error=social_login_failed');
+      router.push('/sign-in?error=social_login_failed');
       return;
     }
 
     if (accessToken) {
       handleCallback(accessToken);
     } else {
-      router.push('/login?error=no_token');
+      router.push('/sign-in?error=no_token');
     }
   }, [searchParams, router, handleCallback]);
 

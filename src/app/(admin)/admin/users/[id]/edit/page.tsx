@@ -54,7 +54,7 @@ export default function EditUserPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      await adminApi.updateUser(id as string, form);
+      await adminApi.updateUserFull(id as string, form);
       toast.success('Cập nhật người dùng thành công');
       router.push(`/admin/users/${id}`);
     } catch {

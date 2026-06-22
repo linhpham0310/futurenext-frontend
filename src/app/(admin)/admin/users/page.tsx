@@ -47,7 +47,7 @@ export default function AdminUsersPage() {
         page,
         limit,
       });
-      setUsers(response.data.data);
+      setUsers(response.data.items);
       setTotalPages(response.data.meta.totalPages);
     } catch {
       toast.error('Không thể tải danh sách người dùng');
