@@ -160,12 +160,7 @@ export const authApi = {
   handleSocialCallback: async (accessToken: string): Promise<AuthUser> => {
     setAccessToken(accessToken);
     const response = await usersApi.getProfile();
-    const user = response.data;
-
-    useAuthStore.getState().setUser(user);
-    localStorage.setItem('user', JSON.stringify(user));
-
-    return user;
+    return response.data;
   },
 
   logout: async (): Promise<{ message: string }> => {
