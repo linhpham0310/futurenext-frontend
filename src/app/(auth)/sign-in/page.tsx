@@ -63,16 +63,11 @@ export default function LoginPage() {
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={() => loginWith('google')}
-                    className="w-full"
-                  >
-                    Google
+                  <Button variant="outline" disabled>
+                    {/* <Icons.google className="mr-2 h-4 w-4" /> */} Google
                   </Button>
                   <Button variant="outline" disabled>
-                    {/* <Icons.google className="mr-2 h-4 w-4" /> */} Apple
+                    {/* <Icons.apple className="mr-2 h-4 w-4" /> */} Apple
                   </Button>
                   <Button variant="outline" disabled>
                     {/* <Icons.meta className="mr-2 h-4 w-4" /> */} Meta
