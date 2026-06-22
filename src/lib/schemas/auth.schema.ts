@@ -1,9 +1,5 @@
 // src/lib/schemas/auth.schema.ts
 import { z } from 'zod';
-// src/store/authStore.ts
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { AuthUser } from '@/types/auth.api';
 
 // Register schema
 export const registerSchema = z
@@ -90,32 +86,3 @@ export const resetPasswordSchema = z
     path: ['confirmNewPassword'],
   });
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
-
-interface AuthState {
-  user: AuthUser | null;
-  accessToken: string | null;
-  isAuthenticated: boolean;
-  setAccessToken: (token: string) => void;
-  setUser: (user: AuthUser) => void;
-  clearAuth: () => void;
-}
-
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: null,
-      accessToken: null,
-      isAuthenticated: false,
-      setAccessToken: (token) => set({ accessToken: token, isAuthenticated: true }),
-      setUser: (user) => set({ user, isAuthenticated: true }),
-      clearAuth: () => set({ user: null, accessToken: null, isAuthenticated: false }),
-    }),
-    {
-      name: 'auth-storage',
-      partialize: (state) => ({
-        user: state.user,
-        accessToken: state.accessToken,
-      }),
-    }
-  )
-);
