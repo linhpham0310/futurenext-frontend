@@ -11,11 +11,9 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { GraduationCap } from 'lucide-react';
 import { useLogin } from '@/hooks/auth/useLogin';
-import { useSocialLogin } from '@/hooks/auth/useSocialLogin';
 
 export default function LoginPage() {
   const { form, onSubmit, isLoading, apiError } = useLogin();
-  const { loginWith } = useSocialLogin();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#EFF6FF] via-white to-[#F5F3FF] flex">

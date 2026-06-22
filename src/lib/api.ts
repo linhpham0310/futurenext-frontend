@@ -151,18 +151,6 @@ export const authApi = {
     if (response.data.accessToken) setAccessToken(response.data.accessToken);
     return response.data;
   },
-  registerWithSocial: (provider: 'google' | 'apple' | 'facebook', role: 'student' | 'teacher') => {
-    // Chuyển hướng đến backend với tham số role
-    window.location.href = `${API_BASE_URL}/auth/${provider}?role=${role}`;
-  },
-  loginWithSocial: (provider: 'google' | 'apple' | 'facebook') => {
-    window.location.href = `${API_BASE_URL}/auth/${provider}`;
-  },
-  handleSocialCallback: async (accessToken: string): Promise<AuthUser> => {
-    setAccessToken(accessToken);
-    const response = await usersApi.getProfile();
-    return response.data;
-  },
 
   logout: async (): Promise<{ message: string }> => {
     const response = await apiClient.post('/auth/logout');
