@@ -21,6 +21,8 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Loader2, Shield } from 'lucide-react';
+import { toast } from 'sonner';
+import { adminApi } from '@/lib/api';
 
 interface UpdateRoleDialogProps {
   user: User;
@@ -59,19 +61,25 @@ export const UpdateRoleDialog = ({ user, onUpdate, children }: UpdateRoleDialogP
 
     setIsLoading(true);
     try {
+      // Kiểm tra admin cuối cùng
+      if (user.role === UserRole.ADMIN && selectedRole !== UserRole.ADMIN) {
+        const { data } = await adminApi.checkLastAdmin(user.id, selectedRole);
+        if (data.isLastAdmin) {
+          toast.error('Không thể thay đổi vai trò của admin cuối cùng');
+          setIsLoading(false);
+          return;
+        }
+      }
       await onUpdate(user.id, selectedRole);
       setOpen(false);
-    } catch (error) {
-      // Error already handled in hook
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Cập nhật vai trò thất bại');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getCurrentRoleLabel = () => {
-    return roleConfig[user.role as UserRole]?.label || user.role;
-  };
-
+  const getCurrentRoleLabel = () => roleConfig[user.role as UserRole]?.label || user.role;
   const isAdminWarning = selectedRole === UserRole.ADMIN && user.role !== UserRole.ADMIN;
 
   return (
@@ -80,20 +88,17 @@ export const UpdateRoleDialog = ({ user, onUpdate, children }: UpdateRoleDialogP
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-blue-500" />
-            Cập nhật vai trò
+            <Shield className="h-5 w-5 text-blue-500" /> Cập nhật vai trò
           </DialogTitle>
           <DialogDescription>
-            Thay đổi quyền hạn cho người dùng <strong>{user.fullName}</strong>
+            Thay đổi quyền hạn cho <strong>{user.fullName}</strong>
           </DialogDescription>
         </DialogHeader>
-
         <div className="space-y-4 py-4">
           <div className="rounded-lg bg-muted p-3">
             <p className="text-xs text-muted-foreground">Email</p>
             <p className="text-sm font-medium">{user.email}</p>
           </div>
-
           <div className="space-y-2">
             <Label>Vai trò hiện tại</Label>
             <div
@@ -102,7 +107,6 @@ export const UpdateRoleDialog = ({ user, onUpdate, children }: UpdateRoleDialogP
               {getCurrentRoleLabel()}
             </div>
           </div>
-
           <div className="space-y-2">
             <Label>Vai trò mới</Label>
             <Select
@@ -120,15 +124,12 @@ export const UpdateRoleDialog = ({ user, onUpdate, children }: UpdateRoleDialogP
               </SelectContent>
             </Select>
           </div>
-
           {isAdminWarning && (
             <div className="rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
-              ⚠️ Bạn đang cấp quyền Quản trị viên. Người dùng này sẽ có toàn quyền truy cập hệ
-              thống.
+              ⚠️ Bạn đang cấp quyền Quản trị viên. Người dùng này sẽ có toàn quyền.
             </div>
           )}
         </div>
-
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>
             Hủy
@@ -136,8 +137,7 @@ export const UpdateRoleDialog = ({ user, onUpdate, children }: UpdateRoleDialogP
           <Button onClick={handleConfirm} disabled={isLoading || selectedRole === user.role}>
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Đang lưu...
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang lưu...
               </>
             ) : (
               'Lưu thay đổi'

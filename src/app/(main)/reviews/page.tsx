@@ -9,6 +9,7 @@ import { Star, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { BackButton } from '@/components/ui/back-button';
 
 interface Review {
   id: string;
@@ -66,7 +67,10 @@ export default function MyReviewsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Đánh giá của tôi</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Đánh giá của tôi</h1>
+        <BackButton />
+      </div>{' '}
       <div className="space-y-4">
         {reviews.map((review) => (
           <Card key={review.id}>

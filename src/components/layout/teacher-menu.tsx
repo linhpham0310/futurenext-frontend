@@ -22,9 +22,7 @@ import {
   FileQuestion,
   DollarSign,
   Users,
-  Bot,
   Award,
-  FileText,
   CreditCard,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -84,22 +82,12 @@ export function TeacherMenu() {
         </Link>
         <Link href="/teacher/exams">
           <DropdownMenuItem className="cursor-pointer">
-            <FileQuestion className="mr-2 h-4 w-4" /> Đề thi
-          </DropdownMenuItem>
-        </Link>
-        <Link href="/teacher/ai-quiz">
-          <DropdownMenuItem className="cursor-pointer">
-            <Bot className="mr-2 h-4 w-4" /> AI Quiz
+            <FileQuestion className="mr-2 h-4 w-4" /> Quiz
           </DropdownMenuItem>
         </Link>
         <Link href="/teacher/certificates">
           <DropdownMenuItem className="cursor-pointer">
             <Award className="mr-2 h-4 w-4" /> Chứng chỉ
-          </DropdownMenuItem>
-        </Link>
-        <Link href="/teacher/reports">
-          <DropdownMenuItem className="cursor-pointer">
-            <FileText className="mr-2 h-4 w-4" /> Báo cáo
           </DropdownMenuItem>
         </Link>
         <Link href="/teacher/payment">

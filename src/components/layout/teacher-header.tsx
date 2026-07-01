@@ -22,7 +22,6 @@ import { commonApi } from '@/lib/api';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ThemeToggle } from './theme-toggle';
 import { TeacherMenu } from './teacher-menu';
-import { vi } from 'zod/v4/locales';
 
 interface Notification {
   id: string;
@@ -38,6 +37,18 @@ interface SearchResult {
   label: string;
   type: 'user' | 'course';
   link: string;
+}
+
+function formatDistanceToNow(date: Date): string {
+  const diff = Date.now() - date.getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return 'Vừa xong';
+  if (minutes < 60) return `${minutes} phút trước`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} giờ trước`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} ngày trước`;
+  return date.toLocaleDateString('vi-VN');
 }
 
 export const TeacherHeader = () => {
@@ -150,13 +161,6 @@ export const TeacherHeader = () => {
       .slice(0, 2);
   };
 
-  function formatDistanceToNow(
-    arg0: Date,
-    arg1: { addSuffix: boolean; locale: any }
-  ): import('react').ReactNode {
-    throw new Error('Function not implemented.');
-  }
-
   return (
     <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-40">
       {/* Logo */}
@@ -261,10 +265,7 @@ export const TeacherHeader = () => {
                     <div className="font-medium text-sm">{notif.title}</div>
                     <div className="text-xs text-slate-500 mt-1">{notif.description}</div>
                     <div className="text-[10px] text-slate-400 mt-1">
-                      {formatDistanceToNow(new Date(notif.createdAt), {
-                        addSuffix: true,
-                        locale: vi,
-                      })}
+                      {formatDistanceToNow(new Date(notif.createdAt))}
                     </div>
                   </DropdownMenuItem>
                 ))

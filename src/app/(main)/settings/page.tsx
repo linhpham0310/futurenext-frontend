@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { BackButton } from '@/components/ui/back-button';
 
 export default function StudentSettingsPage() {
   const { user } = useAuth();
@@ -39,7 +40,9 @@ export default function StudentSettingsPage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Cài đặt tài khoản</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Cài đặt tài khoản</h1>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>Đổi mật khẩu</CardTitle>

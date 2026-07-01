@@ -28,6 +28,7 @@ interface TeacherProfile {
   bio: string;
   expertise: string[];
   status: 'pending_review' | 'approved' | 'rejected';
+  rejectionReason?: string;
   createdAt: string;
 }
 
@@ -101,7 +102,6 @@ export default function AdminTeacherProfilesPage() {
     setSubmitting(true);
     try {
       await adminApi.rejectTeacherProfile(selectedProfile.id, rejectReason);
-
       toast.success('Đã từ chối hồ sơ');
       setRejectDialogOpen(false);
       fetchProfiles();
@@ -161,10 +161,9 @@ export default function AdminTeacherProfilesPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Duyệt hồ sơ giảng viên</h1>
-        <p className="text-muted-foreground">Quản lý và phê duyệt hồ sơ đăng ký giảng viên</p>
-      </div>
+      <h1 className="text-2xl font-bold">Duyệt hồ sơ giảng viên</h1>
+      <p className="text-muted-foreground">Quản lý và phê duyệt hồ sơ đăng ký giảng viên</p>
+
       <div className="flex flex-wrap gap-4">
         <Input
           placeholder="Tìm theo tên hoặc email..."
@@ -184,6 +183,7 @@ export default function AdminTeacherProfilesPage() {
           onChange={(e) => setStatusFilter(e.target.value)}
         />
       </div>
+
       <Card>
         <CardContent className="p-0">
           <table className="w-full text-left">
@@ -259,12 +259,14 @@ export default function AdminTeacherProfilesPage() {
           </table>
         </CardContent>
       </Card>
+
       <Pagination
         currentPage={page}
         totalPages={totalPages}
         onPageChange={setPage}
         isLoading={loading}
       />
+
       <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -289,6 +291,7 @@ export default function AdminTeacherProfilesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
       <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -324,6 +327,12 @@ export default function AdminTeacherProfilesPage() {
                 <p className="text-sm text-muted-foreground">Tiểu sử</p>
                 <p className="mt-1 whitespace-pre-wrap">{viewingProfile.bio}</p>
               </div>
+              {viewingProfile.rejectionReason && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-sm font-medium text-red-700">Lý do từ chối:</p>
+                  <p className="text-sm text-red-600">{viewingProfile.rejectionReason}</p>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>

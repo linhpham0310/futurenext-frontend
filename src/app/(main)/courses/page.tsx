@@ -70,7 +70,9 @@ export default function CoursesPage() {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => fetchCourses(search), 500);
+    const timer = setTimeout(() => {
+      fetchCourses(search);
+    }, 500);
     return () => clearTimeout(timer);
   }, [search]);
 
