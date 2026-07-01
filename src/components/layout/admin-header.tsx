@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Bell, Search, User, ChevronRight, Loader2 } from 'lucide-react';
+import { Bell, Search, ChevronRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
@@ -19,7 +19,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { commonApi } from '@/lib/api';
-import { vi } from 'zod/v4/locales';
 import { ScrollArea } from '../ui/scroll-area';
 import { ThemeToggle } from './theme-toggle';
 
@@ -37,6 +36,18 @@ interface SearchResult {
   label: string;
   type: 'user' | 'course';
   link: string;
+}
+
+function formatDistanceToNow(date: Date): string {
+  const diff = Date.now() - date.getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return 'Vừa xong';
+  if (minutes < 60) return `${minutes} phút trước`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} giờ trước`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} ngày trước`;
+  return date.toLocaleDateString('vi-VN');
 }
 
 export const AdminHeader = () => {
@@ -157,13 +168,6 @@ export const AdminHeader = () => {
       .slice(0, 2);
   };
 
-  function formatDistanceToNow(
-    arg0: Date,
-    arg1: { addSuffix: boolean; locale: any }
-  ): import('react').ReactNode {
-    throw new Error('Function not implemented.');
-  }
-
   return (
     <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-40">
       {/* Search with suggestions */}
@@ -262,10 +266,7 @@ export const AdminHeader = () => {
                     <div className="font-medium text-sm">{notif.title}</div>
                     <div className="text-xs text-slate-500 mt-1">{notif.description}</div>
                     <div className="text-[10px] text-slate-400 mt-1">
-                      {formatDistanceToNow(new Date(notif.createdAt), {
-                        addSuffix: true,
-                        locale: vi,
-                      })}
+                      {formatDistanceToNow(new Date(notif.createdAt))}
                     </div>
                   </DropdownMenuItem>
                 ))

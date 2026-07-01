@@ -1,4 +1,3 @@
-// src/components/layout/admin-sidebar.tsx
 'use client';
 
 import Link from 'next/link';
@@ -11,9 +10,12 @@ import {
   GraduationCap,
   BookOpen,
   DollarSign,
+  CreditCard,
   Settings,
   Megaphone,
   LogOut,
+  FolderTree,
+  Award,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -21,7 +23,6 @@ export const AdminSidebar = () => {
   const pathname = usePathname();
   const { logout } = useAuth();
 
-  // Các nhóm menu
   const mainMenus = [{ icon: LayoutDashboard, label: 'Bảng điều khiển', href: '/admin/dashboard' }];
 
   const userMenus = [
@@ -30,9 +31,15 @@ export const AdminSidebar = () => {
     { icon: UserCog, label: 'Duyệt giáo viên', href: '/admin/teacher-profiles' },
   ];
 
-  const courseMenus = [{ icon: BookOpen, label: 'Quản lý khóa học', href: '/admin/courses' }];
+  const courseMenus = [
+    { icon: BookOpen, label: 'Quản lý khóa học', href: '/admin/courses' },
+    { icon: Award, label: 'Chứng chỉ', href: '/admin/certificates' },
+  ];
 
-  const financeMenus = [{ icon: DollarSign, label: 'Doanh thu', href: '/admin/revenue' }];
+  const financeMenus = [
+    { icon: DollarSign, label: 'Doanh thu', href: '/admin/revenue' },
+    { icon: CreditCard, label: 'Đơn hàng', href: '/admin/orders' },
+  ];
 
   const systemMenus = [
     { icon: Settings, label: 'Thiết lập', href: '/admin/settings' },
@@ -67,34 +74,25 @@ export const AdminSidebar = () => {
       </div>
 
       <nav className="flex-1 py-6 px-3 space-y-6 overflow-y-auto">
-        {/* Nhóm chính */}
         <div className="space-y-1">{renderNavItems(mainMenus)}</div>
-
-        {/* Quản lý người dùng */}
         <div>
           <div className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
             Người dùng
           </div>
           {renderNavItems(userMenus)}
         </div>
-
-        {/* Quản lý khóa học */}
         <div>
           <div className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
             Khóa học
           </div>
           {renderNavItems(courseMenus)}
         </div>
-
-        {/* Tài chính */}
         <div>
           <div className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
             Tài chính
           </div>
           {renderNavItems(financeMenus)}
         </div>
-
-        {/* Hệ thống */}
         <div>
           <div className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
             Hệ thống

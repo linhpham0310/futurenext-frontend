@@ -8,7 +8,7 @@ export interface User {
   role: 'student' | 'teacher' | 'admin';
   avatarUrl?: string | null;
   phone?: string | null;
-  status: 'pending_email_verify' | 'active' | 'locked';
+  status: 'pending_email_verify' | 'active' | 'locked' | 'deleted';
   locale: string;
   timezone: string;
   lastLoginAt?: string;
@@ -113,6 +113,7 @@ export enum UserStatus {
   PENDING_EMAIL_VERIFY = 'pending_email_verify',
   ACTIVE = 'active',
   LOCKED = 'locked',
+  DELETED = 'deleted',
 }
 
 export type TeacherProfileStatus = 'pending_review' | 'approved' | 'rejected';

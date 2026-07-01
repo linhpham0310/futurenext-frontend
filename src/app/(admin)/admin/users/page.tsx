@@ -18,7 +18,7 @@ interface User {
   fullName: string;
   email: string;
   role: 'admin' | 'teacher' | 'student';
-  status: 'active' | 'locked';
+  status: 'active' | 'pending_email_verify' | 'locked' | 'deleted';
   createdAt: string;
 }
 
@@ -83,13 +83,32 @@ export default function AdminUsersPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    if (status === 'active')
-      return (
-        <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
-          Hoạt động
-        </span>
-      );
-    return <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Đã khóa</span>;
+    switch (status) {
+      case 'active':
+        return (
+          <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
+            Hoạt động
+          </span>
+        );
+      case 'pending_email_verify':
+        return (
+          <span className="text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full text-xs">
+            Chờ xác thực
+          </span>
+        );
+      case 'locked':
+        return (
+          <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Đã khóa</span>
+        );
+      case 'deleted':
+        return (
+          <span className="text-gray-400 bg-gray-100 px-2 py-1 rounded-full text-xs">Đã xóa</span>
+        );
+      default:
+        return (
+          <span className="text-gray-500 bg-gray-100 px-2 py-1 rounded-full text-xs">{status}</span>
+        );
+    }
   };
 
   if (authLoading)

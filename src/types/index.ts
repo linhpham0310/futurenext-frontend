@@ -1,6 +1,5 @@
 // src/types/index.ts
 
-// Import auth types nếu cần dùng lại
 import type { User } from './auth.api';
 export * from './auth.api';
 
@@ -10,9 +9,10 @@ export interface Course {
   title: string;
   slug: string;
   description: string | null;
+  shortDescription?: string | null;
   thumbnailUrl: string | null;
   price: number;
-  status: 'DRAFT' | 'SUBMITTED' | 'PUBLISHED' | 'REJECTED';
+  status: 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
   instructorId: string;
   instructor?: {
     id: string;
@@ -20,12 +20,22 @@ export interface Course {
     avatarUrl?: string | null;
   };
   outcomes?: string[];
+  language?: string;
+  level?: 'beginner' | 'intermediate' | 'advanced';
+  category?: string;
   createdAt: string;
   updatedAt: string;
   students?: number; // tổng số học viên đã mua
   progress?: number; // tiến độ của học viên (0-100)
   isEnrolled?: boolean; // học viên hiện tại đã ghi danh chưa
   sections?: Section[]; // nếu include
+  revenue?: number; // doanh thu (cho admin)
+  reviewLogs?: {
+    adminName: string;
+    action: 'APPROVE' | 'REJECT';
+    reason?: string;
+    createdAt: string;
+  }[];
 }
 
 export interface Section {
@@ -34,6 +44,7 @@ export interface Section {
   orderIndex: number;
   courseId: string;
   lessons?: Lesson[];
+  loMappings?: { loId: string; loTitle: string }[];
   createdAt: string;
   updatedAt: string;
 }
@@ -49,6 +60,7 @@ export interface Lesson {
   orderIndex: number;
   sectionId: string;
   courseId?: string;
+  mainTopics?: string[];
   aiMetadata?: any;
   createdAt: string;
   updatedAt: string;
@@ -128,4 +140,37 @@ export interface UserAuthProps {
   user: import('./auth.api').User | null;
   onLogin: (user: import('./auth.api').User) => void;
   onLogout: () => void;
+}
+
+// ========== Pagination & Response ==========
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  q?: string;
+  status?: string;
+  role?: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface ApiResponse<T> {
+  data: T;
+  message?: string;
+  statusCode: number;
+}
+
+export interface LearningOutcome {
+  id: string;
+  title: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
 }

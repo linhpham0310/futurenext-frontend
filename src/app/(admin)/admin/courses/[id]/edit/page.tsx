@@ -17,7 +17,15 @@ export default function EditCoursePage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ title: '', description: '', price: 0, status: 'DRAFT' });
+  const [form, setForm] = useState({
+    title: '',
+    shortDescription: '',
+    description: '',
+    price: 0,
+    language: 'vi',
+    level: 'beginner',
+    category: '',
+  });
 
   useEffect(() => {
     if (!authLoading && !isAdmin) router.push('/forbidden');
@@ -30,9 +38,12 @@ export default function EditCoursePage() {
           const { data } = await adminApi.getCourseDetail(id as string);
           setForm({
             title: data.title,
-            description: data.description,
-            price: data.price,
-            status: data.status,
+            shortDescription: data.shortDescription || '',
+            description: data.description || '',
+            price: data.price || 0,
+            language: data.language || 'vi',
+            level: data.level || 'beginner',
+            category: data.category || '',
           });
         } catch {
           toast.error('Không tải được thông tin khóa học');
@@ -79,7 +90,14 @@ export default function EditCoursePage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Mô tả</label>
+          <label className="block text-sm font-medium mb-1">Mô tả ngắn</label>
+          <Input
+            value={form.shortDescription}
+            onChange={(e) => setForm({ ...form, shortDescription: e.target.value })}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Mô tả chi tiết</label>
           <Textarea
             rows={5}
             value={form.description}
@@ -95,15 +113,34 @@ export default function EditCoursePage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Trạng thái</label>
+          <label className="block text-sm font-medium mb-1">Ngôn ngữ</label>
           <select
             className="w-full border rounded p-2"
-            value={form.status}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
+            value={form.language}
+            onChange={(e) => setForm({ ...form, language: e.target.value })}
           >
-            <option value="DRAFT">Bản nháp</option>
-            <option value="PUBLISHED">Xuất bản</option>
+            <option value="vi">Tiếng Việt</option>
+            <option value="en">Tiếng Anh</option>
           </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Cấp độ</label>
+          <select
+            className="w-full border rounded p-2"
+            value={form.level}
+            onChange={(e) => setForm({ ...form, level: e.target.value })}
+          >
+            <option value="beginner">Cơ bản</option>
+            <option value="intermediate">Trung cấp</option>
+            <option value="advanced">Nâng cao</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Danh mục</label>
+          <Input
+            value={form.category}
+            onChange={(e) => setForm({ ...form, category: e.target.value })}
+          />
         </div>
         <div className="flex gap-2">
           <Button type="submit" disabled={saving}>

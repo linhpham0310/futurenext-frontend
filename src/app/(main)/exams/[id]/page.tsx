@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Clock, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { BackButton } from '@/components/ui/back-button';
 
 interface ExamInfo {
   id: string;
@@ -92,6 +93,10 @@ export default function ExamDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <BackButton />
+        <h1 className="text-2xl font-bold">Chi tiết bài thi</h1>
+      </div>
       <Card>
         <CardHeader>
           <div className="flex justify-between items-start">

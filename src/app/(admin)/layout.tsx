@@ -1,4 +1,4 @@
-import { AdminGuard } from '@/components/auth/admin-guard'; // [NEW]
+import { AdminGuard } from '@/components/auth/admin-guard';
 import { AdminHeader } from '@/components/layout/admin-header';
 import { AdminSidebar } from '@/components/layout/admin-sidebar';
 

@@ -14,7 +14,19 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { getInitials } from '@/lib/utils';
-import { User, LogOut, Settings, LayoutDashboard, Heart, Star, FileCheck } from 'lucide-react';
+import {
+  User,
+  LogOut,
+  Settings,
+  LayoutDashboard,
+  Heart,
+  Star,
+  FileCheck,
+  Award,
+  Bell,
+  MessageSquare,
+  Package,
+} from 'lucide-react';
 import Link from 'next/link';
 
 export function StudentMenu() {
@@ -72,6 +84,26 @@ export function StudentMenu() {
           <DropdownMenuItem className="cursor-pointer">
             <Heart className="mr-2 h-4 w-4" />
             <span>Yêu thích</span>
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/certificates">
+          <DropdownMenuItem className="cursor-pointer">
+            <Award className="mr-2 h-4 w-4" /> Chứng chỉ
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/notifications">
+          <DropdownMenuItem className="cursor-pointer">
+            <Bell className="mr-2 h-4 w-4" /> Thông báo
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/questions">
+          <DropdownMenuItem className="cursor-pointer">
+            <MessageSquare className="mr-2 h-4 w-4" /> Hỏi đáp
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/orders">
+          <DropdownMenuItem className="cursor-pointer">
+            <Package className="mr-2 h-4 w-4" /> Đơn hàng
           </DropdownMenuItem>
         </Link>
         <Link href="/reviews">

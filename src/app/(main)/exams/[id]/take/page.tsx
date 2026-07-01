@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { BackButton } from '@/components/ui/back-button';
 
 interface Question {
   id: string;
@@ -59,8 +60,6 @@ export default function TakeExamPage() {
         .finally(() => setLoading(false));
     }
   }, [id, user, router]);
-
-  // Timer
 
   // Lưu answers vào localStorage
   useEffect(() => {
@@ -138,7 +137,10 @@ export default function TakeExamPage() {
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center border-b pb-4">
-        <h1 className="text-2xl font-bold">{exam.title}</h1>
+        <div className="flex items-center gap-2">
+          <BackButton label="Quay lại" />
+          <h1 className="text-2xl font-bold">{exam.title}</h1>
+        </div>
         <div className="text-xl font-mono bg-gray-100 px-4 py-2 rounded">
           ⏱ {formatTime(timeLeft)}
         </div>
@@ -180,7 +182,8 @@ export default function TakeExamPage() {
         ))}
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <BackButton label="Hủy và thoát" fallbackHref="/exams" />
         <Button onClick={() => handleSubmit(false)} disabled={submitting}>
           {submitting ? 'Đang nộp...' : 'Nộp bài'}
         </Button>

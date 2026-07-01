@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'react-hot-toast';
 import { adminApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { BackButton } from '@/components/ui/back-button';
 
 export default function StudentDetailPage() {
   const { id } = useParams();
@@ -49,10 +50,14 @@ export default function StudentDetailPage() {
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Chi tiết học viên</h1>
-        <Button variant="outline" onClick={() => router.push(`/admin/students/${id}/edit`)}>
-          Chỉnh sửa
-        </Button>
+        <div className="flex gap-2">
+          <BackButton />
+          <Button variant="outline" onClick={() => router.push(`/admin/students/${id}/edit`)}>
+            Chỉnh sửa
+          </Button>
+        </div>
       </div>
+
       <Card>
         <CardHeader>
           <CardTitle>Thông tin cá nhân</CardTitle>

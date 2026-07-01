@@ -26,7 +26,7 @@ interface Course {
   id: string;
   title: string;
   instructor: { id: string; fullName: string; email: string } | string;
-  status: 'DRAFT' | 'SUBMITTED' | 'PUBLISHED' | 'REJECTED';
+  status: 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
   students: number;
   revenue: number;
   createdAt: string;
@@ -58,7 +58,7 @@ export default function AdminCoursesPage() {
     try {
       const response = await adminApi.getCourses({
         q: search,
-        status: statusFilter || undefined,
+        status: statusFilter,
         page,
         limit,
       });
@@ -76,7 +76,7 @@ export default function AdminCoursesPage() {
   }, [isAdmin, fetchCourses]);
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Bạn có chắc muốn xóa khóa học "${title}"? Hành động không thể hoàn tác.`)) return;
+    if (!confirm(`Bạn có chắc muốn xóa khóa học "${title}"?`)) return;
     try {
       await adminApi.deleteCourse(id);
       toast.success('Xóa khóa học thành công');
@@ -89,7 +89,7 @@ export default function AdminCoursesPage() {
   const handleApprove = async (id: string) => {
     try {
       await adminApi.approveCourse(id);
-      toast.success('Khóa học đã được xuất bản');
+      toast.success('Khóa học đã được phê duyệt');
       fetchCourses();
     } catch {
       toast.error('Phê duyệt thất bại');
@@ -123,10 +123,10 @@ export default function AdminCoursesPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'PUBLISHED':
+      case 'APPROVED':
         return (
           <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
-            Đã xuất bản
+            Đã phê duyệt
           </span>
         );
       case 'SUBMITTED':
@@ -156,9 +156,7 @@ export default function AdminCoursesPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Quản lý khóa học</h1>
-      </div>
+      <h1 className="text-2xl font-bold">Quản lý khóa học</h1>
       <div className="flex flex-wrap gap-4">
         <Input
           placeholder="Tìm kiếm khóa học..."
@@ -171,7 +169,7 @@ export default function AdminCoursesPage() {
           options={[
             { label: 'Tất cả', value: '' },
             { label: 'Chờ duyệt', value: 'SUBMITTED' },
-            { label: 'Đã xuất bản', value: 'PUBLISHED' },
+            { label: 'Đã phê duyệt', value: 'APPROVED' },
             { label: 'Từ chối', value: 'REJECTED' },
             { label: 'Bản nháp', value: 'DRAFT' },
           ]}
@@ -278,7 +276,7 @@ export default function AdminCoursesPage() {
           <DialogHeader>
             <DialogTitle>Từ chối khóa học</DialogTitle>
             <DialogDescription>
-              Vui lòng cung cấp lý do từ chối để giảng viên biết và cải thiện.
+              Vui lòng cung cấp lý do từ chối để giảng viên cải thiện.
             </DialogDescription>
           </DialogHeader>
           <Textarea

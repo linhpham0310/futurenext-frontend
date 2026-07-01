@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { courseApi } from '@/lib/api';
+import { studentApi } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import Link from 'next/link';
 import { BookOpen } from 'lucide-react';
+import { BackButton } from '@/components/ui/back-button';
 
 interface MyCourse {
   id: string;
@@ -22,7 +23,7 @@ export default function MyCoursesPage() {
   useEffect(() => {
     const fetchMyCourses = async () => {
       try {
-        const res = await courseApi.getMyCourses();
+        const res = await studentApi.getMyCourses();
         setCourses(res.data);
       } catch (error) {
         console.error(error);
@@ -54,7 +55,10 @@ export default function MyCoursesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Khóa học của tôi</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Khóa học của tôi</h1>
+        <BackButton />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
           <Card key={course.id}>

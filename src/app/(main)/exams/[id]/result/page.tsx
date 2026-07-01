@@ -7,6 +7,7 @@ import { studentApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, XCircle } from 'lucide-react';
+import { BackButton } from '@/components/ui/back-button';
 
 interface Result {
   score: number;
@@ -50,7 +51,10 @@ export default function ExamResultPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 p-6">
-      <h1 className="text-2xl font-bold">Kết quả bài thi</h1>
+      <div className="flex items-center justify-between">
+        <BackButton />
+        <h1 className="text-2xl font-bold">Kết quả bài thi</h1>
+      </div>
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50">
         <CardContent className="p-6 text-center">
           <div className="text-5xl font-bold text-blue-600">

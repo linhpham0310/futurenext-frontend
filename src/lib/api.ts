@@ -5,10 +5,9 @@ import { LoginFormData, VerifyEmailFormData, ResetPasswordFormData } from './sch
 import { useAuthStore } from '@/store/authStore';
 import { UpdateProfileFormData } from './schemas/user.schema';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-if (!API_BASE_URL) {
-  throw new Error('NEXT_PUBLIC_API_BASE_URL is not defined');
-}
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ??
+  'https://futurenext-core-service-staging-xxxxx-asia-southeast1.a.run.app';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -204,8 +203,8 @@ export const courseApi = {
     return response.data;
   },
   processReview: (courseId: string, action: string, reason?: string) =>
-    apiClient.patch(`/courses/${courseId}/review`, { action, reason }),
-  getAdminDetail: (courseId: string) => apiClient.get(`/courses/${courseId}/admin-detail`),
+    apiClient.patch(`/admin/courses/${courseId}/review`, { action, reason }),
+  getAdminDetail: (courseId: string) => apiClient.get(`/admin/courses/${courseId}/admin-detail`),
 };
 
 // ==================== ADMIN API ====================
@@ -250,14 +249,32 @@ export const adminApi = {
   approveCourse: (id: string) => apiClient.patch(`/admin/courses/${id}/approve`),
   rejectCourse: (id: string, reason: string) =>
     apiClient.patch(`/admin/courses/${id}/reject`, { reason }),
-  updateCourse: (
-    id: string,
-    data: { title?: string; description?: string; price?: number; status?: string }
-  ) => apiClient.put(`/admin/courses/${id}`, data),
+  updateCourse: (id: string, data: any) => apiClient.put(`/admin/courses/${id}`, data),
   deleteCourse: (id: string) => apiClient.delete(`/admin/courses/${id}`),
   getRevenueStats: () => apiClient.get('/revenue/admin/stats'),
   getTransactions: (limit?: number) =>
     apiClient.get('/revenue/admin/transactions', { params: { limit } }),
+  checkLastAdmin: (userId: string, newRole: string) =>
+    apiClient.get(`/admin/users/${userId}/check-last-admin`, { params: { newRole } }),
+  getNotifications: (params: { page: number; limit: number }) =>
+    apiClient.get('/admin/notifications', { params }),
+  createNotification: (data: any) => apiClient.post('/admin/notifications', data),
+  getSettings: () => apiClient.get('/admin/settings'),
+  updateSettings: (data: any) => apiClient.put('/admin/settings', data),
+  getOrders: (params: any) => apiClient.get('/admin/orders', { params }),
+  getOrderDetail: (id: string) => apiClient.get(`/admin/orders/${id}`),
+  triggerResetPassword: (userId: string) => apiClient.post(`/admin/users/${userId}/reset-password`),
+  getUserAuditLogs: (userId: string) => apiClient.get(`/admin/users/${userId}/audit-logs`),
+  getCategories: () => apiClient.get('/admin/categories'),
+  createCategory: (data: { name: string; description?: string }) =>
+    apiClient.post('/admin/categories', data),
+  updateCategory: (id: string, data: { name: string; description?: string }) =>
+    apiClient.put(`/admin/categories/${id}`, data),
+  deleteCategory: (id: string) => apiClient.delete(`/admin/categories/${id}`),
+  getCertificates: () => apiClient.get('/admin/certificates'),
+  revokeCertificate: (id: string) => apiClient.patch(`/admin/certificates/${id}/revoke`),
+  getBroadcasts: () => apiClient.get('/admin/broadcasts'),
+  createBroadcast: (data: any) => apiClient.post('/admin/broadcasts', data),
 };
 
 // ==================== TEACHER API ====================
@@ -321,7 +338,7 @@ export const teacherApi = {
   updateProfile: (data: { fullName: string; phone?: string; bio?: string; expertise?: string[] }) =>
     apiClient.put('/teacher-profiles/update', data),
   getPaymentSettings: () => apiClient.get('/teacher/payment'),
-  updatePaymentSettings: (data: { bankAccount: string; bankName: string; accountHolder: string }) =>
+  updatePaymentSettings: (data: { bankName: string; bankAccount: string; accountHolder: string }) =>
     apiClient.put('/teacher/payment', data),
   getExams: (params?: { status?: string; page?: number; limit?: number }) =>
     apiClient.get('/teacher/exams', { params }),
@@ -340,6 +357,51 @@ export const teacherApi = {
   getCertificates: () => apiClient.get('/teacher/certificates'),
   exportRevenueReport: () => apiClient.get('/reports/revenue/export', { responseType: 'blob' }),
   exportStudentsReport: () => apiClient.get('/reports/students/export', { responseType: 'blob' }),
+  getLearningOutcomes: (courseId: string) => apiClient.get(`/teacher/courses/${courseId}/outcomes`),
+  createLearningOutcome: (courseId: string, data: { title: string; description?: string }) =>
+    apiClient.post(`/teacher/courses/${courseId}/outcomes`, data),
+  deleteLearningOutcome: (courseId: string, outcomeId: string) =>
+    apiClient.delete(`/teacher/courses/${courseId}/outcomes/${outcomeId}`),
+  updateSectionMapping: (courseId: string, sectionId: string, data: { loIds: string[] }) =>
+    apiClient.put(`/teacher/courses/${courseId}/sections/${sectionId}/mapping`, data),
+  issueCertificate: (courseId: string, studentId: string) =>
+    apiClient.post(`/teacher/courses/${courseId}/certificates`, { studentId }),
+  getCourseReviews: (courseId: string) => apiClient.get(`/teacher/courses/${courseId}/reviews`),
+  getCourseQuestions: (courseId: string) => apiClient.get(`/teacher/courses/${courseId}/questions`),
+
+  getCourseAISettings: (courseId: string) =>
+    apiClient.get(`/teacher/courses/${courseId}/ai-settings`),
+  updateCourseAISettings: (courseId: string, data: any) =>
+    apiClient.put(`/teacher/courses/${courseId}/ai-settings`, data),
+  generateCourseOutline: (courseId: string) =>
+    apiClient.post(`/teacher/courses/${courseId}/ai/generate-outline`),
+
+  getStudentDetail: (studentId: string) => apiClient.get(`/teacher/students/${studentId}`),
+
+  getLessonProgressReport: (courseId: string) =>
+    apiClient.get(`/teacher/reports/lessons/${courseId}`),
+  exportLessonProgressReport: (courseId: string) =>
+    apiClient.get(`/teacher/reports/lessons/${courseId}/export`, { responseType: 'blob' }),
+  // ===== QUESTION BANK =====
+  getQuestionBanks: () => apiClient.get('/teacher/question-banks'),
+  getQuestionBank: (id: string) => apiClient.get(`/teacher/question-banks/${id}`),
+  createQuestionBank: (data: { name: string; description?: string; isPublic?: boolean }) =>
+    apiClient.post('/teacher/question-banks', data),
+  updateQuestionBank: (
+    id: string,
+    data: { name?: string; description?: string; isPublic?: boolean }
+  ) => apiClient.put(`/teacher/question-banks/${id}`, data),
+  deleteQuestionBank: (id: string) => apiClient.delete(`/teacher/question-banks/${id}`),
+  addQuestionItem: (bankId: string, data: any) =>
+    apiClient.post(`/teacher/question-banks/${bankId}/items`, data),
+  updateQuestionItem: (bankId: string, itemId: string, data: any) =>
+    apiClient.put(`/teacher/question-banks/${bankId}/items/${itemId}`, data),
+  deleteQuestionItem: (bankId: string, itemId: string) =>
+    apiClient.delete(`/teacher/question-banks/${bankId}/items/${itemId}`),
+  getQuestionsForTeacher: (courseId: string, params?: { status?: string; page?: number }) =>
+    apiClient.get(`/teacher/courses/${courseId}/questions`, { params }),
+  answerQuestion: (courseId: string, questionId: string, answer: string) =>
+    apiClient.post(`/teacher/courses/${courseId}/questions/${questionId}/answer`, { answer }),
 };
 
 // ==================== STUDENT API ====================
@@ -347,20 +409,27 @@ export const studentApi = {
   getStudentStats: () => apiClient.get('/dashboard/student/stats'),
   getStudentRecentCourses: (params?: { limit?: number }) =>
     apiClient.get('/dashboard/student/recent-courses', { params }),
-  getMyCourses: () => apiClient.get('/courses/my-enrolled'),
   getPublicCourses: (params?: { search?: string; page?: number; limit?: number }) =>
     apiClient.get('/courses', { params }),
   getPublicCourseDetail: (id: string) => apiClient.get(`/courses/public/${id}`),
+  getMyCourses: () => apiClient.get('/courses/my-enrolled'),
   enrollCourse: (id: string) => apiClient.post(`/courses/${id}/enroll`),
   getProfile: () => apiClient.get('/student/profile'),
   updateProfile: (data: { fullName?: string; phone?: string; avatarUrl?: string }) =>
     apiClient.put('/student/profile', data),
   getFavorites: () => apiClient.get('/student/favorites'),
+  addFavorite: (courseId: string) => apiClient.post(`/student/favorites/${courseId}`),
+
   removeFavorite: (courseId: string) => apiClient.delete(`/student/favorites/${courseId}`),
   getReviews: () => apiClient.get('/student/reviews'),
-  createReview: (data: { courseId: string; rating: number; comment?: string }) =>
-    apiClient.post('/student/reviews', data),
+  createReview: (courseId: string, data: { rating: number; comment?: string }) =>
+    apiClient.post('/student/reviews', { courseId, ...data }),
+  updateReview: (reviewId: string, data: { rating: number; comment?: string }) =>
+    apiClient.put(`/student/reviews/${reviewId}`, data),
   deleteReview: (reviewId: string) => apiClient.delete(`/student/reviews/${reviewId}`),
+  getCourseReviews: (courseId: string) => apiClient.get(`/courses/${courseId}/reviews`),
+  getCourseQuestions: (courseId: string) => apiClient.get(`/courses/${courseId}/questions`),
+
   getAssignedExams: () => apiClient.get('/student/exams'),
   getExamInfo: (id: string) => apiClient.get(`/student/exams/${id}`),
   takeExam: (id: string) => apiClient.get(`/student/exams/${id}/take`),
@@ -372,9 +441,50 @@ export const studentApi = {
   updateLessonProgress: (lessonId: string, data: { status: string; lastPosition?: number }) =>
     apiClient.patch(`/lx/lessons/${lessonId}/progress`, data),
   askAi: (data: { lessonId?: string; question: string }) => apiClient.post('/lx/ai/ask', data),
-  getNotifications: (limit?: number) => apiClient.get('/notifications', { params: { limit } }),
-  markNotificationRead: (id: string) => apiClient.patch(`/notifications/${id}/read`),
+  getNotifications: (params?: { page?: number; limit?: number }) =>
+    apiClient.get('/student/notifications', { params }),
+  getUnreadCount: () => apiClient.get('/student/notifications/unread'),
+  markNotificationRead: (id: string) => apiClient.patch(`/student/notifications/${id}/read`),
+  markAllNotificationsRead: () => apiClient.patch('/student/notifications/read-all'),
   search: (q: string) => apiClient.get('/search/courses', { params: { q } }),
+  getCart: () => apiClient.get('/student/cart'),
+  getCartSummary: () => apiClient.get('/student/cart/summary'),
+  addToCart: (courseId: string) => apiClient.post('/student/cart', { courseId }),
+  removeFromCart: (courseId: string) => apiClient.delete(`/student/cart/${courseId}`),
+
+  getMyOrders: () => apiClient.get('/student/orders'),
+  getOrderDetail: (orderId: string) => apiClient.get(`/student/orders/${orderId}`),
+  getCertificates: () => apiClient.get('/student/certificates'),
+  downloadCertificate: (certificateId: string) =>
+    apiClient.get(`/student/certificates/${certificateId}/download`, { responseType: 'blob' }),
+  getMyQuestions: () => apiClient.get('/student/questions'),
+  askQuestion: (courseId: string, data: { question: string }) =>
+    apiClient.post(`/student/courses/${courseId}/questions`, data),
+  getQuestionDetail: (questionId: string) => apiClient.get(`/student/questions/${questionId}`),
+  getLab: (lessonId: string) => apiClient.get(`/student/labs/${lessonId}`),
+  submitLab: (lessonId: string, data: { code: string }) =>
+    apiClient.post(`/student/labs/${lessonId}/submit`, data),
+  getRecommendations: (params?: { refresh?: boolean }) =>
+    apiClient.get('/student/recommendations', { params }),
+  refreshRecommendations: () => apiClient.post('/student/recommendations/refresh'),
+  // Thêm vào studentApi
+  getMyCertificates: () => apiClient.get('/student/certificates'),
+  verifyCertificate: (certificateId: string) =>
+    apiClient.get(`/student/certificates/${certificateId}/verify`),
+  // Thêm vào studentApi và teacherApi
+  // Student
+  getQuestions: (courseId: string, params?: { page?: number; limit?: number }) =>
+    apiClient.get(`/courses/${courseId}/questions`, { params }),
+  createQuestion: (courseId: string, data: { title: string; content: string }) =>
+    apiClient.post(`/courses/${courseId}/questions`, data),
+
+  createAnswer: (questionId: string, data: { content: string }) =>
+    apiClient.post(`/questions/${questionId}/answers`, data),
+
+  createOrder: (data: { courseIds: string[]; paymentMethod: string }) =>
+    apiClient.post('/student/orders', data),
+  getOrderStatus: (orderId: string) => apiClient.get(`/student/orders/${orderId}`),
+  getQRCode: (orderId: string) => apiClient.get(`/payments/bankqr/${orderId}/qr`),
 };
 
 // ==================== COMMON API ====================
@@ -384,6 +494,13 @@ export const commonApi = {
   markNotificationRead: (id: string) => apiClient.patch(`/notifications/${id}/read`),
   markAllNotificationsRead: () => apiClient.patch('/notifications/mark-all-read'),
   search: (q: string) => apiClient.get('/search/courses', { params: { q } }),
+  // Thêm vào courseApi hoặc commonApi
+  getCourseReviews: (courseId: string, params?: { page?: number; limit?: number }) =>
+    apiClient.get(`/courses/${courseId}/reviews`, { params }),
+  // Thêm vào commonApi hoặc tạo file riêng
+  stripeWebhook: (data: any) => apiClient.post('/payments/stripe/webhook', data),
+  vnpayReturn: (params: any) => apiClient.get('/payments/vnpay/return', { params }),
+  bankQRNotify: (data: any) => apiClient.post('/payments/bankqr/notify', data),
 };
 
 // ==================== LX API ====================
