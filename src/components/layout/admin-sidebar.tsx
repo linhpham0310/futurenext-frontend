@@ -41,10 +41,7 @@ export const AdminSidebar = () => {
     { icon: CreditCard, label: 'Đơn hàng', href: '/admin/orders' },
   ];
 
-  const systemMenus = [
-    { icon: Settings, label: 'Thiết lập', href: '/admin/settings' },
-    { icon: Megaphone, label: 'Truyền thông', href: '/admin/communications' },
-  ];
+  const systemMenus = [{ icon: Megaphone, label: 'Truyền thông', href: '/admin/communications' }];
 
   const renderNavItems = (items: typeof mainMenus) =>
     items.map((item) => (
