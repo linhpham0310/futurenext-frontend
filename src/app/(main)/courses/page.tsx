@@ -167,26 +167,11 @@ export default function CoursesPage() {
                     {course.price.toLocaleString('vi-VN')}đ
                   </span>
                   {course.isEnrolled ? (
-                    <Button size="sm" onClick={() => goToLearning(course.id)}>
-                      Vào học
-                    </Button>
+                    <Button onClick={() => goToLearning(course.id)}>Vào học</Button>
                   ) : course.price === 0 ? (
-                    <Button
-                      size="sm"
-                      onClick={() => handleEnroll(course.id)}
-                      disabled={enrolling === course.id}
-                    >
-                      {enrolling === course.id ? 'Đang xử lý...' : 'Đăng ký ngay'}
-                    </Button>
+                    <Button onClick={() => handleEnroll(course.id)}>Đăng ký ngay</Button>
                   ) : (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleAddToCart(course.id)}
-                      disabled={addingToCart === course.id}
-                    >
-                      {addingToCart === course.id ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
-                    </Button>
+                    <Button onClick={() => handleAddToCart(course.id)}>Thêm vào giỏ hàng</Button>
                   )}
                 </div>
                 <Link

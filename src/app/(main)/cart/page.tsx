@@ -68,13 +68,18 @@ export default function CartPage() {
         paymentMethod,
       });
 
+      // Kiểm tra response cho free course
+      if (response.data.success) {
+        toast.success(response.data.message || 'Đăng ký thành công!');
+        setItems([]);
+        router.push('/my-courses');
+        return;
+      }
+
       if (response.data.paymentUrl) {
-        // Chuyển hướng đến cổng thanh toán
         window.location.href = response.data.paymentUrl;
       } else {
-        // Nếu không có paymentUrl (có thể do test hoặc thanh toán nội bộ)
         toast.success('Đơn hàng đã được tạo thành công!');
-        // Xóa giỏ hàng
         setItems([]);
         router.push('/my-courses');
       }

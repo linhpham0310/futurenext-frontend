@@ -47,6 +47,14 @@ export default function CheckoutPage() {
         courseIds: cart.items.map((item) => item.courseId),
         paymentMethod,
       });
+
+      // Kiểm tra response cho free course
+      if (response.data.success) {
+        toast.success(response.data.message || 'Đăng ký thành công!');
+        router.push('/my-courses');
+        return;
+      }
+
       if (response.data.paymentUrl) {
         window.location.href = response.data.paymentUrl;
       } else {

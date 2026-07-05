@@ -26,7 +26,7 @@ interface CourseDetail {
   id: string;
   title: string;
   description: string;
-  instructor: string;
+  instructor: { id: string; fullName: string; email: string } | null;
   status: 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
   price: number;
   students: number;
@@ -188,7 +188,7 @@ export default function AdminCourseDetailPage() {
           <CardHeader>
             <CardTitle className="text-sm">Giảng viên</CardTitle>
           </CardHeader>
-          <CardContent>{course.instructor}</CardContent>
+          <CardContent>{course.instructor?.fullName || 'Không rõ'}</CardContent>
         </Card>
         <Card>
           <CardHeader>

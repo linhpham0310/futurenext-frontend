@@ -405,6 +405,8 @@ export const teacherApi = {
     apiClient.get(`/teacher/courses/${courseId}/questions`, { params }),
   answerQuestion: (courseId: string, questionId: string, answer: string) =>
     apiClient.post(`/teacher/courses/${courseId}/questions/${questionId}/answer`, { answer }),
+  getFeaturedTeachers: (limit?: number) =>
+    apiClient.get('/teacher-profiles/featured', { params: { limit } }),
 };
 
 // ==================== STUDENT API ====================

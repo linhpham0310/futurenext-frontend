@@ -223,14 +223,12 @@ export const StudentHeader = () => {
             <Heart className="h-5 w-5 text-slate-600" />
           </Button>
         </Link>
-
         {/* Cart icon */}
         <Link href="/cart">
           <Button variant="ghost" size="icon" className="relative">
             <ShoppingCart className="h-5 w-5 text-slate-600" />
           </Button>
         </Link>
-
         {/* Notifications Dropdown */}
         <DropdownMenu open={notifOpen} onOpenChange={setNotifOpen}>
           <DropdownMenuTrigger asChild>
@@ -295,10 +293,23 @@ export const StudentHeader = () => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
         <ThemeToggle />
-
-        <StudentMenu />
+        {!user ? (
+          <div className="flex items-center gap-2">
+            <Link href="/sign-in">
+              <Button variant="ghost" size="sm">
+                Đăng nhập
+              </Button>
+            </Link>
+            <Link href="/sign-up">
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                Đăng ký
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <StudentMenu />
+        )}{' '}
       </div>
     </header>
   );

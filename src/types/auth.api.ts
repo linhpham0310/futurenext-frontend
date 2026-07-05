@@ -94,6 +94,7 @@ export interface AuthUser {
   avatarUrl?: string | null;
   phone?: string | null;
   updatedAt?: string;
+  bio?: string;
   teacherProfile?: {
     id: string;
     bio: string;

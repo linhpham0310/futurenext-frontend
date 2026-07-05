@@ -4,6 +4,8 @@ import { Inter as FontSans } from 'next/font/google';
 import '@/styles/globals.css'; // Import global styles (includes Shadcn theme variables)
 import { ThemeProvider } from '@/components/providers/theme-provider'; // Import ThemeProvider
 import { cn } from '@/lib/utils';
+import Footer from '@/components/layout/footer';
+import { StudentHeader } from '@/components/layout/student-header';
 
 // Cấu hình font Roboto
 const fontSans = FontSans({
@@ -35,7 +37,9 @@ export default function RootLayout({
       >
         {/* Wrap the entire application content with ThemeProvider */}
         <ThemeProvider>
+          <StudentHeader />
           <main className="flex-grow">{children}</main>
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

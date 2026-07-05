@@ -39,7 +39,7 @@ export default function LessonEditorPage() {
   const [aiInstructions, setAiInstructions] = useState('');
   const [aiFaqs, setAiFaqs] = useState('');
   const [mainTopics, setMainTopics] = useState<string[]>([]);
-  const [selectedExamId, setSelectedExamId] = useState<string>('');
+  const [selectedExamId, setSelectedExamId] = useState<string>('none');
   const [exams, setExams] = useState<{ id: string; title: string }[]>([]);
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function LessonEditorPage() {
           setAiInstructions(data.aiContext?.customInstructions || '');
           setAiFaqs(data.aiContext?.faqs?.join('\n') || '');
           setMainTopics(data.mainTopics || []);
-          setSelectedExamId(data.examId || '');
+          setSelectedExamId(data.examId || 'none');
           setExams(examsRes.data || []);
         })
         .catch(() => toast.error('Không tải được bài học'))
@@ -87,7 +87,7 @@ export default function LessonEditorPage() {
           faqs: aiFaqs.split('\n').filter((s) => s.trim()),
         },
         mainTopics,
-        examId: selectedExamId || undefined,
+        examId: selectedExamId === 'none' ? undefined : selectedExamId,
       };
       await teacherApi.updateLesson(courseId as string, lessonId as string, payload);
       toast.success('Lưu nội dung thành công');
@@ -182,7 +182,7 @@ useState hoạt động như thế nào?"
               <SelectValue placeholder="Chọn đề thi" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Không gán</SelectItem>
+              <SelectItem value="none">Không gán</SelectItem>
               {exams.map((exam) => (
                 <SelectItem key={exam.id} value={exam.id}>
                   {exam.title}

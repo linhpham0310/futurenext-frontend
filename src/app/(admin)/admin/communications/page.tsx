@@ -177,7 +177,7 @@ export default function AdminCommunicationsPage() {
                   value={form.type}
                   onChange={(e) => setForm({ ...form, type: e.target.value as 'EMAIL' | 'IN_APP' })}
                 >
-                  <option value="IN_APP">In-app</option>
+                  <option value="IN_APP">Trong Web</option>
                   <option value="EMAIL">Email</option>
                 </select>
               </div>

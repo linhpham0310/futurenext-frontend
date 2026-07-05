@@ -16,11 +16,81 @@ import {
   Palette,
   Brain,
   Code,
+  Clock,
+  Star,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { courseApi, teacherApi } from '@/lib/api';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+interface FeaturedInstructor {
+  id: string;
+  fullName: string;
+  avatarUrl?: string;
+  bio?: string;
+  expertise?: string[];
+  rating: number;
+  students: number;
+}
+
+interface FeaturedCourse {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  thumbnailUrl?: string;
+  instructor: { fullName: string };
+  rating: number;
+  reviewsCount: number;
+  duration: string;
+  lessonsCount: number;
+  level: string;
+}
 
 export default function HomePage() {
   const { isAuthenticated } = useAuth();
+  const [instructors, setInstructors] = useState<FeaturedInstructor[]>([]);
+  const [courses, setCourses] = useState<FeaturedCourse[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Lấy danh sách giảng viên nổi bật từ API
+        const [teachersRes, coursesRes] = await Promise.all([
+          teacherApi.getFeaturedTeachers(8),
+          courseApi.getPublicCourses({ limit: 6, page: 1 }),
+        ]);
+
+        setInstructors(teachersRes.data.data || []);
+        // Xử lý khóa học
+        const coursesData = coursesRes.data?.data || [];
+        const featuredCourses: FeaturedCourse[] = coursesData.map((c: any) => ({
+          id: c.id,
+          title: c.title,
+          description: c.description,
+          price: c.price,
+          thumbnailUrl: c.thumbnailUrl,
+          instructor: c.instructor || { fullName: 'Giảng viên' },
+          rating: c.rating || 0,
+          reviewsCount: c.reviewsCount || 0,
+          duration: c.duration || '20 giờ',
+          lessonsCount: c.lessonsCount || 0,
+          level: c.level || 'Trung cấp',
+        }));
+        setCourses(featuredCourses);
+      } catch (error) {
+        console.error('Error fetching featured data:', error);
+        toast.error('Không thể tải dữ liệu trang chủ');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const features = [
     { icon: Bot, title: 'Chatbot AI', desc: 'Trợ lý ảo giải đáp mọi thắc mắc 24/7' },
@@ -111,6 +181,121 @@ export default function HomePage() {
                 <CardContent className="text-center text-gray-600">{f.desc}</CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Giảng viên nổi bật */}
+      <section className="py-16 bg-slate-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-2">Những giảng viên nổi tiếng</h2>
+            <p className="text-gray-600">Học từ các chuyên gia hàng đầu trong lĩnh vực</p>
+          </div>
+          {loading ? (
+            <p className="text-center text-muted-foreground">Đang tải giảng viên...</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {instructors.map((instructor) => (
+                <Card key={instructor.id} className="hover:shadow-lg transition">
+                  <CardContent className="p-6 text-center">
+                    <Avatar className="w-24 h-24 mx-auto mb-4">
+                      <AvatarImage src={instructor.avatarUrl || undefined} />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white text-2xl">
+                        {instructor.fullName.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <h3 className="font-bold text-lg">{instructor.fullName}</h3>
+                    <p className="text-sm text-muted-foreground mb-2">{instructor.bio}</p>
+                    <div className="flex items-center justify-center gap-1 text-yellow-500">
+                      <Star className="h-4 w-4 fill-current" />
+                      <span className="font-semibold">{instructor.rating.toFixed(1)}</span>
+                      <span className="text-xs text-muted-foreground ml-1">
+                        ({instructor.students} học viên)
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Khóa học nổi bật */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-2">Các khóa học nổi bật</h2>
+            <p className="text-gray-600">Những khóa học được yêu thích nhất hiện nay</p>
+          </div>
+          {loading ? (
+            <p className="text-center text-muted-foreground">Đang tải khóa học...</p>
+          ) : courses.length === 0 ? (
+            <p className="text-center text-muted-foreground">Chưa có khóa học nổi bật</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {courses.map((course) => (
+                <Card key={course.id} className="hover:shadow-xl transition overflow-hidden">
+                  <div className="aspect-video bg-muted relative">
+                    {course.thumbnailUrl ? (
+                      <img
+                        src={course.thumbnailUrl}
+                        alt={course.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                        <BookOpen className="h-12 w-12" />
+                      </div>
+                    )}
+                  </div>
+                  <CardHeader>
+                    <CardTitle className="text-lg line-clamp-1">{course.title}</CardTitle>
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <span>{course.instructor.fullName}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="flex items-center text-yellow-500">
+                        <Star className="h-4 w-4 fill-current" />
+                        <span className="ml-1 font-medium">{course.rating.toFixed(1)}</span>
+                      </div>
+                      <span className="text-muted-foreground">
+                        ({course.reviewsCount || 0} lượt đánh giá)
+                      </span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> {course.duration}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <BookOpen className="h-3 w-3" /> {course.lessonsCount} bài giảng
+                      </span>
+                      <Badge variant="outline">{course.level}</Badge>
+                    </div>
+                    <div className="flex justify-between items-center pt-2">
+                      <span className="font-bold text-blue-600">
+                        {course.price.toLocaleString('vi-VN')}đ
+                      </span>
+                      <Link href={`/courses/${course.id}`}>
+                        <Button size="sm" variant="outline">
+                          Xem chi tiết
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+          <div className="text-center mt-8">
+            <Link href="/courses">
+              <Button variant="outline" size="lg">
+                Xem tất cả khóa học
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
