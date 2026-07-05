@@ -7,10 +7,17 @@ import { studentApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Trash2, ShoppingBag, ArrowRight, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { BackButton } from '@/components/ui/back-button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface CartItem {
   courseId: string;
@@ -24,6 +31,8 @@ export default function CartPage() {
   const router = useRouter();
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'STRIPE' | 'VNPAY'>('STRIPE');
 
   useEffect(() => {
     if (user) {
@@ -47,9 +56,33 @@ export default function CartPage() {
 
   const total = items.reduce((sum, item) => sum + item.price, 0);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (items.length === 0) return;
-    router.push('/checkout');
+    if (submitting) return;
+
+    setSubmitting(true);
+    try {
+      const courseIds = items.map((item) => item.courseId);
+      const response = await studentApi.createOrder({
+        courseIds,
+        paymentMethod,
+      });
+
+      if (response.data.paymentUrl) {
+        // Chuyển hướng đến cổng thanh toán
+        window.location.href = response.data.paymentUrl;
+      } else {
+        // Nếu không có paymentUrl (có thể do test hoặc thanh toán nội bộ)
+        toast.success('Đơn hàng đã được tạo thành công!');
+        // Xóa giỏ hàng
+        setItems([]);
+        router.push('/my-courses');
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Thanh toán thất bại');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (authLoading || loading)
@@ -65,6 +98,7 @@ export default function CartPage() {
         <h1 className="text-2xl font-bold">Giỏ hàng</h1>
         <BackButton />
       </div>
+
       {items.length === 0 ? (
         <div className="text-center py-12">
           <ShoppingBag className="h-12 w-12 mx-auto text-slate-300 mb-3" />
@@ -86,22 +120,63 @@ export default function CartPage() {
                       {item.price.toLocaleString('vi-VN')}đ
                     </p>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => removeItem(item.courseId)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeItem(item.courseId)}
+                    disabled={submitting}
+                  >
                     <Trash2 className="h-4 w-4 text-red-500" />
                   </Button>
                 </CardContent>
               </Card>
             ))}
           </div>
+
           <Card>
-            <CardContent className="p-4 flex justify-between items-center">
-              <div>
-                <p className="text-sm text-muted-foreground">Tổng cộng</p>
-                <p className="text-2xl font-bold">{total.toLocaleString('vi-VN')}đ</p>
+            <CardContent className="p-4 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Tổng cộng</p>
+                  <p className="text-2xl font-bold">{total.toLocaleString('vi-VN')}đ</p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="h-4 w-4 text-muted-foreground" />
+                    <Select
+                      value={paymentMethod}
+                      onValueChange={(v) => setPaymentMethod(v as 'STRIPE' | 'VNPAY')}
+                      disabled={submitting}
+                    >
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Phương thức" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="STRIPE">Thẻ tín dụng</SelectItem>
+                        <SelectItem value="VNPAY">VNPay</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <Button
+                    onClick={handleCheckout}
+                    disabled={submitting}
+                    className="gap-2 min-w-[180px]"
+                  >
+                    {submitting ? (
+                      <>
+                        <Spinner className="h-4 w-4" />
+                        Đang xử lý...
+                      </>
+                    ) : (
+                      <>
+                        Tiến hành thanh toán <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
-              <Button onClick={handleCheckout} className="gap-2">
-                Tiến hành thanh toán <ArrowRight className="h-4 w-4" />
-              </Button>
             </CardContent>
           </Card>
         </>

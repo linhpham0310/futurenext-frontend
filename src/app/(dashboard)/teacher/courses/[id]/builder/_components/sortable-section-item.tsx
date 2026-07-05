@@ -19,7 +19,15 @@ import {
 import { teacherApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { Lesson } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
+interface Lesson {
+  id: string;
+  title: string;
+  type: 'VIDEO' | 'ARTICLE' | 'QUIZ' | 'LAB';
+  orderIndex: number;
+}
 
 interface Props {
   id: string;
@@ -27,15 +35,27 @@ interface Props {
   courseId: string;
   lessons: Lesson[];
   onUpdateTitle: (sectionId: string, newTitle: string) => void;
+  onDelete: (sectionId: string) => void;
+  onToggleMapping?: (outcomeId: string) => void;
+  outcomes?: { id: string; title: string }[];
+  mappedOutcomes?: string[];
 }
 
 const LessonTypeIcon = ({ type }: { type: string }) => {
   if (type === 'VIDEO') return <Video className="h-4 w-4 text-blue-500" />;
   if (type === 'ARTICLE') return <FileText className="h-4 w-4 text-green-500" />;
-  return <HelpCircle className="h-4 w-4 text-orange-500" />;
+  if (type === 'QUIZ') return <HelpCircle className="h-4 w-4 text-orange-500" />;
+  return <FileText className="h-4 w-4 text-gray-500" />;
 };
 
-export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitle }: Props) => {
+export const SortableSectionItem = ({
+  id,
+  title,
+  courseId,
+  lessons,
+  onUpdateTitle,
+  onDelete,
+}: Props) => {
   const router = useRouter();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
@@ -44,7 +64,7 @@ export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitl
   const [editTitle, setEditTitle] = useState(title);
   const [isSaving, setIsSaving] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
-  const [showAddLessonForm, setShowAddLessonForm] = useState(false);
+  const [showAddLesson, setShowAddLesson] = useState(false);
   const [newLessonTitle, setNewLessonTitle] = useState('');
   const [newLessonType, setNewLessonType] = useState<'VIDEO' | 'ARTICLE' | 'QUIZ' | 'LAB'>(
     'ARTICLE'
@@ -67,7 +87,6 @@ export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitl
     setIsSaving(true);
     try {
       await teacherApi.updateSection(courseId, id, { title: editTitle.trim() });
-
       onUpdateTitle(id, editTitle.trim());
       setIsEditing(false);
       toast.success('Đã cập nhật tên chương');
@@ -91,7 +110,7 @@ export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitl
       });
       setLocalLessons([...localLessons, res.data]);
       setNewLessonTitle('');
-      setShowAddLessonForm(false);
+      setShowAddLesson(false);
       toast.success('Thêm bài học thành công');
     } catch {
       toast.error('Thêm thất bại');
@@ -130,7 +149,7 @@ export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitl
         </button>
         {isEditing ? (
           <>
-            <input
+            <Input
               autoFocus
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
@@ -141,7 +160,7 @@ export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitl
                   setEditTitle(title);
                 }
               }}
-              className="flex-1 px-2 py-1 border border-blue-400 rounded text-sm"
+              className="flex-1 h-8 text-sm"
             />
             <button onClick={handleSaveTitle} disabled={isSaving} className="p-1">
               <Check className="h-4 w-4" />
@@ -162,6 +181,9 @@ export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitl
             <button onClick={() => setIsEditing(true)} className="p-1">
               <Pencil className="h-4 w-4" />
             </button>
+            <button onClick={() => onDelete(id)} className="p-1 text-red-500 hover:text-red-700">
+              <Trash2 className="h-4 w-4" />
+            </button>
           </>
         )}
       </div>
@@ -171,12 +193,13 @@ export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitl
             <div key={lesson.id} className="flex items-center gap-2 py-2 border-b last:border-0">
               <LessonTypeIcon type={lesson.type} />
               <span className="flex-1 text-sm">{lesson.title}</span>
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => router.push(`/teacher/courses/${courseId}/lessons/${lesson.id}`)}
-                className="text-xs text-blue-500 hover:underline"
               >
-                Sửa nội dung
-              </button>
+                <Pencil className="h-3 w-3 mr-1" /> Sửa nội dung
+              </Button>
               <button
                 onClick={() => handleDeleteLesson(lesson.id)}
                 className="text-red-500 hover:text-red-700"
@@ -185,42 +208,37 @@ export const SortableSectionItem = ({ id, title, courseId, lessons, onUpdateTitl
               </button>
             </div>
           ))}
-          {showAddLessonForm ? (
+          {showAddLesson ? (
             <div className="mt-2 flex flex-col gap-2">
-              <input
+              <Input
                 autoFocus
                 value={newLessonTitle}
                 onChange={(e) => setNewLessonTitle(e.target.value)}
                 placeholder="Tên bài học..."
-                className="w-full p-2 border rounded text-sm"
+                className="flex-1"
               />
               <div className="flex gap-2">
                 <select
                   value={newLessonType}
                   onChange={(e) => setNewLessonType(e.target.value as any)}
-                  className="p-2 border rounded text-sm"
+                  className="px-3 py-2 border rounded text-sm"
                 >
                   <option value="ARTICLE">Bài viết</option>
                   <option value="VIDEO">Video</option>
+                  <option value="QUIZ">Quiz</option>
+                  <option value="LAB">Lab</option>
                 </select>
-                <button
-                  onClick={handleAddLesson}
-                  disabled={isAdding}
-                  className="px-3 py-2 bg-blue-600 text-white rounded text-sm"
-                >
-                  Thêm
-                </button>
-                <button
-                  onClick={() => setShowAddLessonForm(false)}
-                  className="px-3 py-2 border rounded text-sm"
-                >
+                <Button onClick={handleAddLesson} disabled={isAdding} size="sm">
+                  {isAdding ? 'Đang thêm...' : 'Thêm'}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setShowAddLesson(false)}>
                   Hủy
-                </button>
+                </Button>
               </div>
             </div>
           ) : (
             <button
-              onClick={() => setShowAddLessonForm(true)}
+              onClick={() => setShowAddLesson(true)}
               className="mt-2 flex items-center gap-1 text-xs text-gray-500 hover:text-blue-500"
             >
               <Plus className="h-3 w-3" /> Thêm bài học

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'; // ✅ Thêm import
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { Clock, Users, Star } from 'lucide-react';
@@ -48,6 +48,7 @@ export default function CourseDetailPage() {
   const [course, setCourse] = useState<CourseDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [questions, setQuestions] = useState<QuestionItem[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
@@ -105,11 +106,25 @@ export default function CourseDetailPage() {
     try {
       await studentApi.enrollCourse(id);
       toast.success('Đăng ký thành công!');
-      router.push(`/learning/${id}`);
-    } catch (error) {
-      toast.error('Đăng ký thất bại, vui lòng thử lại');
+      setCourse((prev) => (prev ? { ...prev, isEnrolled: true } : prev));
+      router.push(`/lx/${id}`);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Đăng ký thất bại, vui lòng thử lại');
     } finally {
       setEnrolling(false);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    setAddingToCart(true);
+    try {
+      await studentApi.addToCart(id);
+      toast.success('Đã thêm vào giỏ hàng');
+      router.push('/cart');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Thêm vào giỏ hàng thất bại');
+    } finally {
+      setAddingToCart(false);
     }
   };
 
@@ -138,22 +153,35 @@ export default function CourseDetailPage() {
               <Users className="h-4 w-4" /> {course.students} học viên
             </span>
             <span className="flex items-center gap-1">
-              <Star className="h-4 w-4 text-yellow-500" /> {course.rating}
+              <Star className="h-4 w-4 text-yellow-500" /> {course.rating.toFixed(1)}
             </span>
           </div>
         </div>
         <Card className="h-fit">
           <CardContent className="p-6 space-y-4">
             <div className="text-3xl font-bold">{course.price.toLocaleString('vi-VN')}đ</div>
-            <Button
-              className="w-full"
-              size="lg"
-              onClick={handleEnroll}
-              disabled={enrolling || course.isEnrolled}
-            >
-              {course.isEnrolled ? 'Đã đăng ký' : enrolling ? 'Đang xử lý...' : 'Đăng ký ngay'}
-            </Button>
-            <p className="text-xs text-muted-foreground text-center">30 ngày hoàn tiền</p>
+            {course.isEnrolled ? (
+              <Button className="w-full" size="lg" onClick={() => router.push(`/lx/${course.id}`)}>
+                Vào học
+              </Button>
+            ) : course.price === 0 ? (
+              <Button className="w-full" size="lg" onClick={handleEnroll} disabled={enrolling}>
+                {enrolling ? 'Đang xử lý...' : 'Đăng ký ngay'}
+              </Button>
+            ) : (
+              <Button
+                className="w-full"
+                size="lg"
+                variant="outline"
+                onClick={handleAddToCart}
+                disabled={addingToCart}
+              >
+                {addingToCart ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
+              </Button>
+            )}
+            <p className="text-xs text-muted-foreground text-center">
+              {course.price === 0 ? 'Miễn phí' : '30 ngày hoàn tiền'}
+            </p>
           </CardContent>
         </Card>
       </div>

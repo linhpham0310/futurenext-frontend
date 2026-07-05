@@ -168,7 +168,7 @@ useState hoạt động như thế nào?"
           />
         </div>
         <div className="space-y-2">
-          <Label>Chủ đề chính (Main Topics)</Label>
+          <Label>Chủ đề chính </Label>
           <TagInput tags={mainTopics} onChange={setMainTopics} placeholder="Thêm chủ đề..." />
         </div>
       </div>

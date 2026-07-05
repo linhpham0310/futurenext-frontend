@@ -10,10 +10,10 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Pencil, Trash2, Send } from 'lucide-react';
+import { Pencil, Trash2, Send, FolderTree, Star } from 'lucide-react';
+import { BackButton } from '@/components/ui/back-button';
 import CourseFeedbackPage from './feedback/page';
 import CourseAISettingsPage from './ai-settings/page';
-import { BackButton } from '@/components/ui/back-button';
 
 interface CourseDetail {
   id: string;
@@ -22,12 +22,20 @@ interface CourseDetail {
   status: 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
   price: number;
   thumbnailUrl: string;
+  language: string;
+  level: string;
+  category?: { name: string };
+  instructor: { id: string; fullName: string; email: string };
+  students: number;
+  rating: number;
   sections: {
     id: string;
     title: string;
-    lessons: { id: string; title: string; type: string }[];
-    loMappings?: string[];
+    orderIndex: number;
+    lessons: { id: string; title: string; type: string; orderIndex: number }[];
   }[];
+  outcomes: { id: string; title: string; description: string }[];
+  reviewLogs: { adminName: string; action: string; reason: string; createdAt: string }[];
 }
 
 export default function CourseDetailPage() {
@@ -37,22 +45,19 @@ export default function CourseDetailPage() {
   const [course, setCourse] = useState<CourseDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [outcomes, setOutcomes] = useState<{ id: string; title: string; description: string }[]>(
-    []
-  );
 
   useEffect(() => {
     if (!authLoading && !isTeacher) router.push('/forbidden');
   }, [isTeacher, authLoading, router]);
 
   useEffect(() => {
-    Promise.all([
-      teacherApi.getCourseDetail(id as string),
-      teacherApi.getLearningOutcomes(id as string), // API mới
-    ]).then(([courseRes, outcomesRes]) => {
-      setCourse(courseRes.data);
-      setOutcomes(outcomesRes.data || []);
-    });
+    if (isTeacher && id) {
+      teacherApi
+        .getCourseDetail(id as string)
+        .then((res) => setCourse(res.data))
+        .catch(() => toast.error('Không thể tải thông tin khóa học'))
+        .finally(() => setLoading(false));
+    }
   }, [id, isTeacher]);
 
   const handleDelete = async () => {
@@ -67,16 +72,11 @@ export default function CourseDetailPage() {
   };
 
   const handleSubmitForReview = async () => {
-    if (
-      !confirm(
-        'Gửi khóa học này để duyệt? Bạn sẽ không thể chỉnh sửa cho đến khi được duyệt hoặc từ chối.'
-      )
-    )
-      return;
+    if (!confirm('Gửi khóa học này để duyệt?')) return;
     setIsSubmitting(true);
     try {
       await teacherApi.submitCourse(id as string);
-      toast.success('Đã gửi yêu cầu duyệt, vui lòng chờ phản hồi từ admin.');
+      toast.success('Đã gửi yêu cầu duyệt');
       const res = await teacherApi.getCourseDetail(id as string);
       setCourse(res.data);
     } catch (error: any) {
@@ -86,12 +86,13 @@ export default function CourseDetailPage() {
     }
   };
 
-  if (authLoading || loading)
+  if (authLoading || loading) {
     return (
-      <div className="p-8 flex justify-center">
+      <div className="flex justify-center py-12">
         <Spinner />
       </div>
     );
+  }
   if (!isTeacher || !course) return null;
 
   const getStatusBadge = () => {
@@ -109,122 +110,149 @@ export default function CourseDetailPage() {
 
   return (
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-start flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold">{course.title}</h1>
           <p className="text-muted-foreground">ID: {course.id}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <BackButton />
           {course.status === 'DRAFT' && (
             <Button
               onClick={handleSubmitForReview}
               disabled={isSubmitting}
               variant="default"
-              className="bg-green-600"
+              className="bg-green-600 hover:bg-green-700"
             >
               <Send className="h-4 w-4 mr-1" /> Gửi duyệt
             </Button>
           )}
-          {course.status === 'SUBMITTED' && (
-            <Button disabled variant="outline">
-              Đang chờ duyệt
-            </Button>
-          )}
           <Button variant="outline" onClick={() => router.push(`/teacher/courses/${id}/edit`)}>
-            <Pencil className="h-4 w-4 mr-1" /> Chỉnh sửa
+            <Pencil className="h-4 w-4 mr-1" /> Chỉnh sửa thông tin
+          </Button>
+          <Button variant="outline" onClick={() => router.push(`/teacher/courses/${id}/builder`)}>
+            <FolderTree className="h-4 w-4 mr-1" /> Chỉnh sửa cấu trúc
           </Button>
           <Button variant="destructive" onClick={handleDelete}>
             <Trash2 className="h-4 w-4 mr-1" /> Xóa
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      {/* Thông tin nhanh */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Trạng thái</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Trạng thái</CardTitle>
           </CardHeader>
           <CardContent>{getStatusBadge()}</CardContent>
         </Card>
         <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Giá</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Giá</CardTitle>
           </CardHeader>
           <CardContent>{course.price.toLocaleString('vi-VN')}đ</CardContent>
         </Card>
         <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Số chương</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Học viên</CardTitle>
           </CardHeader>
-          <CardContent>{course.sections.length}</CardContent>
+          <CardContent>{course.students}</CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Đánh giá</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center gap-1">
+            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            {course.rating.toFixed(1)}
+          </CardContent>
         </Card>
       </div>
+
+      {/* Tabs */}
       <Tabs defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">Tổng quan</TabsTrigger>
           <TabsTrigger value="content">Nội dung</TabsTrigger>
           <TabsTrigger value="feedback">Phản hồi</TabsTrigger>
-          <TabsTrigger value="ai-settings">AI Settings</TabsTrigger>
+          <TabsTrigger value="ai-settings">Cấu hình AI</TabsTrigger>
         </TabsList>
+
+        {/* Tổng quan */}
         <TabsContent value="overview">
           <Card>
             <CardHeader>
               <CardTitle>Mô tả</CardTitle>
             </CardHeader>
-            <CardContent>{course.description || 'Chưa có mô tả'}</CardContent>
+            <CardContent>
+              <p className="whitespace-pre-wrap">{course.description || 'Chưa có mô tả'}</p>
+            </CardContent>
           </Card>
+          {course.outcomes.length > 0 && (
+            <Card className="mt-4">
+              <CardHeader>
+                <CardTitle>Kết quả học tập</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="list-disc pl-5 space-y-1">
+                  {course.outcomes.map((lo) => (
+                    <li key={lo.id}>
+                      <strong>{lo.title}</strong> – {lo.description}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
+        {/* Nội dung */}
         <TabsContent value="content">
           <Card>
-            <CardHeader>
-              <CardTitle>Chương mục</CardTitle>
+            <CardHeader className="flex flex-row justify-between items-center">
+              <CardTitle>Cấu trúc khóa học</CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push(`/teacher/courses/${id}/builder`)}
+              >
+                <FolderTree className="h-4 w-4 mr-1" /> Chỉnh sửa cấu trúc
+              </Button>
             </CardHeader>
             <CardContent>
-              {/* Hiển thị LOs */}
-              {outcomes.length > 0 && (
-                <div className="mb-4">
-                  <h4 className="font-semibold text-sm">Mục tiêu học tập (LOs):</h4>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {outcomes.map((lo) => (
-                      <span
-                        key={lo.id}
-                        className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
-                      >
-                        {lo.title}
-                      </span>
-                    ))}
-                  </div>
+              {course.sections.length === 0 ? (
+                <p className="text-muted-foreground">Chưa có chương mục nào.</p>
+              ) : (
+                <div className="space-y-4">
+                  {course.sections.map((section) => (
+                    <div key={section.id} className="border rounded-lg p-4">
+                      <h3 className="font-semibold text-lg">{section.title}</h3>
+                      <ul className="mt-2 pl-4 space-y-1">
+                        {section.lessons.map((lesson) => (
+                          <li
+                            key={lesson.id}
+                            className="text-sm flex justify-between items-center border-b pb-1"
+                          >
+                            <span>
+                              • {lesson.title} ({lesson.type})
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                router.push(`/teacher/courses/${course.id}/lessons/${lesson.id}`)
+                              }
+                            >
+                              <Pencil className="h-3 w-3 mr-1" /> Sửa nội dung
+                            </Button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
               )}
-              {/* Sections và lessons như cũ, thêm badge LO nếu có mapping */}
-              {course.sections.map((section) => (
-                <div key={section.id} className="border rounded-lg p-4">
-                  <h3 className="font-semibold">{section.title}</h3>
-                  {section.loMappings && section.loMappings.length > 0 && (
-                    <div className="flex flex-wrap gap-1 my-2">
-                      {section.loMappings.map((loId) => {
-                        const lo = outcomes.find((o) => o.id === loId);
-                        return lo ? (
-                          <span
-                            key={loId}
-                            className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
-                          >
-                            {lo.title}
-                          </span>
-                        ) : null;
-                      })}
-                    </div>
-                  )}
-                  <ul className="mt-2 pl-4 space-y-1">
-                    {section.lessons.map((lesson) => (
-                      <li key={lesson.id} className="text-sm">
-                        • {lesson.title} ({lesson.type})
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
             </CardContent>
           </Card>
         </TabsContent>

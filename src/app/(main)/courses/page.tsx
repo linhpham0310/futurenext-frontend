@@ -27,6 +27,7 @@ export default function CoursesPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [enrolling, setEnrolling] = useState<string | null>(null);
+  const [addingToCart, setAddingToCart] = useState<string | null>(null);
 
   const fetchCourses = async (keyword = '') => {
     setLoading(true);
@@ -86,6 +87,20 @@ export default function CoursesPage() {
       toast.error(err?.response?.data?.message || 'Đăng ký thất bại');
     } finally {
       setEnrolling(null);
+    }
+  };
+
+  const handleAddToCart = async (courseId: string) => {
+    setAddingToCart(courseId);
+    try {
+      await studentApi.addToCart(courseId);
+      toast.success('Đã thêm vào giỏ hàng');
+      // Có thể chuyển hướng đến giỏ hàng nếu muốn
+      // router.push('/cart');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Thêm vào giỏ hàng thất bại');
+    } finally {
+      setAddingToCart(null);
     }
   };
 
@@ -155,13 +170,22 @@ export default function CoursesPage() {
                     <Button size="sm" onClick={() => goToLearning(course.id)}>
                       Vào học
                     </Button>
-                  ) : (
+                  ) : course.price === 0 ? (
                     <Button
                       size="sm"
                       onClick={() => handleEnroll(course.id)}
                       disabled={enrolling === course.id}
                     >
-                      {enrolling === course.id ? 'Đang xử lý...' : 'Đăng ký'}
+                      {enrolling === course.id ? 'Đang xử lý...' : 'Đăng ký ngay'}
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleAddToCart(course.id)}
+                      disabled={addingToCart === course.id}
+                    >
+                      {addingToCart === course.id ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
                     </Button>
                   )}
                 </div>
