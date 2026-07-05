@@ -63,8 +63,8 @@ export default function AdminCommunicationsPage() {
     setLoading(true);
     try {
       const response = await adminApi.getNotifications({ page, limit });
-      setNotifications(response.data.items);
-      setTotalPages(response.data.meta.totalPages);
+      setNotifications(response.data?.data ?? []);
+      setTotalPages(response.data?.meta?.totalPages ?? 1);
     } catch {
       toast.error('Không thể tải danh sách thông báo');
     } finally {

@@ -169,7 +169,7 @@ export default function AdminStudentsPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => router.push(`/admin/users/students/${student.id}`)}
+                          onClick={() => router.push(`/admin/students/${student.id}`)}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>

@@ -221,14 +221,14 @@ useState hoạt động như thế nào?"
               <div>
                 <Label>Gán đề thi</Label>
                 <Select
-                  value={lesson.examId || ''}
-                  onValueChange={(val) => updateLesson('examId', val || null)}
+                  value={lesson.examId || 'none'}
+                  onValueChange={(val) => updateLesson('examId', val === 'none' ? null : val)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Chọn đề thi" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Không gán</SelectItem>
+                    <SelectItem value="none">Không gán</SelectItem>
                     {exams.map((exam) => (
                       <SelectItem key={exam.id} value={exam.id}>
                         {exam.title}
