@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { teacherApi } from '@/lib/api';
+import { teacherApi, commonApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -19,82 +18,90 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { TagInput } from '@/components/shared/tag-input';
 import { MarkdownEditor } from '@/components/shared/markdown-editor';
-import { VideoUploader } from '@/components/shared/video-uploader';
 import { toast } from 'sonner';
-import { Save, ArrowLeft } from 'lucide-react';
+import { Save } from 'lucide-react';
 
-interface LessonData {
+interface Category {
   id: string;
-  title: string;
-  type: 'VIDEO' | 'ARTICLE' | 'QUIZ' | 'LAB';
-  content: string;
-  duration: number;
-  isFreePreview: boolean;
-  isAiEnabled: boolean;
-  aiContext: { customInstructions?: string; faqs?: string[] };
-  mainTopics: string[];
-  examId: string | null;
+  name: string;
 }
 
-export default function LessonEditorPage() {
-  const { id: courseId, lessonId } = useParams();
+interface CourseForm {
+  title: string;
+  shortDescription: string;
+  description: string;
+  price: number;
+  thumbnailUrl: string;
+  language: string;
+  level: string;
+  categoryId: string; // 'none' nếu chưa phân loại
+  status: string;
+}
+
+export default function CourseEditPage() {
+  const { id: courseId } = useParams();
   const router = useRouter();
   const { isTeacher, isLoading: authLoading } = useAuth();
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [lesson, setLesson] = useState<LessonData | null>(null);
-  const [exams, setExams] = useState<{ id: string; title: string }[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [form, setForm] = useState<CourseForm | null>(null);
 
   useEffect(() => {
     if (!authLoading && !isTeacher) router.push('/forbidden');
   }, [isTeacher, authLoading, router]);
 
   useEffect(() => {
-    if (isTeacher && courseId && lessonId) {
-      Promise.all([
-        teacherApi.getLesson(courseId as string, lessonId as string),
-        teacherApi.getExams(),
-      ])
-        .then(([lessonRes, examsRes]) => {
-          const data = lessonRes.data;
-          setLesson({
-            id: data.id,
-            title: data.title,
-            type: data.type,
-            content: data.content || '',
-            duration: data.duration || 0,
-            isFreePreview: data.isFreePreview || false,
-            isAiEnabled: data.isAiEnabled ?? false,
-            aiContext: data.aiContext || { customInstructions: '', faqs: [] },
-            mainTopics: data.mainTopics || [],
-            examId: data.examId || null,
+    if (isTeacher && courseId) {
+      Promise.all([teacherApi.getCourseDetail(courseId as string), commonApi.getCategories()])
+        .then(([courseRes, categoriesRes]) => {
+          const c = courseRes.data;
+          setForm({
+            title: c.title || '',
+            shortDescription: c.shortDescription || '',
+            description: c.description || '',
+            price: c.price != null ? Number(c.price) : 0,
+            thumbnailUrl: c.thumbnailUrl || '',
+            language: c.language || 'vi',
+            level: c.level || 'beginner',
+            categoryId: c.categoryId || 'none',
+            status: c.status,
           });
-          setExams(examsRes.data || []);
+          setCategories(categoriesRes.data || []);
         })
-        .catch(() => toast.error('Không thể tải bài học'))
+        .catch(() => toast.error('Không tải được thông tin khóa học'))
         .finally(() => setLoading(false));
     }
-  }, [courseId, lessonId, isTeacher]);
+  }, [courseId, isTeacher]);
+
+  const updateForm = (field: keyof CourseForm, value: any) => {
+    setForm((prev) => (prev ? { ...prev, [field]: value } : null));
+  };
 
   const handleSave = async () => {
-    if (!lesson) return;
+    if (!form) return;
+    if (!form.title.trim()) {
+      toast.error('Vui lòng nhập tiêu đề khóa học');
+      return;
+    }
     setSaving(true);
     try {
-      await teacherApi.updateLesson(courseId as string, lessonId as string, {
-        content: lesson.content,
-        duration: lesson.duration,
-        isAiEnabled: lesson.isAiEnabled,
-        aiContext: lesson.aiContext,
-        mainTopics: lesson.mainTopics,
-        examId: lesson.examId || undefined,
-        isFreePreview: lesson.isFreePreview,
+      await teacherApi.updateCourse(courseId as string, {
+        title: form.title,
+        shortDescription: form.shortDescription || undefined,
+        description: form.description || undefined,
+        price: form.price,
+        thumbnailUrl: form.thumbnailUrl || undefined,
+        language: form.language,
+        level: form.level,
+        categoryId: form.categoryId === 'none' ? undefined : form.categoryId,
       });
-      toast.success('Lưu bài học thành công');
+      toast.success('Cập nhật khóa học thành công');
       router.push(`/teacher/courses/${courseId}/builder`);
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Lưu thất bại');
+      toast.error(error?.response?.data?.message || error?.message || 'Cập nhật thất bại');
     } finally {
       setSaving(false);
     }
@@ -107,149 +114,145 @@ export default function LessonEditorPage() {
       </div>
     );
   }
-  if (!isTeacher || !lesson) return null;
+  if (!isTeacher || !form) return null;
 
-  const updateLesson = (field: keyof LessonData, value: any) => {
-    setLesson((prev) => (prev ? { ...prev, [field]: value } : null));
-  };
+  const canEdit = form.status === 'DRAFT' || form.status === 'REJECTED';
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="flex items-center gap-4">
         <BackButton />
-        <h1 className="text-2xl font-bold">Soạn thảo bài học: {lesson.title}</h1>
+        <h1 className="text-2xl font-bold">Sửa thông tin khóa học</h1>
       </div>
+
+      {!canEdit && (
+        <div className="rounded border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-800">
+          Khóa học đang ở trạng thái <strong>{form.status}</strong>, không thể chỉnh sửa thông tin.
+          Chỉ khóa học ở trạng thái nháp hoặc bị từ chối mới được sửa.
+        </div>
+      )}
 
       <Card>
         <CardContent className="p-6 space-y-4">
-          {/* Thông tin cơ bản */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Tiêu đề</Label>
-              <Input value={lesson.title} disabled />
-            </div>
-            <div>
-              <Label>Loại</Label>
-              <Input value={lesson.type} disabled />
-            </div>
+          <div>
+            <Label>Tiêu đề</Label>
+            <Input
+              value={form.title}
+              onChange={(e) => updateForm('title', e.target.value)}
+              disabled={!canEdit}
+            />
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={lesson.isFreePreview}
-                onCheckedChange={(val) => updateLesson('isFreePreview', val)}
-              />
-              <Label>Xem thử miễn phí</Label>
-            </div>
+          <div>
+            <Label>Mô tả ngắn</Label>
+            <Textarea
+              value={form.shortDescription}
+              onChange={(e) => updateForm('shortDescription', e.target.value)}
+              placeholder="Mô tả ngắn gọn hiển thị ở trang danh sách khóa học (tối đa 500 ký tự)"
+              rows={2}
+              maxLength={500}
+              disabled={!canEdit}
+            />
+          </div>
+
+          <div>
+            <Label>Mô tả chi tiết</Label>
+            <MarkdownEditor
+              value={form.description}
+              onChange={(val) => updateForm('description', val)}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Thời lượng (phút)</Label>
+              <Label>Giá (VNĐ)</Label>
               <Input
                 type="number"
                 min={0}
-                value={lesson.duration}
-                onChange={(e) => updateLesson('duration', Number(e.target.value))}
-                className="w-24"
+                value={form.price}
+                onChange={(e) => updateForm('price', Number(e.target.value))}
+                disabled={!canEdit}
+              />
+            </div>
+            <div>
+              <Label>Ảnh thumbnail (URL)</Label>
+              <Input
+                value={form.thumbnailUrl}
+                onChange={(e) => updateForm('thumbnailUrl', e.target.value)}
+                placeholder="https://..."
+                disabled={!canEdit}
               />
             </div>
           </div>
 
-          {/* Nội dung */}
-          <div>
-            <Label>Nội dung</Label>
-            {lesson.type === 'VIDEO' ? (
-              <VideoUploader
-                courseId={courseId as string}
-                onSuccess={(fileKey) => updateLesson('content', fileKey)}
-              />
-            ) : (
-              <MarkdownEditor
-                value={lesson.content}
-                onChange={(val) => updateLesson('content', val)}
-              />
-            )}
-          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <Label>Danh mục</Label>
+              <Select
+                value={form.categoryId}
+                onValueChange={(val) => updateForm('categoryId', val)}
+                disabled={!canEdit}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn danh mục" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Chưa phân loại</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* Cấu hình AI */}
-          <div className="border-t pt-4 space-y-4">
-            <h3 className="font-semibold">Cấu hình AI Trợ giảng</h3>
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={lesson.isAiEnabled}
-                onCheckedChange={(val) => updateLesson('isAiEnabled', val)}
-              />
-              <Label>Bật AI cho bài học này</Label>
-            </div>
             <div>
-              <Label>Hướng dẫn tùy chỉnh</Label>
-              <Textarea
-                value={lesson.aiContext.customInstructions || ''}
-                onChange={(e) =>
-                  updateLesson('aiContext', {
-                    ...lesson.aiContext,
-                    customInstructions: e.target.value,
-                  })
-                }
-                placeholder="Ví dụ: Hãy trả lời học viên bằng tiếng Việt, thân thiện..."
-                rows={3}
-              />
+              <Label>Trình độ</Label>
+              <Select
+                value={form.level}
+                onValueChange={(val) => updateForm('level', val)}
+                disabled={!canEdit}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn trình độ" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="beginner">Cơ bản</SelectItem>
+                  <SelectItem value="intermediate">Trung cấp</SelectItem>
+                  <SelectItem value="advanced">Nâng cao</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
             <div>
-              <Label>FAQ (mỗi dòng một câu hỏi)</Label>
-              <Textarea
-                value={(lesson.aiContext.faqs || []).join('\n')}
-                onChange={(e) =>
-                  updateLesson('aiContext', {
-                    ...lesson.aiContext,
-                    faqs: e.target.value.split('\n').filter((s) => s.trim()),
-                  })
-                }
-                placeholder="React Hooks là gì?
-useState hoạt động như thế nào?"
-                rows={3}
-              />
+              <Label>Ngôn ngữ</Label>
+              <Select
+                value={form.language}
+                onValueChange={(val) => updateForm('language', val)}
+                disabled={!canEdit}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn ngôn ngữ" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vi">Tiếng Việt</SelectItem>
+                  <SelectItem value="en">Tiếng Anh</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div>
-              <Label>Chủ đề chính (Main Topics)</Label>
-              <TagInput
-                tags={lesson.mainTopics}
-                onChange={(tags) => updateLesson('mainTopics', tags)}
-                placeholder="Thêm chủ đề..."
-              />
-            </div>
-            {lesson.type === 'QUIZ' && (
-              <div>
-                <Label>Gán đề thi</Label>
-                <Select
-                  value={lesson.examId || 'none'}
-                  onValueChange={(val) => updateLesson('examId', val === 'none' ? null : val)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn đề thi" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Không gán</SelectItem>
-                    {exams.map((exam) => (
-                      <SelectItem key={exam.id} value={exam.id}>
-                        {exam.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
           </div>
 
           <div className="flex gap-2 pt-4">
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving || !canEdit}>
               <Save className="h-4 w-4 mr-1" />
-              {saving ? 'Đang lưu...' : 'Lưu bài học'}
+              {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
             </Button>
             <Button
               variant="outline"
               onClick={() => router.push(`/teacher/courses/${courseId}/builder`)}
             >
-              Quay lại Builder
+              Quay lại chỉnh sửa cấu trúc
             </Button>
           </div>
         </CardContent>

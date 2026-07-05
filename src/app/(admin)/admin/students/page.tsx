@@ -48,8 +48,8 @@ export default function AdminStudentsPage() {
         page,
         limit,
       });
-      setStudents(response.data.data);
-      setTotalPages(response.data.meta.totalPages);
+      setStudents(response.data?.items ?? []);
+      setTotalPages(response.data?.meta?.totalPages ?? 1);
     } catch {
       toast.error('Không thể tải danh sách học viên');
     } finally {

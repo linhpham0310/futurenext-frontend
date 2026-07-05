@@ -291,7 +291,16 @@ export const teacherApi = {
   getCourseDetail: (id: string) => apiClient.get(`/teacher/courses/${id}`),
   updateCourse: (
     id: string,
-    data: { title?: string; description?: string; price?: number; thumbnailUrl?: string }
+    data: {
+      title?: string;
+      description?: string;
+      shortDescription?: string;
+      price?: number;
+      thumbnailUrl?: string;
+      language?: string;
+      level?: string;
+      categoryId?: string;
+    }
   ) => apiClient.put(`/teacher/courses/${id}`, data),
   deleteCourse: (id: string) => apiClient.delete(`/teacher/courses/${id}`),
   submitCourse: (courseId: string) => apiClient.patch(`/teacher/courses/${courseId}/submit`),
@@ -355,8 +364,6 @@ export const teacherApi = {
   createAnnouncement: (data: { courseId: string; title: string; content: string }) =>
     apiClient.post('/teacher/announcements', data),
   getCertificates: () => apiClient.get('/teacher/certificates'),
-  exportRevenueReport: () => apiClient.get('/reports/revenue/export', { responseType: 'blob' }),
-  exportStudentsReport: () => apiClient.get('/reports/students/export', { responseType: 'blob' }),
   getLearningOutcomes: (courseId: string) => apiClient.get(`/teacher/courses/${courseId}/outcomes`),
   createLearningOutcome: (courseId: string, data: { title: string; description?: string }) =>
     apiClient.post(`/teacher/courses/${courseId}/outcomes`, data),
@@ -378,10 +385,6 @@ export const teacherApi = {
 
   getStudentDetail: (studentId: string) => apiClient.get(`/teacher/students/${studentId}`),
 
-  getLessonProgressReport: (courseId: string) =>
-    apiClient.get(`/teacher/reports/lessons/${courseId}`),
-  exportLessonProgressReport: (courseId: string) =>
-    apiClient.get(`/teacher/reports/lessons/${courseId}/export`, { responseType: 'blob' }),
   // ===== QUESTION BANK =====
   getQuestionBanks: () => apiClient.get('/teacher/question-banks'),
   getQuestionBank: (id: string) => apiClient.get(`/teacher/question-banks/${id}`),
@@ -501,6 +504,7 @@ export const commonApi = {
   stripeWebhook: (data: any) => apiClient.post('/payments/stripe/webhook', data),
   vnpayReturn: (params: any) => apiClient.get('/payments/vnpay/return', { params }),
   bankQRNotify: (data: any) => apiClient.post('/payments/bankqr/notify', data),
+  getCategories: () => apiClient.get('/categories'),
 };
 
 // ==================== LX API ====================
