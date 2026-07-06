@@ -40,16 +40,20 @@ export default function CartPage() {
     const fetchCartAndOwned = async () => {
       setLoading(true);
       try {
-        const [cartRes, ownedRes] = await Promise.all([
+        const [cartRes, ownedRes, ordersRes] = await Promise.all([
           studentApi.getCart(),
-          studentApi.getMyCourses(),
+          studentApi.getMyCourses().catch(() => ({ data: [] })),
+          studentApi.getMyOrders().catch(() => ({ data: [] })),
         ]);
         const ownedIds = ownedRes.data.map((c: any) => c.id);
+        const pendingIds = ordersRes.data
+          .filter((o: any) => o.status === 'PENDING')
+          .flatMap((o: any) => o.courseIds || []);
+        const blockedIds = [...ownedIds, ...pendingIds];
         const cartItems = cartRes.data;
-        // Lọc bỏ item đã sở hữu hoặc có đơn hàng pending (backend đã check, nhưng frontend lọc trước)
-        const filtered = cartItems.filter((item: any) => !ownedIds.includes(item.courseId));
+        const filtered = cartItems.filter((item: any) => !blockedIds.includes(item.courseId));
         if (filtered.length < cartItems.length) {
-          toast.info('Một số khóa học đã được sở hữu, đã được loại bỏ khỏi giỏ');
+          toast.info('Một số khóa học đã được sở hữu hoặc đang chờ xử lý, đã loại bỏ khỏi giỏ');
         }
         setItems(filtered);
       } catch {

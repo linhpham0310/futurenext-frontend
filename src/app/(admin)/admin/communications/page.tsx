@@ -23,23 +23,22 @@ import { Label } from '@/components/ui/label';
 import { adminApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 
-interface Broadcast {
+interface Notification {
   id: string;
   title: string;
-  content: string;
-  type: 'EMAIL' | 'IN_APP';
-  audience: 'ALL' | 'STUDENTS' | 'TEACHERS' | 'ADMINS' | 'SPECIFIC';
-  targetUserIds?: string[];
-  sentAt: string;
-  status: 'DRAFT' | 'SENT' | 'FAILED';
-  createdBy: string;
+  description: string;
+  userId: string;
+  link?: string;
+  type?: string;
+  createdAt: string;
+  readAt?: string;
 }
 
 export default function AdminCommunicationsPage() {
   const { user, isAdmin, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -48,10 +47,10 @@ export default function AdminCommunicationsPage() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [form, setForm] = useState({
     title: '',
-    content: '',
-    type: 'IN_APP' as 'EMAIL' | 'IN_APP',
-    audience: 'ALL' as 'ALL' | 'STUDENTS' | 'TEACHERS' | 'ADMINS' | 'SPECIFIC',
-    targetUserIds: [] as string[],
+    description: '',
+    type: 'IN_APP' as 'IN_APP' | 'EMAIL',
+    link: '',
+    userId: '', // sẽ gán từ user.id
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -59,28 +58,25 @@ export default function AdminCommunicationsPage() {
     if (!authLoading && !isAdmin) router.push('/forbidden');
   }, [isAdmin, authLoading, router]);
 
-  const fetchBroadcasts = useCallback(async () => {
+  const fetchNotifications = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await adminApi.getBroadcasts();
-      // Giả sử response.data là mảng các broadcast, ta tự phân trang frontend nếu cần
-      // Có thể backend chưa hỗ trợ phân trang, ta lấy tất cả và cắt
-      const data = response.data ?? [];
-      setBroadcasts(data);
-      setTotalPages(Math.ceil(data.length / limit));
+      const response = await adminApi.getNotifications({ page, limit });
+      setNotifications(response.data?.data ?? []);
+      setTotalPages(response.data?.meta?.totalPages ?? 1);
     } catch {
       toast.error('Không thể tải danh sách thông báo');
     } finally {
       setLoading(false);
     }
-  }, [limit]);
+  }, [page, limit]);
 
   useEffect(() => {
-    if (isAdmin) fetchBroadcasts();
-  }, [isAdmin, fetchBroadcasts]);
+    if (isAdmin) fetchNotifications();
+  }, [isAdmin, fetchNotifications]);
 
   const handleCreate = async () => {
-    if (!form.title.trim() || !form.content.trim()) {
+    if (!form.title.trim() || !form.description.trim()) {
       toast.error('Vui lòng nhập đầy đủ tiêu đề và nội dung');
       return;
     }
@@ -91,58 +87,21 @@ export default function AdminCommunicationsPage() {
 
     setSubmitting(true);
     try {
-      await adminApi.createBroadcast({
+      await adminApi.createNotification({
+        userId: user.id,
         title: form.title,
-        content: form.content,
+        description: form.description,
+        link: form.link || '/notifications',
         type: form.type,
-        audience: form.audience,
-        targetUserIds: form.audience === 'SPECIFIC' ? form.targetUserIds : undefined,
-        createdBy: user.id,
       });
-      toast.success('Thông báo đã được gửi');
+      toast.success('Thông báo đã được tạo');
       setCreateDialogOpen(false);
-      setForm({ title: '', content: '', type: 'IN_APP', audience: 'ALL', targetUserIds: [] });
-      fetchBroadcasts();
+      setForm({ title: '', description: '', type: 'IN_APP', link: '', userId: '' });
+      fetchNotifications();
     } catch {
-      toast.error('Gửi thông báo thất bại');
+      toast.error('Tạo thông báo thất bại');
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const getAudienceLabel = (audience: string) => {
-    switch (audience) {
-      case 'ALL':
-        return 'Tất cả';
-      case 'STUDENTS':
-        return 'Học viên';
-      case 'TEACHERS':
-        return 'Giảng viên';
-      case 'ADMINS':
-        return 'Quản trị viên';
-      case 'SPECIFIC':
-        return 'Người dùng cụ thể';
-      default:
-        return audience;
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'SENT':
-        return (
-          <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">Đã gửi</span>
-        );
-      case 'DRAFT':
-        return (
-          <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded-full text-xs">Nháp</span>
-        );
-      case 'FAILED':
-        return (
-          <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Thất bại</span>
-        );
-      default:
-        return null;
     }
   };
 
@@ -154,8 +113,8 @@ export default function AdminCommunicationsPage() {
     );
   if (!isAdmin) return null;
 
-  // Phân trang frontend
-  const paginated = broadcasts.slice((page - 1) * limit, page * limit);
+  // Phân trang frontend (nếu backend chưa trả về meta)
+  const paginated = notifications.slice((page - 1) * limit, page * limit);
 
   return (
     <div className="p-6 space-y-6">
@@ -182,8 +141,8 @@ export default function AdminCommunicationsPage() {
               <div>
                 <Label>Nội dung</Label>
                 <Textarea
-                  value={form.content}
-                  onChange={(e) => setForm({ ...form, content: e.target.value })}
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
                   placeholder="Nội dung thông báo"
                   rows={5}
                 />
@@ -193,45 +152,20 @@ export default function AdminCommunicationsPage() {
                 <select
                   className="w-full border rounded p-2"
                   value={form.type}
-                  onChange={(e) => setForm({ ...form, type: e.target.value as 'EMAIL' | 'IN_APP' })}
+                  onChange={(e) => setForm({ ...form, type: e.target.value as 'IN_APP' | 'EMAIL' })}
                 >
                   <option value="IN_APP">Trong Web</option>
                   <option value="EMAIL">Email</option>
                 </select>
               </div>
               <div>
-                <Label>Đối tượng</Label>
-                <select
-                  className="w-full border rounded p-2"
-                  value={form.audience}
-                  onChange={(e) =>
-                    setForm({ ...form, audience: e.target.value as typeof form.audience })
-                  }
-                >
-                  <option value="ALL">Tất cả</option>
-                  <option value="STUDENTS">Học viên</option>
-                  <option value="TEACHERS">Giảng viên</option>
-                  <option value="ADMINS">Quản trị viên</option>
-                  <option value="SPECIFIC">Người dùng cụ thể</option>
-                </select>
+                <Label>Đường dẫn (tùy chọn)</Label>
+                <Input
+                  value={form.link}
+                  onChange={(e) => setForm({ ...form, link: e.target.value })}
+                  placeholder="/notifications"
+                />
               </div>
-              {form.audience === 'SPECIFIC' && (
-                <div>
-                  <Label>ID người dùng (cách nhau bằng dấu phẩy)</Label>
-                  <Input
-                    placeholder="user-id-1, user-id-2"
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        targetUserIds: e.target.value
-                          .split(',')
-                          .map((s) => s.trim())
-                          .filter(Boolean),
-                      })
-                    }
-                  />
-                </div>
-              )}
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
@@ -254,27 +188,27 @@ export default function AdminCommunicationsPage() {
             <div className="flex justify-center py-8">
               <Spinner />
             </div>
-          ) : broadcasts.length === 0 ? (
+          ) : notifications.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">Chưa có thông báo nào.</p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableCell>Tiêu đề</TableCell>
+                  <TableCell>Nội dung</TableCell>
                   <TableCell>Loại</TableCell>
-                  <TableCell>Đối tượng</TableCell>
-                  <TableCell>Trạng thái</TableCell>
-                  <TableCell>Ngày gửi</TableCell>
+                  <TableCell>Người nhận</TableCell>
+                  <TableCell>Ngày tạo</TableCell>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginated.map((b) => (
-                  <TableRow key={b.id}>
-                    <TableCell className="font-medium">{b.title}</TableCell>
-                    <TableCell>{b.type === 'EMAIL' ? 'Email' : 'In-app'}</TableCell>
-                    <TableCell>{getAudienceLabel(b.audience)}</TableCell>
-                    <TableCell>{getStatusBadge(b.status)}</TableCell>
-                    <TableCell>{new Date(b.sentAt).toLocaleString('vi-VN')}</TableCell>
+                {paginated.map((n) => (
+                  <TableRow key={n.id}>
+                    <TableCell className="font-medium">{n.title}</TableCell>
+                    <TableCell className="truncate max-w-xs">{n.description}</TableCell>
+                    <TableCell>{n.type === 'EMAIL' ? 'Email' : 'In-app'}</TableCell>
+                    <TableCell>{n.userId}</TableCell>
+                    <TableCell>{new Date(n.createdAt).toLocaleString('vi-VN')}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

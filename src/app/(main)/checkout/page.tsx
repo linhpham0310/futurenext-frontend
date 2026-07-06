@@ -45,13 +45,20 @@ export default function CheckoutPage() {
       Promise.all([
         studentApi.getCartSummary(),
         studentApi.getMyCourses().catch(() => ({ data: [] })),
+        studentApi.getMyOrders().catch(() => ({ data: [] })),
       ])
-        .then(([cartRes, ownedRes]) => {
+        .then(([cartRes, ownedRes, ordersRes]) => {
           const ownedIds = ownedRes.data.map((c: any) => c.id);
-          const items = cartRes.data.items.filter((item: any) => !ownedIds.includes(item.courseId));
+          const pendingIds = ordersRes.data
+            .filter((o: any) => o.status === 'PENDING')
+            .flatMap((o: any) => o.courseIds || []);
+          const blockedIds = [...ownedIds, ...pendingIds];
+          const items = cartRes.data.items.filter(
+            (item: any) => !blockedIds.includes(item.courseId)
+          );
           setCart({ ...cartRes.data, items });
           if (items.length === 0) {
-            toast.info('Giỏ hàng trống hoặc đã sở hữu hết');
+            toast.info('Giỏ hàng trống hoặc các khóa học đã được sở hữu/đang xử lý');
           }
         })
         .catch(() => toast.error('Không thể tải thông tin thanh toán'))
