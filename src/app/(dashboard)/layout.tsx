@@ -5,8 +5,6 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useRouter } from 'next/navigation';
 import { Spinner } from '@/components/ui/spinner';
 import { TeacherHeader } from '@/components/layout/teacher-header';
-import { ThemeProvider } from '@/components/providers/theme-provider';
-import Footer from '@/components/layout/footer';
 
 export default function TeacherLayout({ children }: { children: ReactNode }) {
   const { isTeacher, isLoading } = useAuth();
@@ -27,11 +25,8 @@ export default function TeacherLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ThemeProvider>
-        <TeacherHeader />
-        <main className="container mx-auto px-4 py-6 max-w-7xl">{children}</main>
-        <Footer />
-      </ThemeProvider>
+      <TeacherHeader />
+      <main className="container mx-auto px-4 py-6 max-w-7xl">{children}</main>
     </div>
   );
 }

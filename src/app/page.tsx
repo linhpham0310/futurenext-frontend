@@ -22,7 +22,7 @@ import {
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { courseApi, teacherApi } from '@/lib/api';
+import { courseApi, teacherProfilesApi } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -61,7 +61,7 @@ export default function HomePage() {
       try {
         // Lấy danh sách giảng viên nổi bật từ API
         const [teachersRes, coursesRes] = await Promise.all([
-          teacherApi.getFeaturedTeachers(8),
+          teacherProfilesApi.getFeaturedTeachers(8),
           courseApi.getPublicCourses({ limit: 6, page: 1 }),
         ]);
 

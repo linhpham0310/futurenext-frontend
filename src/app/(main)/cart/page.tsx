@@ -7,7 +7,7 @@ import { studentApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Trash2, ShoppingBag, ArrowRight, CreditCard } from 'lucide-react';
+import { Trash2, ShoppingBag, ArrowRight, CreditCard, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { BackButton } from '@/components/ui/back-button';
@@ -32,6 +32,7 @@ export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'STRIPE' | 'VNPAY'>('STRIPE');
 
   useEffect(() => {
@@ -45,12 +46,15 @@ export default function CartPage() {
   }, [user]);
 
   const removeItem = async (courseId: string) => {
+    setRemovingId(courseId);
     try {
       await studentApi.removeFromCart(courseId);
       setItems((prev) => prev.filter((item) => item.courseId !== courseId));
       toast.success('Đã xóa khỏi giỏ hàng');
     } catch {
       toast.error('Xóa thất bại');
+    } finally {
+      setRemovingId(null);
     }
   };
 
@@ -63,12 +67,8 @@ export default function CartPage() {
     setSubmitting(true);
     try {
       const courseIds = items.map((item) => item.courseId);
-      const response = await studentApi.createOrder({
-        courseIds,
-        paymentMethod,
-      });
+      const response = await studentApi.createOrder({ courseIds, paymentMethod });
 
-      // Kiểm tra response cho free course
       if (response.data.success) {
         toast.success(response.data.message || 'Đăng ký thành công!');
         setItems([]);
@@ -100,15 +100,22 @@ export default function CartPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Giỏ hàng</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Giỏ hàng</h1>
+          {items.length > 0 && (
+            <p className="text-sm text-muted-foreground">{items.length} khóa học trong giỏ</p>
+          )}
+        </div>
         <BackButton />
       </div>
 
       {items.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="text-center py-16 border-2 border-dashed border-slate-200 rounded-xl">
           <ShoppingBag className="h-12 w-12 mx-auto text-slate-300 mb-3" />
           <h2 className="text-xl font-semibold">Giỏ hàng trống</h2>
-          <p className="text-muted-foreground">Hãy thêm khóa học vào giỏ hàng để thanh toán.</p>
+          <p className="text-muted-foreground mt-1">
+            Hãy thêm khóa học vào giỏ hàng để thanh toán.
+          </p>
           <Link href="/courses" className="mt-4 inline-block">
             <Button className="bg-blue-600">Khám phá khóa học</Button>
           </Link>
@@ -117,11 +124,22 @@ export default function CartPage() {
         <>
           <div className="space-y-3">
             {items.map((item) => (
-              <Card key={item.courseId}>
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">
+              <Card key={item.courseId} className="overflow-hidden">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="w-20 h-14 shrink-0 rounded-md bg-muted overflow-hidden flex items-center justify-center">
+                    {item.thumbnail ? (
+                      <img
+                        src={item.thumbnail}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <BookOpen className="h-6 w-6 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold truncate">{item.title}</h3>
+                    <p className="text-sm text-blue-600 font-medium">
                       {item.price.toLocaleString('vi-VN')}đ
                     </p>
                   </div>
@@ -129,21 +147,29 @@ export default function CartPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => removeItem(item.courseId)}
-                    disabled={submitting}
+                    disabled={submitting || removingId === item.courseId}
                   >
-                    <Trash2 className="h-4 w-4 text-red-500" />
+                    {removingId === item.courseId ? (
+                      <Spinner className="h-4 w-4" />
+                    ) : (
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    )}
                   </Button>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          <Card>
+          <Card className="border-blue-100 bg-blue-50/40">
             <CardContent className="p-4 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Tổng cộng</p>
-                  <p className="text-2xl font-bold">{total.toLocaleString('vi-VN')}đ</p>
+                  <p className="text-sm text-muted-foreground">
+                    Tổng cộng ({items.length} khóa học)
+                  </p>
+                  <p className="text-2xl font-bold text-blue-700">
+                    {total.toLocaleString('vi-VN')}đ
+                  </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center gap-3">

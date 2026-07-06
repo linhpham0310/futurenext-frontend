@@ -5,7 +5,6 @@ import '@/styles/globals.css'; // Import global styles (includes Shadcn theme va
 import { ThemeProvider } from '@/components/providers/theme-provider'; // Import ThemeProvider
 import { cn } from '@/lib/utils';
 import Footer from '@/components/layout/footer';
-import { PublicHeader } from '@/components/layout/public-header';
 
 // Cấu hình font Roboto
 const fontSans = FontSans({
@@ -37,7 +36,6 @@ export default function RootLayout({
       >
         {/* Wrap the entire application content with ThemeProvider */}
         <ThemeProvider>
-          <PublicHeader />
           <main className="flex-grow">{children}</main>
           <Footer />
         </ThemeProvider>

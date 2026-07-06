@@ -176,6 +176,10 @@ export const usersApi = {
   updateProfile: (data: UpdateProfileFormData) =>
     apiClient.put<AuthUser>('/users/me/profile', data),
   getMyCourses: () => apiClient.get('/courses/my-courses'),
+  uploadAvatar: (data: FormData) =>
+    apiClient.post('/users/me/avatar', data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
 };
 
 // ==================== TEACHER PROFILES API ====================
@@ -185,6 +189,8 @@ export const teacherProfilesApi = {
   update: (data: Partial<{ bio: string; expertise: string[] }>) =>
     apiClient.put('/teacher-profiles/update', data),
   getMyProfile: () => apiClient.get('/teacher-profiles/my-profile'),
+  getFeaturedTeachers: (limit?: number) =>
+    apiClient.get('/teacher-profiles/featured', { params: { limit } }),
 };
 
 // ==================== COURSE API ====================
@@ -405,8 +411,6 @@ export const teacherApi = {
     apiClient.get(`/teacher/courses/${courseId}/questions`, { params }),
   answerQuestion: (courseId: string, questionId: string, answer: string) =>
     apiClient.post(`/teacher/courses/${courseId}/questions/${questionId}/answer`, { answer }),
-  getFeaturedTeachers: (limit?: number) =>
-    apiClient.get('/teacher-profiles/featured', { params: { limit } }),
 };
 
 // ==================== STUDENT API ====================
