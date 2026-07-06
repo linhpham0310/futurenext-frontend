@@ -43,8 +43,8 @@ export default function TeacherProfilePage() {
         bio: userData.bio || '',
         avatarUrl: userData.avatarUrl || '',
       });
-      if (teacherRes?.data) {
-        setTeacherProfile(teacherRes.data);
+      if (teacherRes?.data?.data) {
+        setTeacherProfile(teacherRes.data.data);
       }
     } catch (error) {
       toast.error('Không thể tải thông tin hồ sơ');
