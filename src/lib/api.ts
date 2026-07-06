@@ -82,7 +82,10 @@ const processQueue = (error: AxiosError | null, token: string | null = null) => 
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
     const status = error.response?.status;
     const url = originalRequest.url;
 
@@ -93,7 +96,7 @@ apiClient.interceptors.response.use(
         })
           .then((newToken) => {
             if (originalRequest.headers) {
-              originalRequest.headers['Authorization'] = 'Bearer ' + newToken;
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
             }
             return apiClient(originalRequest);
           })
@@ -106,19 +109,24 @@ apiClient.interceptors.response.use(
       try {
         const refreshResponse = await authApi.refreshToken();
         const newAccessToken = refreshResponse.accessToken;
+
         setAccessToken(newAccessToken);
 
         if (originalRequest.headers) {
-          originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         }
+
         processQueue(null, newAccessToken);
+
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError as AxiosError, null);
         clearAccessToken();
+
         if (typeof window !== 'undefined') {
           window.location.href = '/sign-in';
         }
+
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -126,14 +134,18 @@ apiClient.interceptors.response.use(
     }
 
     const responseData = error.response?.data as ErrorResponse | undefined;
-    const simplifiedError = responseData
-      ? {
-          statusCode: error.response?.status,
-          message: responseData.message || `Lỗi ${error.response?.status}`,
-          error: responseData.error || 'Error',
-        }
-      : { message: error.message || 'Lỗi không xác định.' };
-    return Promise.reject(simplifiedError);
+
+    return Promise.reject(
+      responseData
+        ? {
+            statusCode: error.response?.status,
+            message: responseData.message ?? `Lỗi ${error.response?.status}`,
+            error: responseData.error ?? 'Error',
+          }
+        : {
+            message: error.message || 'Lỗi không xác định.',
+          }
+    );
   }
 );
 

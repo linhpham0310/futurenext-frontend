@@ -23,7 +23,7 @@ import { Label } from '@/components/ui/label';
 import { adminApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
 
-interface Notification {
+interface Broadcast {
   id: string;
   title: string;
   content: string;
@@ -36,10 +36,10 @@ interface Notification {
 }
 
 export default function AdminCommunicationsPage() {
-  const { isAdmin, isLoading: authLoading } = useAuth();
+  const { user, isAdmin, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -59,35 +59,50 @@ export default function AdminCommunicationsPage() {
     if (!authLoading && !isAdmin) router.push('/forbidden');
   }, [isAdmin, authLoading, router]);
 
-  const fetchNotifications = useCallback(async () => {
+  const fetchBroadcasts = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await adminApi.getNotifications({ page, limit });
-      setNotifications(response.data?.data ?? []);
-      setTotalPages(response.data?.meta?.totalPages ?? 1);
+      const response = await adminApi.getBroadcasts();
+      // Giả sử response.data là mảng các broadcast, ta tự phân trang frontend nếu cần
+      // Có thể backend chưa hỗ trợ phân trang, ta lấy tất cả và cắt
+      const data = response.data ?? [];
+      setBroadcasts(data);
+      setTotalPages(Math.ceil(data.length / limit));
     } catch {
       toast.error('Không thể tải danh sách thông báo');
     } finally {
       setLoading(false);
     }
-  }, [page, limit]);
+  }, [limit]);
 
   useEffect(() => {
-    if (isAdmin) fetchNotifications();
-  }, [isAdmin, fetchNotifications]);
+    if (isAdmin) fetchBroadcasts();
+  }, [isAdmin, fetchBroadcasts]);
 
   const handleCreate = async () => {
     if (!form.title.trim() || !form.content.trim()) {
       toast.error('Vui lòng nhập đầy đủ tiêu đề và nội dung');
       return;
     }
+    if (!user?.id) {
+      toast.error('Không tìm thấy thông tin người dùng');
+      return;
+    }
+
     setSubmitting(true);
     try {
-      await adminApi.createNotification(form);
+      await adminApi.createBroadcast({
+        title: form.title,
+        content: form.content,
+        type: form.type,
+        audience: form.audience,
+        targetUserIds: form.audience === 'SPECIFIC' ? form.targetUserIds : undefined,
+        createdBy: user.id,
+      });
       toast.success('Thông báo đã được gửi');
       setCreateDialogOpen(false);
       setForm({ title: '', content: '', type: 'IN_APP', audience: 'ALL', targetUserIds: [] });
-      fetchNotifications();
+      fetchBroadcasts();
     } catch {
       toast.error('Gửi thông báo thất bại');
     } finally {
@@ -139,6 +154,9 @@ export default function AdminCommunicationsPage() {
     );
   if (!isAdmin) return null;
 
+  // Phân trang frontend
+  const paginated = broadcasts.slice((page - 1) * limit, page * limit);
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -186,13 +204,15 @@ export default function AdminCommunicationsPage() {
                 <select
                   className="w-full border rounded p-2"
                   value={form.audience}
-                  onChange={(e) => setForm({ ...form, audience: e.target.value as any })}
+                  onChange={(e) =>
+                    setForm({ ...form, audience: e.target.value as typeof form.audience })
+                  }
                 >
                   <option value="ALL">Tất cả</option>
                   <option value="STUDENTS">Học viên</option>
                   <option value="TEACHERS">Giảng viên</option>
                   <option value="ADMINS">Quản trị viên</option>
-                  <option value="SPECIFIC">Người dùng cụ thể (nhập ID)</option>
+                  <option value="SPECIFIC">Người dùng cụ thể</option>
                 </select>
               </div>
               {form.audience === 'SPECIFIC' && (
@@ -227,14 +247,14 @@ export default function AdminCommunicationsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Danh sách thông báo</CardTitle>
+          <CardTitle>Danh sách thông báo đã gửi</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <div className="flex justify-center py-8">
               <Spinner />
             </div>
-          ) : notifications.length === 0 ? (
+          ) : broadcasts.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">Chưa có thông báo nào.</p>
           ) : (
             <Table>
@@ -248,13 +268,13 @@ export default function AdminCommunicationsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {notifications.map((notif) => (
-                  <TableRow key={notif.id}>
-                    <TableCell className="font-medium">{notif.title}</TableCell>
-                    <TableCell>{notif.type === 'EMAIL' ? 'Email' : 'In-app'}</TableCell>
-                    <TableCell>{getAudienceLabel(notif.audience)}</TableCell>
-                    <TableCell>{getStatusBadge(notif.status)}</TableCell>
-                    <TableCell>{new Date(notif.sentAt).toLocaleString('vi-VN')}</TableCell>
+                {paginated.map((b) => (
+                  <TableRow key={b.id}>
+                    <TableCell className="font-medium">{b.title}</TableCell>
+                    <TableCell>{b.type === 'EMAIL' ? 'Email' : 'In-app'}</TableCell>
+                    <TableCell>{getAudienceLabel(b.audience)}</TableCell>
+                    <TableCell>{getStatusBadge(b.status)}</TableCell>
+                    <TableCell>{new Date(b.sentAt).toLocaleString('vi-VN')}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

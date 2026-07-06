@@ -42,9 +42,18 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (user) {
-      studentApi
-        .getCartSummary()
-        .then((res) => setCart(res.data))
+      Promise.all([
+        studentApi.getCartSummary(),
+        studentApi.getMyCourses().catch(() => ({ data: [] })),
+      ])
+        .then(([cartRes, ownedRes]) => {
+          const ownedIds = ownedRes.data.map((c: any) => c.id);
+          const items = cartRes.data.items.filter((item: any) => !ownedIds.includes(item.courseId));
+          setCart({ ...cartRes.data, items });
+          if (items.length === 0) {
+            toast.info('Giỏ hàng trống hoặc đã sở hữu hết');
+          }
+        })
         .catch(() => toast.error('Không thể tải thông tin thanh toán'))
         .finally(() => setLoading(false));
     }

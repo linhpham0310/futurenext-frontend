@@ -36,13 +36,29 @@ export default function CartPage() {
   const [paymentMethod, setPaymentMethod] = useState<'STRIPE' | 'VNPAY'>('STRIPE');
 
   useEffect(() => {
-    if (user) {
-      studentApi
-        .getCart()
-        .then((res) => setItems(res.data))
-        .catch(() => toast.error('Không thể tải giỏ hàng'))
-        .finally(() => setLoading(false));
-    }
+    if (!user) return;
+    const fetchCartAndOwned = async () => {
+      setLoading(true);
+      try {
+        const [cartRes, ownedRes] = await Promise.all([
+          studentApi.getCart(),
+          studentApi.getMyCourses(),
+        ]);
+        const ownedIds = ownedRes.data.map((c: any) => c.id);
+        const cartItems = cartRes.data;
+        // Lọc bỏ item đã sở hữu hoặc có đơn hàng pending (backend đã check, nhưng frontend lọc trước)
+        const filtered = cartItems.filter((item: any) => !ownedIds.includes(item.courseId));
+        if (filtered.length < cartItems.length) {
+          toast.info('Một số khóa học đã được sở hữu, đã được loại bỏ khỏi giỏ');
+        }
+        setItems(filtered);
+      } catch {
+        toast.error('Không thể tải giỏ hàng');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCartAndOwned();
   }, [user]);
 
   const removeItem = async (courseId: string) => {

@@ -59,8 +59,16 @@ export default function CourseDetailPage() {
     const fetchDetail = async () => {
       setLoading(true);
       try {
-        const res = await courseApi.getPublicCourseDetail(id);
-        setCourse(res.data);
+        const [courseRes, ownedRes] = await Promise.all([
+          courseApi.getPublicCourseDetail(id),
+          studentApi.getMyCourses().catch(() => ({ data: [] })),
+        ]);
+        const courseData = courseRes.data;
+        const ownedIds = ownedRes.data.map((c: any) => c.id);
+        setCourse({
+          ...courseData,
+          isEnrolled: ownedIds.includes(courseData.id),
+        });
       } catch (error) {
         console.error(error);
       } finally {
