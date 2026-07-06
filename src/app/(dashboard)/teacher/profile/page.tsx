@@ -57,7 +57,6 @@ export default function TeacherProfilePage() {
     loadProfile();
   }, []);
 
-  // ========== UPLOAD AVATAR (GIỐNG HỆT STUDENT PROFILE) ==========
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -66,7 +65,6 @@ export default function TeacherProfilePage() {
       toast.error('Ảnh không được vượt quá 2MB');
       return;
     }
-
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
       toast.error('Chỉ hỗ trợ định dạng JPG, PNG, WebP');
       return;
@@ -74,36 +72,20 @@ export default function TeacherProfilePage() {
 
     setIsUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `avatar-${user?.id}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${user?.id}/${fileName}`;
+      const formData = new FormData();
+      formData.append('file', file);
 
-      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: true,
-      });
-
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        if (uploadError.message.includes('row-level security policy')) {
-          toast.error('Không có quyền upload. Vui lòng liên hệ quản trị viên.');
-        } else {
-          toast.error(uploadError.message);
-        }
-        return;
-      }
-
-      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
-      const publicUrl = urlData.publicUrl;
+      const response = await usersApi.uploadAvatar(formData); // gọi POST /users/me/avatar
+      const publicUrl = response.data.avatarUrl;
 
       setFormData((prev) => ({ ...prev, avatarUrl: publicUrl }));
       setProfile((prev: any) => ({ ...prev, avatarUrl: publicUrl }));
       setUser({ ...user, avatarUrl: publicUrl });
 
       toast.success('Cập nhật ảnh đại diện thành công!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Upload avatar error:', error);
-      toast.error('Không thể tải ảnh lên');
+      toast.error(error?.response?.data?.message || 'Không thể tải ảnh lên');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';

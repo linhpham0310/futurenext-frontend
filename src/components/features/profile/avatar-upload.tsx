@@ -1,112 +1,83 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Upload, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { supabase } from '@/lib/supabaseClient';
+import { usersApi } from '@/lib/api';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Camera } from 'lucide-react';
 
 interface AvatarUploadProps {
-  currentAvatarUrl?: string | null;
-  onUploadSuccess: (url: string) => void;
-  size?: 'sm' | 'md' | 'lg';
+  avatarUrl?: string | null;
+  onUploadSuccess?: (newUrl: string) => void;
 }
 
-export function AvatarUpload({
-  currentAvatarUrl,
-  onUploadSuccess,
-  size = 'lg',
-}: AvatarUploadProps) {
+export function AvatarUpload({ avatarUrl, onUploadSuccess }: AvatarUploadProps) {
   const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const sizeClasses = {
-    sm: 'w-12 h-12',
-    md: 'w-20 h-20',
-    lg: 'w-24 h-24',
-  };
-
-  const getInitials = (name: string) => {
-    if (!name) return '?';
-    return name
-      .split(' ')
-      .map((word) => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error('Ảnh không được vượt quá 2MB');
+    // Validate file type & size (tùy chọn)
+    if (!file.type.startsWith('image/')) {
+      toast.error('Vui lòng chọn file ảnh');
       return;
     }
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      toast.error('Chỉ hỗ trợ định dạng JPG, PNG, WebP');
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Ảnh không được vượt quá 5MB');
       return;
     }
 
     setIsUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `avatar-${user?.id}-${Date.now()}.${fileExt}`;
-      // QUAN TRỌNG: path phải có thư mục user_id
-      const filePath = `avatars/${user?.id}/${fileName}`;
+      const formData = new FormData();
+      formData.append('avatar', file);
 
-      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
+      const response = await usersApi.uploadAvatar(formData);
+      const newAvatarUrl = response.data.avatarUrl;
 
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
-
-      onUploadSuccess(urlData.publicUrl);
-      toast.success('Cập nhật ảnh đại diện thành công!');
-    } catch (error: any) {
+      toast.success('Cập nhật ảnh đại diện thành công');
+      onUploadSuccess?.(newAvatarUrl);
+    } catch (error) {
       console.error('Upload avatar error:', error);
-      toast.error(error?.message || 'Không thể tải ảnh lên');
+      toast.error('Không thể tải ảnh lên, vui lòng thử lại');
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      // Reset input để có thể chọn lại cùng file
+      e.target.value = '';
     }
   };
 
   return (
     <div className="relative inline-block">
-      <Avatar className={`${sizeClasses[size]} border-4 border-blue-100`}>
-        <AvatarImage src={currentAvatarUrl || ''} />
-        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white text-xl">
-          {getInitials(user?.fullName || 'User')}
+      <Avatar className="w-24 h-24 border-2 border-primary/20">
+        <AvatarImage src={avatarUrl || ''} alt="Avatar" />
+        <AvatarFallback className="bg-primary/10 text-primary">
+          {user?.fullName?.charAt(0) || 'U'}
         </AvatarFallback>
       </Avatar>
-
       <label
         htmlFor="avatar-upload"
-        className="absolute bottom-0 right-0 p-1.5 bg-blue-600 rounded-full text-white cursor-pointer hover:bg-blue-700 transition shadow-md"
+        className="absolute -bottom-1 -right-1 p-1.5 bg-primary rounded-full text-white cursor-pointer hover:bg-primary/80 transition-colors"
       >
-        {isUploading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Upload className="h-4 w-4" />
-        )}
+        <Camera className="w-4 h-4" />
         <input
           id="avatar-upload"
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/*"
           className="hidden"
-          ref={fileInputRef}
           onChange={handleFileChange}
           disabled={isUploading}
         />
       </label>
+      {isUploading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full">
+          <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
     </div>
   );
 }

@@ -188,8 +188,8 @@ export const usersApi = {
   updateProfile: (data: UpdateProfileFormData) =>
     apiClient.put<AuthUser>('/users/me/profile', data),
   getMyCourses: () => apiClient.get('/courses/my-courses'),
-  uploadAvatar: (data: FormData) =>
-    apiClient.post('/users/me/avatar', data, {
+  uploadAvatar: (formData: FormData) =>
+    apiClient.post('/users/me/avatar', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
 };
