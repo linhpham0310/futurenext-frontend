@@ -401,7 +401,7 @@ export const teacherApi = {
   generateCourseOutline: (courseId: string) =>
     apiClient.post(`/teacher/courses/${courseId}/ai/generate-outline`),
 
-  getStudentDetail: (studentId: string) => apiClient.get(`/teacher/students/${studentId}`),
+  getStudentDetail: (studentId: string) => apiClient.get(`/teacher/courses/students/${studentId}`),
 
   // ===== QUESTION BANK =====
   getQuestionBanks: () => apiClient.get('/teacher/question-banks'),

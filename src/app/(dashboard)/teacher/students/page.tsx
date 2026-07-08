@@ -193,7 +193,7 @@ export default function TeacherStudentsPage() {
                     <TableCell>{formatDateSafe(student.joinedAt)}</TableCell>
                     <TableCell>
                       <Link
-                        href={`/teacher/students/${student.id}`}
+                        href={`/teacher/courses/students/${student.id}`}
                         className="text-blue-500 hover:underline text-sm"
                       >
                         Xem chi tiết
