@@ -47,6 +47,12 @@ export const verifyEmailSchema = z.object({
 });
 export type VerifyEmailFormData = z.infer<typeof verifyEmailSchema>;
 
+// OTP schema
+export const otpOnlySchema = z.object({
+  otp: z.string().length(6, { message: 'Mã OTP phải có đúng 6 chữ số.' }),
+});
+export type OtpOnlyFormData = z.infer<typeof otpOnlySchema>;
+
 // Login schema
 export const loginSchema = z.object({
   email: z

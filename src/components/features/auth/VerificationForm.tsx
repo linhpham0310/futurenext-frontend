@@ -15,12 +15,12 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { VerifyEmailFormData } from '@/lib/schemas/auth.schema'; // Chỉ cần type này
+import { OtpOnlyFormData } from '@/lib/schemas/auth.schema'; // Chỉ cần type này
 import { Spinner } from '@/components/ui/spinner';
 
 interface VerificationFormProps {
-  form: UseFormReturn<VerifyEmailFormData>;
-  onSubmit: (data: VerifyEmailFormData) => void;
+  form: UseFormReturn<OtpOnlyFormData>;
+  onSubmit: (data: OtpOnlyFormData) => void;
   isLoading: boolean;
 }
 

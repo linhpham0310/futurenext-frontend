@@ -13,13 +13,20 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
 import { useRouter } from 'next/navigation';
 
+// Helper xử lý ngày an toàn
+const formatDateSafe = (dateString?: string | null): string => {
+  if (!dateString) return '--';
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) ? '--' : date.toLocaleDateString('vi-VN');
+};
+
 interface Student {
   id: string;
   fullName: string;
   email: string;
   enrolledCourse: string;
   progress: number;
-  joinedAt: string;
+  joinedAt: string; // có thể là createdAt hoặc enrolledAt từ API
 }
 
 export default function TeacherStudentsPage() {
@@ -37,6 +44,7 @@ export default function TeacherStudentsPage() {
     if (!authLoading && !isTeacher) router.push('/forbidden');
   }, [isTeacher, authLoading, router]);
 
+  // Lấy danh sách khóa học của giáo viên để lọc
   useEffect(() => {
     if (isTeacher) {
       teacherApi
@@ -49,26 +57,62 @@ export default function TeacherStudentsPage() {
     }
   }, [isTeacher]);
 
+  // Lấy danh sách học viên
   useEffect(() => {
     if (isTeacher) {
       setLoading(true);
       teacherApi
         .getStudents({ q: search, courseId: courseFilter, page, limit: 10 })
         .then((res) => {
-          setStudents(res.data.data || []);
-          setTotalPages(res.data.totalPages || 1);
+          console.log('📦 Students API response:', res.data); // debug
+
+          const responseData = res.data;
+          let studentData: any[] = [];
+          let total = 1;
+
+          // Xác định cấu trúc response linh hoạt
+          if (responseData?.data && Array.isArray(responseData.data)) {
+            studentData = responseData.data;
+            total = responseData.meta?.totalPages || 1;
+          } else if (responseData?.items && Array.isArray(responseData.items)) {
+            studentData = responseData.items;
+            total = responseData.totalPages || Math.ceil((responseData.total || 0) / 10);
+          } else if (Array.isArray(responseData)) {
+            studentData = responseData;
+          } else if (responseData?.data?.items && Array.isArray(responseData.data.items)) {
+            studentData = responseData.data.items;
+            total = responseData.data.totalPages || 1;
+          }
+
+          // Map dữ liệu, đảm bảo trường joinedAt luôn có giá trị
+          const mapped: Student[] = studentData.map((item: any) => ({
+            id: item.id,
+            fullName: item.fullName || item.studentName || '',
+            email: item.email || '',
+            enrolledCourse: item.courseTitle || item.enrolledCourse || '',
+            progress: item.progress ?? 0,
+            // Ưu tiên joinedAt, fallback sang createdAt hoặc enrolledAt
+            joinedAt: item.joinedAt || item.createdAt || item.enrolledAt || '',
+          }));
+
+          setStudents(mapped);
+          setTotalPages(total);
         })
-        .catch(() => {})
+        .catch((err) => {
+          console.error('❌ Error fetching students:', err);
+          setStudents([]);
+        })
         .finally(() => setLoading(false));
     }
   }, [search, courseFilter, page, isTeacher]);
 
-  if (authLoading)
+  if (authLoading) {
     return (
       <div className="p-8 flex justify-center">
         <Spinner />
       </div>
     );
+  }
   if (!isTeacher) return null;
 
   return (
@@ -77,6 +121,7 @@ export default function TeacherStudentsPage() {
         <h1 className="text-2xl font-bold">Học viên của tôi</h1>
         <p className="text-muted-foreground">Quản lý học viên trong các khóa học của bạn.</p>
       </div>
+
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4" />
@@ -97,6 +142,7 @@ export default function TeacherStudentsPage() {
           className="w-full sm:w-48"
         />
       </div>
+
       <Card>
         <CardHeader>
           <CardTitle>Danh sách học viên</CardTitle>
@@ -109,38 +155,45 @@ export default function TeacherStudentsPage() {
                 <TableCell>Khóa học</TableCell>
                 <TableCell>Tiến độ</TableCell>
                 <TableCell>Ngày tham gia</TableCell>
+                <TableCell></TableCell>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center">
+                  <TableCell colSpan={5} className="text-center">
                     <Spinner />
                   </TableCell>
                 </TableRow>
+              ) : students.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground">
+                    Không có học viên nào
+                  </TableCell>
+                </TableRow>
               ) : (
-                students.map((s) => (
-                  <TableRow key={s.id}>
+                students.map((student) => (
+                  <TableRow key={student.id}>
                     <TableCell>
                       <div>
-                        <p className="font-medium">{s.fullName}</p>
-                        <p className="text-sm text-muted-foreground">{s.email}</p>
+                        <p className="font-medium">{student.fullName}</p>
+                        <p className="text-sm text-muted-foreground">{student.email}</p>
                       </div>
                     </TableCell>
-                    <TableCell>{s.enrolledCourse}</TableCell>
+                    <TableCell>{student.enrolledCourse}</TableCell>
                     <TableCell>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-blue-600 h-2 rounded-full"
-                          style={{ width: `${s.progress}%` }}
+                          style={{ width: `${student.progress}%` }}
                         />
                       </div>
-                      <span className="text-xs">{s.progress}%</span>
+                      <span className="text-xs">{student.progress}%</span>
                     </TableCell>
-                    <TableCell>{new Date(s.joinedAt).toLocaleDateString('vi-VN')}</TableCell>
+                    <TableCell>{formatDateSafe(student.joinedAt)}</TableCell>
                     <TableCell>
                       <Link
-                        href={`/teacher/students/${s.id}`}
+                        href={`/teacher/students/${student.id}`}
                         className="text-blue-500 hover:underline text-sm"
                       >
                         Xem chi tiết
@@ -153,6 +206,7 @@ export default function TeacherStudentsPage() {
           </Table>
         </CardContent>
       </Card>
+
       <Pagination
         currentPage={page}
         totalPages={totalPages}

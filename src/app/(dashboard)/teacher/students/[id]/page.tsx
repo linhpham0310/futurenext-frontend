@@ -13,6 +13,20 @@ import { getInitials } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { BackButton } from '@/components/ui/back-button';
 
+// Helper format ngày an toàn
+const formatDateSafe = (dateString?: string | null): string => {
+  if (!dateString) return '--';
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) ? '--' : date.toLocaleDateString('vi-VN');
+};
+
+interface CourseProgress {
+  courseId: string;
+  courseTitle: string;
+  progress: number;
+  lastActiveAt: string | null;
+}
+
 interface StudentDetail {
   id: string;
   fullName: string;
@@ -20,12 +34,7 @@ interface StudentDetail {
   avatarUrl?: string;
   enrolledAt: string;
   progress: number;
-  courseProgress: {
-    courseId: string;
-    courseTitle: string;
-    progress: number;
-    lastActiveAt: string;
-  }[];
+  courseProgress: CourseProgress[];
 }
 
 export default function StudentDetailPage() {
@@ -34,28 +43,106 @@ export default function StudentDetailPage() {
   const { isTeacher, isLoading: authLoading } = useAuth();
   const [student, setStudent] = useState<StudentDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading && !isTeacher) router.push('/forbidden');
+    if (!authLoading && !isTeacher) {
+      router.push('/forbidden');
+    }
   }, [isTeacher, authLoading, router]);
 
   useEffect(() => {
     if (isTeacher && id) {
+      setLoading(true);
+      setError(null);
       teacherApi
         .getStudentDetail(id as string)
-        .then((res) => setStudent(res.data))
-        .catch(() => toast.error('Không thể tải thông tin học viên'))
+        .then((res) => {
+          console.log('📦 Raw student detail response:', res);
+
+          // Giả định response có thể ở các dạng:
+          // 1. { data: { ...student } }
+          // 2. { data: { data: { ...student } } }
+          // 3. { ...student }
+          let rawData = res.data;
+          if (!rawData) {
+            throw new Error('Dữ liệu trả về rỗng');
+          }
+
+          // Nếu rawData có data lồng thêm thì lấy ra
+          if (rawData.data && typeof rawData.data === 'object' && !Array.isArray(rawData.data)) {
+            rawData = rawData.data;
+          }
+
+          console.log('📦 Processed student data:', rawData);
+
+          // Kiểm tra các trường bắt buộc
+          if (!rawData.id || !rawData.fullName) {
+            throw new Error('Dữ liệu không có đủ thông tin cần thiết');
+          }
+
+          // Đảm bảo courseProgress là mảng
+          const courseProgress = Array.isArray(rawData.courseProgress)
+            ? rawData.courseProgress
+            : [];
+
+          const studentData: StudentDetail = {
+            id: rawData.id,
+            fullName: rawData.fullName,
+            email: rawData.email || '',
+            avatarUrl: rawData.avatarUrl || undefined,
+            enrolledAt: rawData.enrolledAt || rawData.joinedAt || rawData.createdAt || '',
+            progress: typeof rawData.progress === 'number' ? rawData.progress : 0,
+            courseProgress: courseProgress.map((cp: any) => ({
+              courseId: cp.courseId || '',
+              courseTitle: cp.courseTitle || cp.title || 'Không có tên',
+              progress: typeof cp.progress === 'number' ? cp.progress : 0,
+              lastActiveAt: cp.lastActiveAt || null,
+            })),
+          };
+
+          setStudent(studentData);
+        })
+        .catch((err) => {
+          console.error('❌ Error fetching student detail:', err);
+          const msg =
+            err?.response?.data?.message || err?.message || 'Không thể tải thông tin học viên';
+          setError(msg);
+          toast.error(msg);
+        })
         .finally(() => setLoading(false));
     }
   }, [id, isTeacher]);
 
-  if (authLoading || loading)
+  if (authLoading || loading) {
     return (
       <div className="p-8 flex justify-center">
         <Spinner />
       </div>
     );
-  if (!isTeacher || !student) return null;
+  }
+
+  if (!isTeacher) return null;
+
+  if (error || !student) {
+    return (
+      <div className="p-8 max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <BackButton />
+        </div>
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p className="text-red-500 mb-2">⚠️ {error || 'Không tìm thấy thông tin học viên'}</p>
+            <p className="text-sm text-muted-foreground">
+              Vui lòng kiểm tra lại ID hoặc thử tải lại trang.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const courseProgress = student.courseProgress || [];
 
   return (
     <div className="p-6 space-y-6 max-w-4xl mx-auto">
@@ -69,9 +156,7 @@ export default function StudentDetailPage() {
           <div>
             <h1 className="text-2xl font-bold">{student.fullName}</h1>
             <p className="text-muted-foreground">{student.email}</p>
-            <p className="text-sm">
-              Tham gia: {new Date(student.enrolledAt).toLocaleDateString('vi-VN')}
-            </p>
+            <p className="text-sm">Tham gia: {formatDateSafe(student.enrolledAt)}</p>
           </div>
         </div>
         <BackButton />
@@ -94,7 +179,7 @@ export default function StudentDetailPage() {
           <CardTitle>Tiến độ theo khóa học</CardTitle>
         </CardHeader>
         <CardContent>
-          {student.courseProgress.length === 0 ? (
+          {courseProgress.length === 0 ? (
             <p className="text-muted-foreground">Học viên chưa tham gia khóa học nào.</p>
           ) : (
             <Table>
@@ -106,7 +191,7 @@ export default function StudentDetailPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {student.courseProgress.map((cp) => (
+                {courseProgress.map((cp) => (
                   <TableRow key={cp.courseId}>
                     <TableCell className="font-medium">{cp.courseTitle}</TableCell>
                     <TableCell>
@@ -115,11 +200,7 @@ export default function StudentDetailPage() {
                         <span className="text-sm">{cp.progress}%</span>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      {cp.lastActiveAt
-                        ? new Date(cp.lastActiveAt).toLocaleDateString('vi-VN')
-                        : 'Chưa hoạt động'}
-                    </TableCell>
+                    <TableCell>{formatDateSafe(cp.lastActiveAt)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

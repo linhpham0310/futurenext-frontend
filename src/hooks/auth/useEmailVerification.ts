@@ -4,7 +4,7 @@
 import { useState, useCallback } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { verifyEmailSchema, VerifyEmailFormData } from '@/lib/schemas/auth.schema';
+import { otpOnlySchema, OtpOnlyFormData } from '@/lib/schemas/auth.schema';
 import { authApi } from '@/lib/api';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -24,15 +24,15 @@ export function useEmailVerification() {
   const [isRedirecting, setIsRedirecting] = useState(false); // State for redirect countdown
 
   // Initialize form (only needs OTP field now)
-  const form = useForm<VerifyEmailFormData>({
-    resolver: zodResolver(verifyEmailSchema),
+  const form = useForm<OtpOnlyFormData>({
+    resolver: zodResolver(otpOnlySchema),
     defaultValues: {
       otp: '',
     },
   });
 
   // Function to handle form submission
-  const onSubmit: SubmitHandler<VerifyEmailFormData> = async (data) => {
+  const onSubmit: SubmitHandler<OtpOnlyFormData> = async (data) => {
     setApiError(null);
     setSuccessMessage(null);
     setIsRedirecting(false);
