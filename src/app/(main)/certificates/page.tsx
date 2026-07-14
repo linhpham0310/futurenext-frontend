@@ -46,11 +46,11 @@ export default function StudentCertificatesPage() {
       </div>
       {certificates.length === 0 ? (
         <div className="text-center py-12">
-          <Award className="h-12 w-12 mx-auto text-slate-300 mb-3" />
+          <Award className="h-12 w-12 mx-auto text-muted-foreground/60 mb-3" />
           <h2 className="text-xl font-semibold">Chưa có chứng chỉ nào</h2>
           <p className="text-muted-foreground">Hoàn thành khóa học để nhận chứng chỉ.</p>
           <Link href="/courses" className="mt-4 inline-block">
-            <Button className="bg-blue-600">Khám phá khóa học</Button>
+            <Button className="bg-primary">Khám phá khóa học</Button>
           </Link>
         </div>
       ) : (

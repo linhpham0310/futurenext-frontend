@@ -74,18 +74,18 @@ export default function TeacherCoursesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Khóa học của tôi</h1>
-          <p className="text-gray-500 text-sm">Quản lý và cập nhật nội dung bài giảng.</p>
+          <p className="text-muted-foreground text-sm">Quản lý và cập nhật nội dung bài giảng.</p>
         </div>
         <Link
           href="/teacher/courses/create"
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
         >
           <Plus size={16} /> Tạo khóa học mới
         </Link>
       </div>
 
       {courses.length === 0 ? (
-        <div className="border-2 border-dashed border-gray-300 rounded-xl h-64 flex flex-col items-center justify-center text-gray-400">
+        <div className="border-2 border-dashed border-border rounded-xl h-64 flex flex-col items-center justify-center text-muted-foreground">
           <BookOpen className="h-10 w-10 mb-2" />
           <p>Chưa có khóa học nào.</p>
           <p className="text-xs">Hãy nhấn &quot;Tạo khóa học mới&quot; để bắt đầu.</p>
@@ -100,9 +100,9 @@ export default function TeacherCoursesPage() {
             return (
               <div
                 key={course.id}
-                className="border rounded-xl overflow-hidden shadow-sm bg-white hover:shadow-md transition"
+                className="border rounded-xl overflow-hidden shadow-sm bg-card hover:shadow-md transition"
               >
-                <div className="h-36 bg-gray-100 flex items-center justify-center">
+                <div className="h-36 bg-muted flex items-center justify-center">
                   {course.thumbnailUrl ? (
                     <img
                       src={course.thumbnailUrl}
@@ -110,33 +110,33 @@ export default function TeacherCoursesPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <BookOpen className="h-12 w-12 text-gray-300" />
+                    <BookOpen className="h-12 w-12 text-muted-foreground/60" />
                   )}
                 </div>
                 <div className="p-4 space-y-2">
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold text-gray-800 line-clamp-2">{course.title}</h3>
+                    <h3 className="font-semibold text-foreground line-clamp-2">{course.title}</h3>
                     <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     {course._count?.sections ?? 0} chương · {course.price.toLocaleString('vi-VN')}đ
                   </p>
                   <div className="flex gap-2 pt-2">
                     <Link
                       href={`/teacher/courses/${course.id}`}
-                      className="flex-1 flex items-center justify-center gap-1 text-sm text-blue-600 border border-blue-200 rounded-md py-1.5 hover:bg-blue-50"
+                      className="flex-1 flex items-center justify-center gap-1 text-sm text-foreground border border-border rounded-md py-1.5 hover:bg-muted/50"
                     >
                       <Eye size={14} /> Xem
                     </Link>
                     <Link
                       href={`/teacher/courses/${course.id}/edit`}
-                      className="flex-1 flex items-center justify-center gap-1 text-sm text-gray-600 border border-gray-300 rounded-md py-1.5 hover:bg-gray-50"
+                      className="flex-1 flex items-center justify-center gap-1 text-sm text-muted-foreground border border-border rounded-md py-1.5 hover:bg-muted/50"
                     >
                       <Pencil size={14} /> Sửa
                     </Link>
                     <button
                       onClick={() => handleDelete(course.id, course.title)}
-                      className="flex items-center justify-center gap-1 text-sm text-red-600 border border-red-200 rounded-md py-1.5 px-3 hover:bg-red-50"
+                      className="flex items-center justify-center gap-1 text-sm text-destructive border border-destructive/30 rounded-md py-1.5 px-3 hover:bg-destructive/10"
                     >
                       <Trash2 size={14} />
                     </button>

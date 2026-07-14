@@ -67,23 +67,23 @@ export default function AdminOrdersPage() {
     switch (status) {
       case 'PAID':
         return (
-          <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
+          <span className="text-emerald-600 bg-muted px-2 py-1 rounded-full text-xs">
             Đã thanh toán
           </span>
         );
       case 'PENDING':
         return (
-          <span className="text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full text-xs">
+          <span className="text-amber-600 bg-muted px-2 py-1 rounded-full text-xs">
             Chờ thanh toán
           </span>
         );
       case 'FAILED':
         return (
-          <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Thất bại</span>
+          <span className="text-destructive bg-destructive/10 px-2 py-1 rounded-full text-xs">Thất bại</span>
         );
       case 'CANCELED':
         return (
-          <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded-full text-xs">Đã hủy</span>
+          <span className="text-muted-foreground bg-muted px-2 py-1 rounded-full text-xs">Đã hủy</span>
         );
       default:
         return null;

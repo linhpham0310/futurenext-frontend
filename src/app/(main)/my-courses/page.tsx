@@ -44,10 +44,10 @@ export default function MyCoursesPage() {
   if (courses.length === 0) {
     return (
       <div className="text-center py-12">
-        <BookOpen className="h-12 w-12 mx-auto text-slate-300 mb-3" />
+        <BookOpen className="h-12 w-12 mx-auto text-muted-foreground/60 mb-3" />
         <h2 className="text-xl font-semibold">Bạn chưa đăng ký khóa học nào</h2>
         <Link href="/courses" className="mt-4 inline-block">
-          <Button className="bg-blue-600">Khám phá khóa học</Button>
+          <Button className="bg-primary">Khám phá khóa học</Button>
         </Link>
       </div>
     );

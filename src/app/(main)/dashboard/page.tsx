@@ -115,7 +115,7 @@ export default function StudentDashboard() {
       title: 'Khóa học đã đăng ký',
       value: stats?.totalEnrolledCourses || 0,
       icon: BookOpen,
-      color: 'bg-blue-100 text-blue-700',
+      color: 'text-foreground',
       href: '/my-courses',
     },
     {
@@ -124,21 +124,21 @@ export default function StudentDashboard() {
         ? `${Math.round((stats.completedLessons / stats.totalLessons) * 100)}%`
         : '0%',
       icon: Clock,
-      color: 'bg-green-100 text-green-700',
+      color: 'text-foreground',
       href: '/my-courses',
     },
     {
       title: 'Chứng chỉ đã đạt',
       value: stats?.totalCertificates || 0,
       icon: Award,
-      color: 'bg-purple-100 text-purple-700',
+      color: 'text-foreground',
       href: '/certificates',
     },
     {
       title: 'Thông báo chưa đọc',
       value: stats?.unreadNotifications || 0,
       icon: BellRing,
-      color: 'bg-yellow-100 text-yellow-700',
+      color: 'text-foreground',
       href: '/notifications',
     },
   ];
@@ -168,11 +168,11 @@ export default function StudentDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {statItems.map((stat) => (
           <Link href={stat.href} key={stat.title}>
-            <Card className="hover:shadow-md transition cursor-pointer">
+            <Card className="hover:bg-muted/50 transition cursor-pointer border-border/60 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <div className={`p-2 rounded-full ${stat.color}`}>
-                  <stat.icon className="h-4 w-4" />
+                <div className={`${stat.color}`}>
+                  <stat.icon className="h-4 w-4 text-muted-foreground" />
                 </div>
               </CardHeader>
               <CardContent>
@@ -204,7 +204,7 @@ export default function StudentDashboard() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">Giảng viên nổi bật</h2>
-          <Link href="/teachers" className="text-sm text-blue-600 hover:underline">
+          <Link href="/teachers" className="text-sm text-muted-foreground hover:text-foreground hover:underline">
             Xem tất cả
           </Link>
         </div>
@@ -213,11 +213,11 @@ export default function StudentDashboard() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {instructors.map((instructor) => (
-              <Card key={instructor.id} className="hover:shadow-lg transition">
+              <Card key={instructor.id} className="hover:bg-muted/50 transition border-border/60 shadow-sm">
                 <CardContent className="p-4 text-center">
                   <Avatar className="w-16 h-16 mx-auto mb-2">
                     <AvatarImage src={instructor.avatarUrl || undefined} />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white text-lg">
+                    <AvatarFallback className="bg-muted text-foreground text-lg">
                       {instructor.fullName.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
@@ -241,7 +241,7 @@ export default function StudentDashboard() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">Khóa học nổi bật</h2>
-          <Link href="/courses" className="text-sm text-blue-600 hover:underline">
+          <Link href="/courses" className="text-sm text-muted-foreground hover:text-foreground hover:underline">
             Xem tất cả
           </Link>
         </div>
@@ -250,7 +250,7 @@ export default function StudentDashboard() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {featuredCourses.map((course) => (
-              <Card key={course.id} className="hover:shadow-lg transition overflow-hidden">
+              <Card key={course.id} className="hover:bg-muted/50 transition overflow-hidden border-border/60 shadow-sm">
                 <div className="aspect-video bg-muted relative">
                   {course.thumbnailUrl ? (
                     <img
@@ -273,7 +273,7 @@ export default function StudentDashboard() {
                     <span className="text-muted-foreground">({course.reviewsCount || 0})</span>
                   </div>
                   <div className="flex justify-between items-center pt-1">
-                    <span className="font-bold text-sm text-blue-600">
+                    <span className="font-bold text-sm text-foreground">
                       {course.price.toLocaleString('vi-VN')}đ
                     </span>
                     <Link href={`/courses/${course.id}`}>
@@ -298,7 +298,7 @@ export default function StudentDashboard() {
           {recentCourses.length === 0 ? (
             <p className="text-muted-foreground text-center py-4">
               Bạn chưa đăng ký khóa học nào.{' '}
-              <Link href="/courses" className="text-blue-600">
+              <Link href="/courses" className="text-foreground font-medium hover:underline">
                 Khám phá ngay
               </Link>
             </p>
@@ -312,9 +312,9 @@ export default function StudentDashboard() {
                   <div>
                     <h3 className="font-semibold">{course.title}</h3>
                     <div className="flex items-center gap-2 mt-1">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div className="w-32 bg-muted rounded-full h-2">
                         <div
-                          className="bg-blue-600 h-2 rounded-full"
+                          className="bg-primary h-2 rounded-full"
                           style={{ width: `${course.progress}%` }}
                         />
                       </div>

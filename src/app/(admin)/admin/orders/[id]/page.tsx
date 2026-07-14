@@ -54,23 +54,23 @@ export default function AdminOrderDetailPage() {
     switch (status) {
       case 'COMPLETED':
         return (
-          <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
+          <span className="text-emerald-600 bg-muted px-2 py-1 rounded-full text-xs">
             Hoàn tất
           </span>
         );
       case 'PENDING':
         return (
-          <span className="text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full text-xs">
+          <span className="text-amber-600 bg-muted px-2 py-1 rounded-full text-xs">
             Chờ xử lý
           </span>
         );
       case 'FAILED':
         return (
-          <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Thất bại</span>
+          <span className="text-destructive bg-destructive/10 px-2 py-1 rounded-full text-xs">Thất bại</span>
         );
       default:
         return (
-          <span className="text-gray-500 bg-gray-100 px-2 py-1 rounded-full text-xs">{status}</span>
+          <span className="text-muted-foreground bg-muted px-2 py-1 rounded-full text-xs">{status}</span>
         );
     }
   };

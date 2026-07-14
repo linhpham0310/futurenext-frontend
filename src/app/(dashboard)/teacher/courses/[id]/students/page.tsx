@@ -84,7 +84,7 @@ export default function CourseStudentsPage() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
+                          <AvatarFallback className="bg-muted text-foreground text-xs">
                             {getInitials(student.fullName)}
                           </AvatarFallback>
                         </Avatar>

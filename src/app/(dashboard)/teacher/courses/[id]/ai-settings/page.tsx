@@ -82,7 +82,7 @@ export default function CourseAISettingsPage() {
   return (
     <div className="p-6 space-y-6 max-w-3xl mx-auto">
       <div className="flex items-center gap-2">
-        <Bot className="h-6 w-6 text-blue-500" />
+        <Bot className="h-6 w-6 text-foreground" />
         <h1 className="text-2xl font-bold">Cấu hình AI Trợ giảng</h1>
       </div>
 

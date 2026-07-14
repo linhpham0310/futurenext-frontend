@@ -14,7 +14,6 @@ import {
   Settings,
   Megaphone,
   LogOut,
-  FolderTree,
   Award,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -49,10 +48,10 @@ export const AdminSidebar = () => {
         key={item.href}
         href={item.href}
         className={cn(
-          'flex items-center gap-3 px-4 py-2.5 text-sm rounded-xl transition-all',
+          'flex items-center gap-3 px-4 py-2.5 text-sm rounded-lg transition-all',
           pathname === item.href || pathname.startsWith(item.href + '/')
-            ? 'bg-blue-600 text-white shadow-md'
-            : 'text-slate-600 hover:bg-blue-50 hover:text-blue-600'
+            ? 'bg-primary text-primary-foreground font-medium'
+            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
         )}
       >
         <item.icon className="h-5 w-5" />
@@ -61,11 +60,11 @@ export const AdminSidebar = () => {
     ));
 
   return (
-    <aside className="w-64 bg-white/80 backdrop-blur-sm border-r border-blue-100 flex flex-col h-screen sticky top-0">
-      <div className="h-16 flex items-center px-6 border-b border-blue-100">
+    <aside className="w-64 bg-card border-r border-border flex flex-col h-screen sticky top-0">
+      <div className="h-16 flex items-center px-6 border-b border-border">
         <Link href="/admin/dashboard">
-          <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-700 bg-clip-text text-transparent">
-            FutureNext.ai
+          <span className="text-2xl font-bold tracking-tight text-foreground">
+            FutureNext
           </span>
         </Link>
       </div>
@@ -73,35 +72,35 @@ export const AdminSidebar = () => {
       <nav className="flex-1 py-6 px-3 space-y-6 overflow-y-auto">
         <div className="space-y-1">{renderNavItems(mainMenus)}</div>
         <div>
-          <div className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          <div className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
             Người dùng
           </div>
           {renderNavItems(userMenus)}
         </div>
         <div>
-          <div className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          <div className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
             Khóa học
           </div>
           {renderNavItems(courseMenus)}
         </div>
         <div>
-          <div className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          <div className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
             Tài chính
           </div>
           {renderNavItems(financeMenus)}
         </div>
         <div>
-          <div className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          <div className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
             Hệ thống
           </div>
           {renderNavItems(systemMenus)}
         </div>
       </nav>
 
-      <div className="p-3 border-t border-blue-100">
+      <div className="p-3 border-t border-border">
         <button
           onClick={logout}
-          className="flex items-center gap-3 px-4 py-2.5 text-sm rounded-xl w-full text-red-600 hover:bg-red-50 transition-all"
+          className="flex items-center gap-3 px-4 py-2.5 text-sm rounded-lg w-full text-destructive hover:bg-destructive/10 transition-all"
         >
           <LogOut className="h-5 w-5" />
           <span>Đăng xuất</span>

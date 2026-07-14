@@ -121,7 +121,7 @@ export default function TeacherAIQuizPage() {
                     <li
                       key={i}
                       className={`text-sm ${
-                        opt === q.correct_answer ? 'text-green-600 font-medium' : ''
+                        opt === q.correct_answer ? 'text-emerald-600 font-medium' : ''
                       }`}
                     >
                       {String.fromCharCode(65 + i)}. {opt}

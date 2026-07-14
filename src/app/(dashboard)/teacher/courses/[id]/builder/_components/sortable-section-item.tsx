@@ -42,10 +42,10 @@ interface Props {
 }
 
 const LessonTypeIcon = ({ type }: { type: string }) => {
-  if (type === 'VIDEO') return <Video className="h-4 w-4 text-blue-500" />;
+  if (type === 'VIDEO') return <Video className="h-4 w-4 text-foreground" />;
   if (type === 'ARTICLE') return <FileText className="h-4 w-4 text-green-500" />;
   if (type === 'QUIZ') return <HelpCircle className="h-4 w-4 text-orange-500" />;
-  return <FileText className="h-4 w-4 text-gray-500" />;
+  return <FileText className="h-4 w-4 text-muted-foreground" />;
 };
 
 export const SortableSectionItem = ({
@@ -134,15 +134,15 @@ export const SortableSectionItem = ({
     <div
       ref={setNodeRef}
       style={style}
-      className="bg-white border border-gray-200 rounded-md mb-4 shadow-sm"
+      className="bg-card border border-border rounded-md mb-4 shadow-sm"
     >
       <div className="flex items-center gap-x-2 text-sm">
         <div
           {...attributes}
           {...listeners}
-          className="px-2 py-3 border-r border-gray-200 hover:bg-gray-100 cursor-grab"
+          className="px-2 py-3 border-r border-border hover:bg-muted cursor-grab"
         >
-          <GripVertical className="h-5 w-5 text-gray-500" />
+          <GripVertical className="h-5 w-5 text-muted-foreground" />
         </div>
         <button onClick={() => setIsExpanded(!isExpanded)} className="p-1">
           {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -181,14 +181,14 @@ export const SortableSectionItem = ({
             <button onClick={() => setIsEditing(true)} className="p-1">
               <Pencil className="h-4 w-4" />
             </button>
-            <button onClick={() => onDelete(id)} className="p-1 text-red-500 hover:text-red-700">
+            <button onClick={() => onDelete(id)} className="p-1 text-red-500 hover:text-destructive">
               <Trash2 className="h-4 w-4" />
             </button>
           </>
         )}
       </div>
       {isExpanded && (
-        <div className="px-4 pb-3 border-t border-gray-100">
+        <div className="px-4 pb-3 border-t border-border">
           {localLessons.map((lesson) => (
             <div key={lesson.id} className="flex items-center gap-2 py-2 border-b last:border-0">
               <LessonTypeIcon type={lesson.type} />
@@ -202,7 +202,7 @@ export const SortableSectionItem = ({
               </Button>
               <button
                 onClick={() => handleDeleteLesson(lesson.id)}
-                className="text-red-500 hover:text-red-700"
+                className="text-red-500 hover:text-destructive"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -239,7 +239,7 @@ export const SortableSectionItem = ({
           ) : (
             <button
               onClick={() => setShowAddLesson(true)}
-              className="mt-2 flex items-center gap-1 text-xs text-gray-500 hover:text-blue-500"
+              className="mt-2 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
             >
               <Plus className="h-3 w-3" /> Thêm bài học
             </button>

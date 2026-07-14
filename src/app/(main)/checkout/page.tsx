@@ -144,7 +144,7 @@ export default function CheckoutPage() {
   if (!cart || cart.items.length === 0) {
     return (
       <div className="text-center py-16">
-        <ShoppingBag className="h-12 w-12 mx-auto text-slate-300 mb-3" />
+        <ShoppingBag className="h-12 w-12 mx-auto text-muted-foreground/60 mb-3" />
         <h2 className="text-xl font-semibold">Giỏ hàng trống</h2>
         <p className="text-muted-foreground mt-1">Thêm khóa học vào giỏ trước khi thanh toán.</p>
         <Link href="/courses" className="mt-4 inline-block">
@@ -178,14 +178,14 @@ export default function CheckoutPage() {
               className="flex justify-between items-center border-b pb-3 last:border-0 last:pb-0"
             >
               <span className="font-medium">{item.title}</span>
-              <span className="text-blue-600 font-semibold">
+              <span className="text-foreground font-semibold">
                 {item.price.toLocaleString('vi-VN')}đ
               </span>
             </div>
           ))}
           <div className="flex justify-between font-bold pt-2 text-lg">
             <span>Tổng cộng</span>
-            <span className="text-blue-700">{cart.total.toLocaleString('vi-VN')}đ</span>
+            <span className="text-foreground">{cart.total.toLocaleString('vi-VN')}đ</span>
           </div>
         </CardContent>
       </Card>
@@ -206,8 +206,8 @@ export default function CheckoutPage() {
                 htmlFor={value}
                 className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
                   paymentMethod === value
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-slate-200 hover:bg-slate-50'
+                    ? 'border-border bg-muted/50'
+                    : 'border-slate-200 hover:bg-muted/50'
                 }`}
               >
                 <RadioGroupItem value={value} id={value} />
@@ -264,7 +264,7 @@ export default function CheckoutPage() {
                   className="w-56 h-56 mx-auto my-4 rounded-lg border"
                 />
               )}
-              <p className="text-2xl font-bold text-blue-700">
+              <p className="text-2xl font-bold text-foreground">
                 {cart.total.toLocaleString('vi-VN')}đ
               </p>
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-3">

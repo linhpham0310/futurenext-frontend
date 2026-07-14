@@ -74,7 +74,7 @@ export default function CreateReviewPage() {
                   className={`h-8 w-8 ${
                     star <= (hoverRating || rating)
                       ? 'fill-yellow-400 text-yellow-400'
-                      : 'text-gray-300'
+                      : 'text-muted-foreground/60'
                   }`}
                 />
               </button>

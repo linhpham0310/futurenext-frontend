@@ -18,9 +18,9 @@ interface Order {
 }
 
 const statusMap: Record<string, { label: string; className: string }> = {
-  COMPLETED: { label: 'Đã thanh toán', className: 'bg-green-100 text-green-700' },
-  PENDING: { label: 'Chờ thanh toán', className: 'bg-yellow-100 text-yellow-700' },
-  FAILED: { label: 'Thất bại', className: 'bg-red-100 text-red-700' },
+  COMPLETED: { label: 'Đã thanh toán', className: 'bg-muted text-emerald-600' },
+  PENDING: { label: 'Chờ thanh toán', className: 'bg-muted text-amber-600' },
+  FAILED: { label: 'Thất bại', className: 'bg-destructive/10 text-destructive' },
 };
 
 export default function OrdersPage() {
@@ -52,10 +52,10 @@ export default function OrdersPage() {
       </div>
       {orders.length === 0 ? (
         <div className="text-center py-12">
-          <Package className="h-12 w-12 mx-auto text-slate-300 mb-3" />
+          <Package className="h-12 w-12 mx-auto text-muted-foreground/60 mb-3" />
           <h2 className="text-xl font-semibold">Chưa có đơn hàng</h2>
           <Link href="/courses" className="mt-4 inline-block">
-            <Button className="bg-blue-600">Mua khóa học ngay</Button>
+            <Button className="bg-primary">Mua khóa học ngay</Button>
           </Link>
         </div>
       ) : (
@@ -63,7 +63,7 @@ export default function OrdersPage() {
           {orders.map((order) => {
             const statusInfo = statusMap[order.status] || {
               label: order.status,
-              className: 'bg-gray-100 text-gray-600',
+              className: 'bg-muted text-muted-foreground',
             };
             return (
               <Link href={`/orders/${order.id}`} key={order.id}>

@@ -35,7 +35,7 @@ export function StudentMenu() {
   if (!user) {
     return (
       <Link href="/sign-in">
-        <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+        <Button size="sm">
           Đăng nhập
         </Button>
       </Link>
@@ -46,9 +46,9 @@ export function StudentMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
-          <Avatar className="h-10 w-10 border-2 border-blue-200">
+          <Avatar className="h-10 w-10 border border-border">
             <AvatarImage src={user.avatarUrl || undefined} />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+            <AvatarFallback className="bg-muted text-foreground font-medium">
               {getInitials(user.fullName)}
             </AvatarFallback>
           </Avatar>
@@ -61,65 +61,12 @@ export function StudentMenu() {
             <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <Link href="/dashboard">
-          <DropdownMenuItem className="cursor-pointer">
-            <LayoutDashboard className="mr-2 h-4 w-4" />
-            <span>Trang chủ</span>
-          </DropdownMenuItem>
-        </Link>
-        <Link href="/profile">
-          <DropdownMenuItem className="cursor-pointer">
-            <User className="mr-2 h-4 w-4" />
-            <span>Hồ sơ</span>
-          </DropdownMenuItem>
-        </Link>
-        <Link href="/my-courses">
-          <DropdownMenuItem className="cursor-pointer">
-            <FileCheck className="mr-2 h-4 w-4" />
-            <span>Khóa học của tôi</span>
-          </DropdownMenuItem>
-        </Link>
-        <Link href="/favorites">
-          <DropdownMenuItem className="cursor-pointer">
-            <Heart className="mr-2 h-4 w-4" />
-            <span>Yêu thích</span>
-          </DropdownMenuItem>
-        </Link>
-        <Link href="/certificates">
-          <DropdownMenuItem className="cursor-pointer">
-            <Award className="mr-2 h-4 w-4" /> Chứng chỉ
-          </DropdownMenuItem>
-        </Link>
-        <Link href="/notifications">
-          <DropdownMenuItem className="cursor-pointer">
-            <Bell className="mr-2 h-4 w-4" /> Thông báo
-          </DropdownMenuItem>
-        </Link>
-        <Link href="/questions">
-          <DropdownMenuItem className="cursor-pointer">
-            <MessageSquare className="mr-2 h-4 w-4" /> Hỏi đáp
-          </DropdownMenuItem>
-        </Link>
-        <Link href="/orders">
-          <DropdownMenuItem className="cursor-pointer">
-            <Package className="mr-2 h-4 w-4" /> Đơn hàng
-          </DropdownMenuItem>
-        </Link>
-        <Link href="/reviews">
-          <DropdownMenuItem className="cursor-pointer">
-            <Star className="mr-2 h-4 w-4" />
-            <span>Đánh giá</span>
-          </DropdownMenuItem>
-        </Link>
-        <DropdownMenuSeparator />
         <Link href="/settings">
           <DropdownMenuItem className="cursor-pointer">
             <Settings className="mr-2 h-4 w-4" />
             <span>Cài đặt</span>
           </DropdownMenuItem>
         </Link>
-
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={logout}

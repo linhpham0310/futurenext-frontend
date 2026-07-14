@@ -57,14 +57,14 @@ export default function ExamResultPage() {
       </div>
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50">
         <CardContent className="p-6 text-center">
-          <div className="text-5xl font-bold text-blue-600">
+          <div className="text-5xl font-bold text-foreground">
             {result.score} / {result.totalQuestions}
           </div>
           <div className="mt-2 text-lg">
             Đúng: {result.correctCount} | Sai: {result.wrongCount}
           </div>
-          <div className="mt-4 h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-            <div className="bg-green-500 h-full" style={{ width: `${percent}%` }} />
+          <div className="mt-4 h-2 w-full bg-muted rounded-full overflow-hidden">
+            <div className="bg-muted/500 h-full" style={{ width: `${percent}%` }} />
           </div>
         </CardContent>
       </Card>
@@ -86,9 +86,9 @@ export default function ExamResultPage() {
                     Câu trả lời của bạn: {q.userAnswer || 'Chưa trả lời'}
                   </p>
                   {q.correctAnswer && (
-                    <p className="text-sm text-green-600">Đáp án đúng: {q.correctAnswer}</p>
+                    <p className="text-sm text-emerald-600">Đáp án đúng: {q.correctAnswer}</p>
                   )}
-                  {q.explanation && <p className="text-sm text-gray-500 mt-2">{q.explanation}</p>}
+                  {q.explanation && <p className="text-sm text-muted-foreground mt-2">{q.explanation}</p>}
                 </div>
               </div>
             </CardContent>

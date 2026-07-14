@@ -35,7 +35,10 @@ interface QueueItem {
 const getAccessToken = (): string | null => {
   const storeToken = useAuthStore.getState().accessToken;
   if (storeToken) return storeToken;
-  return localStorage.getItem('accessToken');
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('accessToken');
+  }
+  return null;
 };
 
 const setAccessToken = (token: string) => {
@@ -61,7 +64,11 @@ apiClient.interceptors.request.use(
     ];
     const isPublic = publicRoutes.some((route) => config.url?.startsWith(route));
     if (accessToken && !isPublic && config.headers) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+      if (typeof config.headers.set === 'function') {
+        config.headers.set('Authorization', `Bearer ${accessToken}`);
+      } else {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
     }
     return config;
   },

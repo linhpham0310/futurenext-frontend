@@ -86,27 +86,27 @@ export default function AdminUsersPage() {
     switch (status) {
       case 'active':
         return (
-          <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
+          <span className="text-emerald-600 bg-muted px-2 py-1 rounded-full text-xs">
             Hoạt động
           </span>
         );
       case 'pending_email_verify':
         return (
-          <span className="text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full text-xs">
+          <span className="text-amber-600 bg-muted px-2 py-1 rounded-full text-xs">
             Chờ xác thực
           </span>
         );
       case 'locked':
         return (
-          <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Đã khóa</span>
+          <span className="text-destructive bg-destructive/10 px-2 py-1 rounded-full text-xs">Đã khóa</span>
         );
       case 'deleted':
         return (
-          <span className="text-gray-400 bg-gray-100 px-2 py-1 rounded-full text-xs">Đã xóa</span>
+          <span className="text-muted-foreground bg-muted px-2 py-1 rounded-full text-xs">Đã xóa</span>
         );
       default:
         return (
-          <span className="text-gray-500 bg-gray-100 px-2 py-1 rounded-full text-xs">{status}</span>
+          <span className="text-muted-foreground bg-muted px-2 py-1 rounded-full text-xs">{status}</span>
         );
     }
   };

@@ -25,7 +25,7 @@ export default function ForgotPasswordPage() {
             </span>
           </Link>
 
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="bg-white rounded-xl shadow-xl p-8">
             {/* Back to login link */}
             <Link
               href="/sign-in"

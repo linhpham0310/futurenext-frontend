@@ -85,7 +85,7 @@ export default function AdminRevenuePage() {
             <div className="text-2xl font-bold">
               {stats?.monthlyRevenue?.toLocaleString('vi-VN')}đ
             </div>
-            <p className="text-xs text-green-600 flex items-center gap-1">
+            <p className="text-xs text-emerald-600 flex items-center gap-1">
               <TrendingUp className="h-3 w-3" /> +{stats?.growthPercent || 0}%
             </p>
           </CardContent>
@@ -140,7 +140,7 @@ export default function AdminRevenuePage() {
                     <TableCell>{tx.amount.toLocaleString('vi-VN')}đ</TableCell>
                     <TableCell>{tx.type === 'PURCHASE' ? 'Mua khóa học' : 'Hoàn tiền'}</TableCell>
                     <TableCell>
-                      <span className={tx.status === 'SUCCESS' ? 'text-green-600' : 'text-red-600'}>
+                      <span className={tx.status === 'SUCCESS' ? 'text-emerald-600' : 'text-destructive'}>
                         {tx.status === 'SUCCESS' ? 'Thành công' : 'Thất bại'}
                       </span>
                     </TableCell>

@@ -114,19 +114,19 @@ export default function AdminDashboardPage() {
         <p className="text-muted-foreground">Chào {user?.fullName}, đây là tổng quan hệ thống.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card className="border-border/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Tổng người dùng</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.totalUsers?.toLocaleString() ?? 0}</div>
-            <p className="text-xs text-green-600">
+            <p className="text-xs text-muted-foreground">
               +{stats?.userGrowthPercent ?? 0}% từ tháng trước
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-border/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Khóa học</CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
@@ -136,7 +136,7 @@ export default function AdminDashboardPage() {
             <p className="text-xs text-muted-foreground">{stats?.pendingCourses ?? 0} chờ duyệt</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-border/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Doanh thu tháng</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -145,12 +145,12 @@ export default function AdminDashboardPage() {
             <div className="text-2xl font-bold">
               {(stats?.monthlyRevenue ?? 0).toLocaleString('vi-VN')}đ
             </div>
-            <p className="text-xs text-green-600">
+            <p className="text-xs text-muted-foreground">
               +{stats?.revenueGrowthPercent ?? 0}% so với tháng trước
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-border/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Yêu cầu đang chờ</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
@@ -161,7 +161,7 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
-      <Card>
+      <Card className="border-border/60 shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5" /> Hoạt động gần đây

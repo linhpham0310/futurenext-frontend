@@ -50,11 +50,11 @@ export default function StudentQuestionsPage() {
       </div>
       {questions.length === 0 ? (
         <div className="text-center py-12">
-          <MessageSquare className="h-12 w-12 mx-auto text-slate-300 mb-3" />
+          <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground/60 mb-3" />
           <h2 className="text-xl font-semibold">Chưa có câu hỏi nào</h2>
           <p className="text-muted-foreground">Đặt câu hỏi trong các khóa học của bạn.</p>
           <Link href="/my-courses" className="mt-4 inline-block">
-            <Button className="bg-blue-600">Xem khóa học</Button>
+            <Button className="bg-primary">Xem khóa học</Button>
           </Link>
         </div>
       ) : (
@@ -85,8 +85,8 @@ export default function StudentQuestionsPage() {
                   )}
                 </div>
                 {expandedId === q.id && q.answer && (
-                  <div className="mt-3 p-3 bg-blue-50 rounded-md">
-                    <p className="text-sm font-medium text-blue-700">Trả lời:</p>
+                  <div className="mt-3 p-3 bg-muted/50 rounded-md">
+                    <p className="text-sm font-medium text-foreground">Trả lời:</p>
                     <p className="text-sm">{q.answer}</p>
                     <p className="text-xs text-muted-foreground mt-1">
                       {q.answeredAt && new Date(q.answeredAt).toLocaleString('vi-VN')}

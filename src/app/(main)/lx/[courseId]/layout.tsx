@@ -32,7 +32,7 @@ export default function LxLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-white">
+    <div className="h-screen flex flex-col overflow-hidden bg-background">
       <LessonNavbar
         courseTitle={courseTitle || 'Đang tải...'}
         isAiOpen={isAiOpen}

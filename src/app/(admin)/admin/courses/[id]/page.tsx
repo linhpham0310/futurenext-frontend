@@ -139,11 +139,11 @@ export default function AdminCourseDetailPage() {
   const getStatusBadge = () => {
     switch (course.status) {
       case 'APPROVED':
-        return <Badge className="bg-green-100 text-green-800">Đã phê duyệt</Badge>;
+        return <Badge className="bg-muted text-emerald-600">Đã phê duyệt</Badge>;
       case 'SUBMITTED':
-        return <Badge className="bg-yellow-100 text-yellow-800">Chờ duyệt</Badge>;
+        return <Badge className="bg-muted text-amber-600">Chờ duyệt</Badge>;
       case 'REJECTED':
-        return <Badge className="bg-red-100 text-red-800">Từ chối</Badge>;
+        return <Badge className="bg-destructive/10 text-destructive">Từ chối</Badge>;
       default:
         return <Badge variant="secondary">Bản nháp</Badge>;
     }
@@ -163,7 +163,7 @@ export default function AdminCourseDetailPage() {
             <>
               <Button
                 variant="default"
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-primary hover:bg-primary/90"
                 onClick={handleApprove}
               >
                 Phê duyệt
@@ -250,7 +250,7 @@ export default function AdminCourseDetailPage() {
                     {section.loMappings?.map((lo) => (
                       <span
                         key={lo.loId}
-                        className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                        className="bg-muted text-foreground text-xs px-2 py-1 rounded"
                       >
                         {lo.loTitle}
                       </span>

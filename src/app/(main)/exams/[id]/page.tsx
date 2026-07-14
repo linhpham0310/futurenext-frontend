@@ -72,17 +72,17 @@ export default function ExamDetailPage() {
     switch (exam.status) {
       case 'NOT_STARTED':
         return (
-          <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">Chưa làm</span>
+          <span className="px-2 py-1 bg-muted text-foreground rounded-full text-xs">Chưa làm</span>
         );
       case 'IN_PROGRESS':
         return (
-          <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs">
+          <span className="px-2 py-1 bg-muted text-amber-600 rounded-full text-xs">
             Đang làm
           </span>
         );
       case 'COMPLETED':
         return (
-          <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
+          <span className="px-2 py-1 bg-muted text-emerald-600 rounded-full text-xs">
             Đã hoàn thành
           </span>
         );
@@ -108,7 +108,7 @@ export default function ExamDetailPage() {
           <p className="text-muted-foreground">{exam.description || 'Không có mô tả.'}</p>
           <div className="flex gap-6 text-sm">
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-gray-500" />
+              <Clock className="h-4 w-4 text-muted-foreground" />
               <span>Thời gian: {exam.duration} phút</span>
             </div>
             <div>
@@ -116,7 +116,7 @@ export default function ExamDetailPage() {
             </div>
           </div>
           {exam.status === 'IN_PROGRESS' && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center gap-2 text-yellow-800 text-sm">
+            <div className="bg-muted/50 border border-border rounded-lg p-3 flex items-center gap-2 text-amber-600 text-sm">
               <AlertCircle className="h-4 w-4" />
               Bạn đã bắt đầu bài thi này nhưng chưa hoàn thành. Hãy tiếp tục.
             </div>

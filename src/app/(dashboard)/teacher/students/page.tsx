@@ -182,9 +182,9 @@ export default function TeacherStudentsPage() {
                     </TableCell>
                     <TableCell>{student.enrolledCourse}</TableCell>
                     <TableCell>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-muted rounded-full h-2">
                         <div
-                          className="bg-blue-600 h-2 rounded-full"
+                          className="bg-primary h-2 rounded-full"
                           style={{ width: `${student.progress}%` }}
                         />
                       </div>
@@ -194,7 +194,7 @@ export default function TeacherStudentsPage() {
                     <TableCell>
                       <Link
                         href={`/teacher/courses/students/${student.id}`}
-                        className="text-blue-500 hover:underline text-sm"
+                        className="text-foreground hover:underline text-sm"
                       >
                         Xem chi tiết
                       </Link>

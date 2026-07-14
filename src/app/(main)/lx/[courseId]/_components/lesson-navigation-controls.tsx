@@ -39,11 +39,11 @@ export const LessonNavigationControls = () => {
   };
 
   return (
-    <div className="flex items-center justify-between border-t pt-6 mt-8 bg-white/80 backdrop-blur-sm p-4 rounded-2xl shadow-sm">
+    <div className="flex items-center justify-between border-t border-border pt-6 mt-8 bg-card p-4 rounded-xl shadow-sm">
       <button
         onClick={() => prevLesson && navigateToLesson(prevLesson.id)}
         disabled={!prevLesson}
-        className="flex items-center gap-x-2 px-4 py-2.5 text-sm font-semibold border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        className="flex items-center gap-x-2 px-4 py-2.5 text-sm font-semibold border border-border rounded-xl text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-all"
       >
         <ArrowLeft className="h-4 w-4" />
         <span className="hidden sm:inline">Bài trước</span>
@@ -52,7 +52,7 @@ export const LessonNavigationControls = () => {
       {activeLesson.status !== 'COMPLETED' && (
         <button
           onClick={handleCompleteAndNext}
-          className="flex items-center gap-x-2 px-5 py-2.5 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105"
+          className="flex items-center gap-x-2 px-5 py-2.5 text-sm font-bold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-sm transition-all"
         >
           <CheckCircle className="h-4 w-4" />
           <span>Hoàn thành & Tiếp tục</span>
@@ -62,7 +62,7 @@ export const LessonNavigationControls = () => {
       <button
         onClick={() => nextLesson && navigateToLesson(nextLesson.id)}
         disabled={!nextLesson}
-        className="flex items-center gap-x-2 px-4 py-2.5 text-sm font-semibold border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        className="flex items-center gap-x-2 px-4 py-2.5 text-sm font-semibold border border-border rounded-xl text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-all"
       >
         <span className="hidden sm:inline">Bài tiếp</span>
         <ArrowRight className="h-4 w-4" />

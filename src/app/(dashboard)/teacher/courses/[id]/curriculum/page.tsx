@@ -36,24 +36,24 @@ export default function CurriculumMappingPage({ params }: { params: { id: string
             <BackButton />
           </div>
 
-          <p className="text-gray-500 text-sm">
+          <p className="text-muted-foreground text-sm">
             Gắn các khái niệm chính cho từng bài học để AI có thể hỗ trợ học viên tốt nhất.
           </p>
         </div>
       </header>
       <div className="space-y-6">
         {sections.map((section) => (
-          <div key={section.id} className="border rounded-xl p-4 bg-white shadow-sm">
-            <h2 className="font-bold text-gray-700 mb-4 border-b pb-2">📦 {section.title}</h2>
+          <div key={section.id} className="border rounded-xl p-4 bg-card shadow-sm">
+            <h2 className="font-bold text-foreground mb-4 border-b pb-2">📦 {section.title}</h2>
             <div className="space-y-4">
               {section.lessons.map((lesson: Lesson) => (
                 <div
                   key={lesson.id}
-                  className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start p-3 border-l-4 border-blue-500 bg-gray-50 rounded-r-md"
+                  className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start p-3 border-l-4 border-border bg-muted/50 rounded-r-md"
                 >
                   <div>
                     <p className="font-semibold text-sm">{lesson.title}</p>
-                    <span className="text-[10px] bg-gray-200 px-1 rounded uppercase">
+                    <span className="text-[10px] bg-muted px-1 rounded uppercase">
                       {lesson.type}
                     </span>
                   </div>

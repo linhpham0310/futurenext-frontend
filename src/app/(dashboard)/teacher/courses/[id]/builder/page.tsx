@@ -274,8 +274,8 @@ export default function CourseBuilderPage() {
                             onClick={() => handleToggleMapping(section.id, outcome.id)}
                             className={`px-2 py-1 text-xs rounded-full border ${
                               isMapped
-                                ? 'bg-blue-100 border-blue-300 text-blue-700'
-                                : 'bg-gray-50 border-gray-300 text-gray-500 hover:bg-gray-100'
+                                ? 'bg-muted border-border text-foreground'
+                                : 'bg-muted/50 border-border text-muted-foreground hover:bg-muted'
                             }`}
                           >
                             {isMapped ? '✓ ' : ''}

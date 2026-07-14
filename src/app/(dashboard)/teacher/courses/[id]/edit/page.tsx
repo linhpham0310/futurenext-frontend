@@ -126,7 +126,7 @@ export default function CourseEditPage() {
       </div>
 
       {!canEdit && (
-        <div className="rounded border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-800">
+        <div className="rounded border border-border bg-muted/50 p-4 text-sm text-amber-600">
           Khóa học đang ở trạng thái <strong>{form.status}</strong>, không thể chỉnh sửa thông tin.
           Chỉ khóa học ở trạng thái nháp hoặc bị từ chối mới được sửa.
         </div>

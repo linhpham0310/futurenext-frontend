@@ -74,7 +74,7 @@ export default function StudentNotificationsPage() {
       </div>
       {notifications.length === 0 ? (
         <div className="text-center py-12">
-          <Bell className="h-12 w-12 mx-auto text-slate-300 mb-3" />
+          <Bell className="h-12 w-12 mx-auto text-muted-foreground/60 mb-3" />
           <h2 className="text-xl font-semibold">Chưa có thông báo</h2>
         </div>
       ) : (
@@ -82,15 +82,15 @@ export default function StudentNotificationsPage() {
           {notifications.map((notif) => (
             <Card
               key={notif.id}
-              className={`cursor-pointer hover:shadow-md transition ${!notif.isRead ? 'border-blue-200 bg-blue-50/50' : ''}`}
+              className={`cursor-pointer hover:shadow-md transition ${!notif.isRead ? 'border-border bg-muted/50/50' : ''}`}
               onClick={() => markAsRead(notif.id)}
             >
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
                   {notif.isRead ? (
-                    <Circle className="h-4 w-4 text-gray-300 mt-1 shrink-0" />
+                    <Circle className="h-4 w-4 text-muted-foreground/60 mt-1 shrink-0" />
                   ) : (
-                    <CheckCircle className="h-4 w-4 text-blue-500 mt-1 shrink-0" />
+                    <CheckCircle className="h-4 w-4 text-foreground mt-1 shrink-0" />
                   )}
                   <div className="flex-1">
                     <h3 className="font-semibold">{notif.title}</h3>

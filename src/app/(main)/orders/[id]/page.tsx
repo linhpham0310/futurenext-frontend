@@ -64,13 +64,13 @@ export default function OrderDetailPage() {
   }
 
   const statusMap: Record<string, { label: string; className: string }> = {
-    COMPLETED: { label: 'Đã thanh toán', className: 'bg-green-100 text-green-700' },
-    PENDING: { label: 'Chờ thanh toán', className: 'bg-yellow-100 text-yellow-700' },
-    FAILED: { label: 'Thất bại', className: 'bg-red-100 text-red-700' },
+    COMPLETED: { label: 'Đã thanh toán', className: 'bg-muted text-emerald-600' },
+    PENDING: { label: 'Chờ thanh toán', className: 'bg-muted text-amber-600' },
+    FAILED: { label: 'Thất bại', className: 'bg-destructive/10 text-destructive' },
   };
   const statusInfo = statusMap[order.status] || {
     label: order.status,
-    className: 'bg-gray-100 text-gray-600',
+    className: 'bg-muted text-muted-foreground',
   };
   const amount = Number(order.amount);
 
@@ -133,7 +133,7 @@ export default function OrderDetailPage() {
 
           <div className="border-t pt-4 flex justify-between text-lg font-bold">
             <span>Tổng cộng</span>
-            <span className="text-blue-700">{amount.toLocaleString('vi-VN')}đ</span>
+            <span className="text-foreground">{amount.toLocaleString('vi-VN')}đ</span>
           </div>
 
           {order.status === 'COMPLETED' && (

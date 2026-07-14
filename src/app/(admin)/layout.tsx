@@ -5,7 +5,7 @@ import { AdminSidebar } from '@/components/layout/admin-sidebar';
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <AdminGuard>
-      <div className="flex min-h-screen bg-slate-50">
+      <div className="flex min-h-screen bg-background">
         <AdminSidebar />
         <div className="flex-1 flex flex-col">
           <AdminHeader />

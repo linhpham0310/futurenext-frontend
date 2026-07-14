@@ -98,11 +98,11 @@ export default function CourseDetailPage() {
   const getStatusBadge = () => {
     switch (course.status) {
       case 'APPROVED':
-        return <Badge className="bg-green-100 text-green-800">Đã phê duyệt</Badge>;
+        return <Badge className="bg-muted text-emerald-600">Đã phê duyệt</Badge>;
       case 'SUBMITTED':
-        return <Badge className="bg-yellow-100 text-yellow-800">Chờ duyệt</Badge>;
+        return <Badge className="bg-muted text-amber-600">Chờ duyệt</Badge>;
       case 'REJECTED':
-        return <Badge className="bg-red-100 text-red-800">Bị từ chối</Badge>;
+        return <Badge className="bg-destructive/10 text-destructive">Bị từ chối</Badge>;
       default:
         return <Badge variant="secondary">Bản nháp</Badge>;
     }
@@ -122,7 +122,7 @@ export default function CourseDetailPage() {
               onClick={handleSubmitForReview}
               disabled={isSubmitting}
               variant="default"
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-primary hover:bg-primary/90"
             >
               <Send className="h-4 w-4 mr-1" /> Gửi duyệt
             </Button>

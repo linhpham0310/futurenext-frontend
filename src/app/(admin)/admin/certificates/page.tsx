@@ -104,11 +104,11 @@ export default function AdminCertificatesPage() {
                     <TableCell>{new Date(cert.issuedAt).toLocaleDateString('vi-VN')}</TableCell>
                     <TableCell>
                       {cert.isValid ? (
-                        <span className="text-green-600 flex items-center gap-1">
+                        <span className="text-emerald-600 flex items-center gap-1">
                           <CheckCircle className="h-4 w-4" /> Hợp lệ
                         </span>
                       ) : (
-                        <span className="text-red-600 flex items-center gap-1">
+                        <span className="text-destructive flex items-center gap-1">
                           <XCircle className="h-4 w-4" /> Đã thu hồi
                         </span>
                       )}

@@ -243,7 +243,7 @@ export default function CourseDetailPage() {
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className={`h-4 w-4 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                                className={`h-4 w-4 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground/60'}`}
                               />
                             ))}
                           </div>
@@ -285,8 +285,8 @@ export default function CourseDetailPage() {
                       </div>
                       <p className="text-sm mt-1">{q.question}</p>
                       {q.answer && (
-                        <div className="mt-2 bg-blue-50 p-3 rounded-md">
-                          <p className="text-sm font-medium text-blue-700">Trả lời:</p>
+                        <div className="mt-2 bg-muted/50 p-3 rounded-md">
+                          <p className="text-sm font-medium text-foreground">Trả lời:</p>
                           <p className="text-sm">{q.answer}</p>
                           <p className="text-xs text-muted-foreground mt-1">
                             {q.answeredAt && new Date(q.answeredAt).toLocaleString('vi-VN')}

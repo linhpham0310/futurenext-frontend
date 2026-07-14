@@ -112,7 +112,7 @@ export default function CoursesPage() {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <Spinner className="h-8 w-8" />
-        <p className="mt-4 text-sm text-gray-500">Đang tải danh sách khóa học...</p>
+        <p className="mt-4 text-sm text-muted-foreground">Đang tải danh sách khóa học...</p>
       </div>
     );
   }
@@ -134,7 +134,7 @@ export default function CoursesPage() {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <h1 className="text-2xl font-bold">Khám phá khóa học</h1>
         <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Tìm khóa học..."
             value={search}
@@ -145,9 +145,9 @@ export default function CoursesPage() {
       </div>
 
       {courses.length === 0 ? (
-        <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-xl">
-          <p className="text-gray-500">Hiện chưa có khóa học nào phù hợp.</p>
-          <p className="text-sm text-gray-400 mt-1">
+        <div className="text-center py-16 border-2 border-dashed border-border rounded-xl">
+          <p className="text-muted-foreground">Hiện chưa có khóa học nào phù hợp.</p>
+          <p className="text-sm text-muted-foreground mt-1">
             Hãy thử tìm kiếm với từ khóa khác hoặc quay lại sau.
           </p>
         </div>
@@ -163,7 +163,7 @@ export default function CoursesPage() {
                   {course.description || 'Chưa có mô tả'}
                 </p>
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-blue-600">
+                  <span className="font-bold text-foreground">
                     {course.price.toLocaleString('vi-VN')}đ
                   </span>
                   {course.isEnrolled ? (
@@ -176,7 +176,7 @@ export default function CoursesPage() {
                 </div>
                 <Link
                   href={`/courses/${course.id}`}
-                  className="block text-xs text-blue-500 hover:underline"
+                  className="block text-xs text-foreground hover:underline"
                 >
                   Xem chi tiết
                 </Link>

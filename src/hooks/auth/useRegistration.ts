@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, RegisterFormData } from '@/lib/schemas/auth.schema';
 import { authApi } from '@/lib/api';
 import { useRouter } from 'next/navigation'; // Thường không cần chuyển hướng ngay sau register
+import { toast } from 'react-hot-toast';
 
 interface ApiError {
   message?: string;
@@ -68,6 +69,7 @@ export function useRegistration() {
       console.error('Registration API Failed:', error);
 
       const apiError = error as ApiError;
+      toast.error(apiError.message || 'Đã xảy ra lỗi không mong muốn trong quá trình đăng ký.');
 
       // Handle specific API errors
       if (apiError?.statusCode === 409) {

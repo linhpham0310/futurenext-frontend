@@ -141,7 +141,7 @@ export default function TakeExamPage() {
           <BackButton label="Quay lại" />
           <h1 className="text-2xl font-bold">{exam.title}</h1>
         </div>
-        <div className="text-xl font-mono bg-gray-100 px-4 py-2 rounded">
+        <div className="text-xl font-mono bg-muted px-4 py-2 rounded">
           ⏱ {formatTime(timeLeft)}
         </div>
       </div>

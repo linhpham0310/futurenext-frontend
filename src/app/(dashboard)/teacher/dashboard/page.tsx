@@ -46,25 +46,25 @@ export default function TeacherDashboardPage() {
       title: 'Khóa học',
       value: stats.totalCourses,
       icon: BookOpen,
-      color: 'bg-blue-100 text-blue-700',
+      color: 'text-foreground',
     },
     {
       title: 'Học viên',
       value: stats.totalStudents,
       icon: Users,
-      color: 'bg-green-100 text-green-700',
+      color: 'text-foreground',
     },
     {
       title: 'Doanh thu',
       value: `${stats.totalRevenue.toLocaleString()}đ`,
       icon: DollarSign,
-      color: 'bg-yellow-100 text-yellow-700',
+      color: 'text-foreground',
     },
     {
       title: 'Chứng chỉ',
       value: stats.totalCertificates,
       icon: Award,
-      color: 'bg-purple-100 text-purple-700',
+      color: 'text-foreground',
     },
   ];
 
@@ -78,11 +78,11 @@ export default function TeacherDashboardPage() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {statItems.map((stat) => (
-          <Card key={stat.title}>
+          <Card key={stat.title} className="border-border/60 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <div className={`p-2 rounded-full ${stat.color}`}>
-                <stat.icon className="h-4 w-4" />
+              <div className={`${stat.color}`}>
+                <stat.icon className="h-4 w-4 text-muted-foreground" />
               </div>
             </CardHeader>
             <CardContent>

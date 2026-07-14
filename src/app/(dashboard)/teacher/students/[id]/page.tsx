@@ -149,7 +149,7 @@ export default function StudentDetailPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16">
-            <AvatarFallback className="bg-blue-100 text-blue-700 text-xl">
+            <AvatarFallback className="bg-muted text-foreground text-xl">
               {getInitials(student.fullName)}
             </AvatarFallback>
           </Avatar>

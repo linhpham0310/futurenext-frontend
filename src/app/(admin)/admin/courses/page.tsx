@@ -125,23 +125,23 @@ export default function AdminCoursesPage() {
     switch (status) {
       case 'APPROVED':
         return (
-          <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
+          <span className="text-emerald-600 bg-muted px-2 py-1 rounded-full text-xs">
             Đã phê duyệt
           </span>
         );
       case 'SUBMITTED':
         return (
-          <span className="text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full text-xs">
+          <span className="text-amber-600 bg-muted px-2 py-1 rounded-full text-xs">
             Chờ duyệt
           </span>
         );
       case 'REJECTED':
         return (
-          <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Từ chối</span>
+          <span className="text-destructive bg-destructive/10 px-2 py-1 rounded-full text-xs">Từ chối</span>
         );
       default:
         return (
-          <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded-full text-xs">Bản nháp</span>
+          <span className="text-muted-foreground bg-muted px-2 py-1 rounded-full text-xs">Bản nháp</span>
         );
     }
   };
@@ -238,14 +238,14 @@ export default function AdminCoursesPage() {
                               size="icon"
                               onClick={() => handleApprove(course.id)}
                             >
-                              <CheckCircle className="h-4 w-4 text-green-600" />
+                              <CheckCircle className="h-4 w-4 text-emerald-600" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="icon"
                               onClick={() => openRejectDialog(course.id)}
                             >
-                              <XCircle className="h-4 w-4 text-red-600" />
+                              <XCircle className="h-4 w-4 text-destructive" />
                             </Button>
                           </>
                         )}

@@ -131,13 +131,13 @@ export default function CartPage() {
 
       {items.length === 0 ? (
         <div className="text-center py-16 border-2 border-dashed border-slate-200 rounded-xl">
-          <ShoppingBag className="h-12 w-12 mx-auto text-slate-300 mb-3" />
+          <ShoppingBag className="h-12 w-12 mx-auto text-muted-foreground/60 mb-3" />
           <h2 className="text-xl font-semibold">Giỏ hàng trống</h2>
           <p className="text-muted-foreground mt-1">
             Hãy thêm khóa học vào giỏ hàng để thanh toán.
           </p>
           <Link href="/courses" className="mt-4 inline-block">
-            <Button className="bg-blue-600">Khám phá khóa học</Button>
+            <Button className="bg-primary">Khám phá khóa học</Button>
           </Link>
         </div>
       ) : (
@@ -159,7 +159,7 @@ export default function CartPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold truncate">{item.title}</h3>
-                    <p className="text-sm text-blue-600 font-medium">
+                    <p className="text-sm text-foreground font-medium">
                       {item.price.toLocaleString('vi-VN')}đ
                     </p>
                   </div>
@@ -180,14 +180,14 @@ export default function CartPage() {
             ))}
           </div>
 
-          <Card className="border-blue-100 bg-blue-50/40">
+          <Card className="border-blue-100 bg-muted/50/40">
             <CardContent className="p-4 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">
                     Tổng cộng ({items.length} khóa học)
                   </p>
-                  <p className="text-2xl font-bold text-blue-700">
+                  <p className="text-2xl font-bold text-foreground">
                     {total.toLocaleString('vi-VN')}đ
                   </p>
                 </div>

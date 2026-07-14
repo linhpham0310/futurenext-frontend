@@ -92,7 +92,7 @@ export default function TeacherRevenuePage() {
             <div className="text-2xl font-bold">
               {stats?.monthlyRevenue?.toLocaleString('vi-VN')}đ
             </div>
-            <p className="text-xs text-green-600">+{stats?.growthPercent || 0}%</p>
+            <p className="text-xs text-emerald-600">+{stats?.growthPercent || 0}%</p>
           </CardContent>
         </Card>
         <Card>

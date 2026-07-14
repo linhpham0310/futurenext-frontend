@@ -44,7 +44,7 @@ export default function VerifyCertificatePage() {
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-6">
       <div className="text-center">
-        <Award className="h-16 w-16 mx-auto text-blue-500 mb-4" />
+        <Award className="h-16 w-16 mx-auto text-foreground mb-4" />
         <h1 className="text-3xl font-bold">Xác thực chứng chỉ</h1>
         <p className="text-muted-foreground mt-2">Nhập mã chứng chỉ để kiểm tra tính hợp lệ</p>
       </div>
@@ -52,7 +52,7 @@ export default function VerifyCertificatePage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-blue-500" />
+            <Shield className="h-5 w-5 text-foreground" />
             Nhập mã chứng chỉ
           </CardTitle>
         </CardHeader>
@@ -71,21 +71,21 @@ export default function VerifyCertificatePage() {
           </div>
 
           {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg flex items-start gap-3">
               <XCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-red-700">Không hợp lệ</p>
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="font-medium text-destructive">Không hợp lệ</p>
+                <p className="text-sm text-destructive">{error}</p>
               </div>
             </div>
           )}
 
           {result && result.isValid && (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
+            <div className="p-4 bg-muted/50 border border-border rounded-lg flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-green-700">Chứng chỉ hợp lệ</p>
-                <p className="text-sm text-green-600">
+                <p className="font-medium text-emerald-600">Chứng chỉ hợp lệ</p>
+                <p className="text-sm text-emerald-600">
                   <strong>{result.studentName}</strong> đã hoàn thành khóa học{' '}
                   <strong>"{result.courseTitle}"</strong>
                 </p>

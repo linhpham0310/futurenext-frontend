@@ -120,11 +120,11 @@ export default function CodeLabPage() {
           <h1 className="text-2xl font-bold">{lab.title}</h1>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+          <span className="text-sm bg-muted text-foreground px-3 py-1 rounded-full">
             {lab.language.toUpperCase()}
           </span>
           {lab.userProgress?.status === 'COMPLETED' && (
-            <span className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full flex items-center gap-1">
+            <span className="text-sm bg-muted text-emerald-600 px-3 py-1 rounded-full flex items-center gap-1">
               <CheckCircle className="h-4 w-4" /> Hoàn thành
             </span>
           )}
@@ -156,10 +156,10 @@ export default function CodeLabPage() {
                     <p className="text-sm font-medium">{tc.description}</p>
                     <div className="flex gap-4 text-xs text-muted-foreground">
                       <span>
-                        Input: <code className="bg-gray-100 px-1 rounded">{tc.input}</code>
+                        Input: <code className="bg-muted px-1 rounded">{tc.input}</code>
                       </span>
                       <span>
-                        Expected: <code className="bg-gray-100 px-1 rounded">{tc.expected}</code>
+                        Expected: <code className="bg-muted px-1 rounded">{tc.expected}</code>
                       </span>
                     </div>
                   </div>
@@ -173,8 +173,8 @@ export default function CodeLabPage() {
         <div className="space-y-4">
           <Card className="flex-1">
             <CardContent className="p-0">
-              <div className="border-b p-2 flex justify-between items-center bg-gray-50">
-                <span className="text-sm font-medium text-gray-600">Code Editor</span>
+              <div className="border-b p-2 flex justify-between items-center bg-muted/50">
+                <span className="text-sm font-medium text-muted-foreground">Code Editor</span>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" onClick={handleResetCode}>
                     Reset
@@ -224,7 +224,7 @@ export default function CodeLabPage() {
                   <div
                     key={idx}
                     className={`p-2 rounded-md text-sm ${
-                      r.passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+                      r.passed ? 'bg-muted/50 border-border' : 'bg-destructive/10 border-destructive/30'
                     } border`}
                   >
                     <div className="flex items-center gap-2">
@@ -238,21 +238,21 @@ export default function CodeLabPage() {
                     <div className="text-xs mt-1 text-muted-foreground">
                       <div>
                         Output:{' '}
-                        <code className="bg-gray-100 px-1 rounded">
+                        <code className="bg-muted px-1 rounded">
                           {r.output || '(no output)'}
                         </code>
                       </div>
                       {!r.passed && (
                         <div>
-                          Expected: <code className="bg-gray-100 px-1 rounded">{r.expected}</code>
+                          Expected: <code className="bg-muted px-1 rounded">{r.expected}</code>
                         </div>
                       )}
                     </div>
                   </div>
                 ))}
                 {result.feedback && (
-                  <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md text-sm">
-                    <p className="font-medium text-blue-700">Phản hồi:</p>
+                  <div className="mt-2 p-2 bg-muted/50 border border-border rounded-md text-sm">
+                    <p className="font-medium text-foreground">Phản hồi:</p>
                     <p>{result.feedback}</p>
                   </div>
                 )}

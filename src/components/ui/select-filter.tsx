@@ -19,7 +19,7 @@ export const SelectFilter = React.forwardRef<HTMLSelectElement, SelectFilterProp
         <select
           ref={ref}
           className={cn(
-            'flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50',
+            'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30 [&>option]:bg-background [&>option]:text-foreground',
             className
           )}
           {...props}

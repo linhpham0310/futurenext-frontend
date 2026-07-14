@@ -169,32 +169,32 @@ export const AdminHeader = () => {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-40">
+    <header className="h-16 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border flex items-center justify-between px-6 sticky top-0 z-40">
       {/* Search with suggestions */}
-      <div className="relative w-96">
+      <div className="relative w-96 hidden md:block">
         <form onSubmit={onSearchSubmit}>
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Tìm kiếm khóa học, người dùng..."
-            className="pl-9 bg-slate-50 border-slate-200"
+            className="pl-9 bg-muted/50 border-border focus-visible:ring-primary rounded-full"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </form>
         {/* Dropdown kết quả gợi ý */}
         {(searchQuery.trim() !== '' || searchLoading) && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-md shadow-lg border z-50 max-h-80 overflow-auto">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-md shadow-lg border border-border z-50 max-h-80 overflow-auto">
             {searchLoading ? (
               <div className="flex justify-center py-4">
-                <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               </div>
             ) : searchResults.length === 0 ? (
-              <div className="px-4 py-3 text-sm text-slate-500">Không tìm thấy kết quả</div>
+              <div className="px-4 py-3 text-sm text-muted-foreground">Không tìm thấy kết quả</div>
             ) : (
               searchResults.map((item) => (
                 <div
                   key={item.id}
-                  className="px-4 py-2 hover:bg-slate-50 cursor-pointer flex items-center justify-between"
+                  className="px-4 py-2 hover:bg-muted cursor-pointer flex items-center justify-between transition-colors"
                   onClick={() => {
                     router.push(item.link);
                     setSearchQuery('');
@@ -202,12 +202,12 @@ export const AdminHeader = () => {
                   }}
                 >
                   <div>
-                    <p className="text-sm font-medium">{item.label}</p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-sm font-medium text-foreground">{item.label}</p>
+                    <p className="text-xs text-muted-foreground">
                       {item.type === 'user' ? 'Người dùng' : 'Khóa học'}
                     </p>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-slate-400" />
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </div>
               ))
             )}
@@ -216,14 +216,14 @@ export const AdminHeader = () => {
       </div>
 
       {/* Right actions */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         {/* Notifications Dropdown */}
         <DropdownMenu open={notifOpen} onOpenChange={setNotifOpen}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5 text-slate-600" />
+            <Button variant="ghost" size="icon" className="relative text-foreground hover:bg-muted hover:text-primary transition-colors">
+              <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full text-white text-[10px] flex items-center justify-center">
+                <span className="absolute top-1 right-1 w-4 h-4 bg-destructive rounded-full text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -247,10 +247,10 @@ export const AdminHeader = () => {
             <ScrollArea className="h-[300px]">
               {notifLoading && notifications.length === 0 ? (
                 <div className="flex justify-center py-6">
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 </div>
               ) : notifications.length === 0 ? (
-                <div className="text-center py-6 text-sm text-slate-500">
+                <div className="text-center py-6 text-sm text-muted-foreground">
                   Không có thông báo nào
                 </div>
               ) : (
@@ -258,14 +258,14 @@ export const AdminHeader = () => {
                   <DropdownMenuItem
                     key={notif.id}
                     className={cn(
-                      'flex flex-col items-start p-3 cursor-pointer',
-                      !notif.isRead && 'bg-blue-50'
+                      'flex flex-col items-start p-3 cursor-pointer transition-colors',
+                      !notif.isRead ? 'bg-primary/5' : ''
                     )}
                     onClick={() => markAsRead(notif.id, notif.link)}
                   >
-                    <div className="font-medium text-sm">{notif.title}</div>
-                    <div className="text-xs text-slate-500 mt-1">{notif.description}</div>
-                    <div className="text-[10px] text-slate-400 mt-1">
+                    <div className="font-medium text-sm text-foreground">{notif.title}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{notif.description}</div>
+                    <div className="text-[10px] text-muted-foreground/70 mt-1">
                       {formatDistanceToNow(new Date(notif.createdAt))}
                     </div>
                   </DropdownMenuItem>
@@ -274,7 +274,7 @@ export const AdminHeader = () => {
             </ScrollArea>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="justify-center text-blue-600"
+              className="justify-center text-primary font-medium cursor-pointer"
               onClick={() => router.push('/notifications')}
             >
               Xem tất cả
@@ -285,15 +285,15 @@ export const AdminHeader = () => {
 
         {/* User info */}
         <div className="flex items-center gap-3">
-          <div className="text-right">
-            <p className="text-sm font-medium text-slate-900">
+          <div className="text-right hidden sm:block">
+            <p className="text-sm font-medium text-foreground">
               Chào {user?.fullName?.split(' ').pop() || 'Admin'}
             </p>
-            <p className="text-xs text-slate-500">Quản trị viên</p>
+            <p className="text-xs text-muted-foreground">Quản trị viên</p>
           </div>
-          <Avatar className="h-10 w-10 border-2 border-blue-200">
+          <Avatar className="h-9 w-9 border border-border">
             <AvatarImage src={user?.avatarUrl || undefined} />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+            <AvatarFallback className="bg-muted text-foreground text-sm font-medium">
               {getInitials(user?.fullName || '')}
             </AvatarFallback>
           </Avatar>

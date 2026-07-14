@@ -35,7 +35,7 @@ function ResetPasswordContent() {
             </span>
           </Link>
 
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="bg-white rounded-xl shadow-xl p-8">
             <div className="mb-8">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">Đặt lại mật khẩu</h1>
               <p className="text-gray-500">Nhập mật khẩu mới cho tài khoản của bạn.</p>

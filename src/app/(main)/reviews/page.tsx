@@ -56,10 +56,10 @@ export default function MyReviewsPage() {
   if (reviews.length === 0) {
     return (
       <div className="text-center py-12">
-        <Star className="h-12 w-12 mx-auto text-slate-300 mb-3" />
+        <Star className="h-12 w-12 mx-auto text-muted-foreground/60 mb-3" />
         <h2 className="text-xl font-semibold">Bạn chưa có đánh giá nào</h2>
         <Link href="/courses" className="mt-4 inline-block">
-          <Button className="bg-blue-600">Đánh giá khóa học ngay</Button>
+          <Button className="bg-primary">Đánh giá khóa học ngay</Button>
         </Link>
       </div>
     );
@@ -79,7 +79,7 @@ export default function MyReviewsPage() {
                 <div>
                   <Link
                     href={`/courses/${review.courseId}`}
-                    className="font-semibold hover:text-blue-600"
+                    className="font-semibold hover:text-foreground"
                   >
                     {review.courseTitle}
                   </Link>
@@ -87,11 +87,11 @@ export default function MyReviewsPage() {
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`h-4 w-4 ${i < review.rating ? 'fill-yellow-500 text-yellow-500' : 'text-gray-300'}`}
+                        className={`h-4 w-4 ${i < review.rating ? 'fill-yellow-500 text-yellow-500' : 'text-muted-foreground/60'}`}
                       />
                     ))}
                   </div>
-                  <p className="mt-2 text-sm text-gray-700">{review.comment}</p>
+                  <p className="mt-2 text-sm text-foreground">{review.comment}</p>
                   <p className="text-xs text-muted-foreground mt-2">
                     {new Date(review.createdAt).toLocaleDateString('vi-VN')}
                   </p>

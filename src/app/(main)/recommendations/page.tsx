@@ -93,20 +93,20 @@ export default function RecommendationsPage() {
 
       {recommendations.length === 0 ? (
         <div className="text-center py-12">
-          <Brain className="h-12 w-12 mx-auto text-slate-300 mb-3" />
+          <Brain className="h-12 w-12 mx-auto text-muted-foreground/60 mb-3" />
           <h2 className="text-xl font-semibold">Chưa có gợi ý</h2>
           <p className="text-muted-foreground">
             Hãy đăng ký một số khóa học để AI có thể phân tích và gợi ý cho bạn.
           </p>
           <Link href="/courses" className="mt-4 inline-block">
-            <Button className="bg-blue-600">Khám phá khóa học</Button>
+            <Button className="bg-primary">Khám phá khóa học</Button>
           </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {recommendations.map((course) => (
             <Card key={course.id} className="hover:shadow-lg transition-shadow relative">
-              <div className="absolute top-3 right-3 bg-blue-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+              <div className="absolute top-3 right-3 bg-primary text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
                 <Sparkles className="h-3 w-3" /> {course.matchScore}%
               </div>
               <CardHeader>
@@ -115,12 +115,12 @@ export default function RecommendationsPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm text-muted-foreground line-clamp-2">{course.description}</p>
-                <p className="text-sm bg-yellow-50 text-yellow-700 p-2 rounded-lg border border-yellow-200 flex items-start gap-2">
+                <p className="text-sm bg-muted/50 text-amber-600 p-2 rounded-lg border border-border flex items-start gap-2">
                   <Zap className="h-4 w-4 shrink-0 mt-0.5" />
                   <span>{course.reason}</span>
                 </p>
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-blue-600">
+                  <span className="font-bold text-foreground">
                     {course.price.toLocaleString('vi-VN')}đ
                   </span>
                   <Link href={`/courses/${course.id}`}>

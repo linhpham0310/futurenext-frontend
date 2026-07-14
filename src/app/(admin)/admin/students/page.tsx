@@ -88,11 +88,11 @@ export default function AdminStudentsPage() {
   const getStatusBadge = (status: string) => {
     if (status === 'active')
       return (
-        <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
+        <span className="text-emerald-600 bg-muted px-2 py-1 rounded-full text-xs">
           Hoạt động
         </span>
       );
-    return <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Đã khóa</span>;
+    return <span className="text-destructive bg-destructive/10 px-2 py-1 rounded-full text-xs">Đã khóa</span>;
   };
 
   if (authLoading)
