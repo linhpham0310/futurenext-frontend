@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { Spinner } from '@/components/ui/spinner';
@@ -20,8 +20,8 @@ interface Order {
   course: { title: string };
   amount: number;
   currency: string;
-  status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELED';
-  paymentMethod: 'STRIPE' | 'VNPAY' | 'QR';
+  status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELED' | 'COMPLETED' | 'REFUNDED';
+  paymentMethod: 'STRIPE' | 'VNPAY' | 'QR' | 'MOCK_PAYMENT' | 'UNKNOWN';
   createdAt: string;
 }
 
@@ -29,73 +29,103 @@ export default function AdminOrdersPage() {
   const { isAdmin, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
 
   useEffect(() => {
     if (!authLoading && !isAdmin) router.push('/forbidden');
   }, [isAdmin, authLoading, router]);
 
+  // Fetch all orders (hoặc fetch với limit lớn, nhưng ở đây tạm fetch không filter)
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await adminApi.getOrders({
-        q: search,
-        status: statusFilter || undefined,
-        page,
-        limit,
-      });
-      setOrders(response.data.items);
-      setTotalPages(response.data.meta.totalPages);
-    } catch {
+      // Lấy toàn bộ đơn hàng (không filter) hoặc lấy nhiều hơn
+      const response = await adminApi.getOrders({ page: 1, limit: 100 });
+      const items = response.data?.items || response.data?.data || [];
+      setAllOrders(items);
+    } catch (error) {
+      console.error('Lỗi fetch orders:', error);
       toast.error('Không thể tải danh sách đơn hàng');
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, page]);
+  }, []);
 
   useEffect(() => {
     if (isAdmin) fetchOrders();
   }, [isAdmin, fetchOrders]);
 
+  // Client-side filter
+  const filteredOrders = useMemo(() => {
+    let result = allOrders;
+    if (search) {
+      const lower = search.toLowerCase();
+      result = result.filter(
+        (order) =>
+          order.id.toLowerCase().includes(lower) ||
+          order.user.fullName.toLowerCase().includes(lower) ||
+          order.course.title.toLowerCase().includes(lower)
+      );
+    }
+    if (statusFilter) {
+      result = result.filter((order) => order.status === statusFilter);
+    }
+    return result;
+  }, [allOrders, search, statusFilter]);
+
+  // Phân trang client-side
+  const totalItems = filteredOrders.length;
+  const totalPages = Math.ceil(totalItems / limit);
+  const currentOrders = filteredOrders.slice((page - 1) * limit, page * limit);
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'PAID':
+      case 'COMPLETED':
         return (
-          <span className="text-emerald-600 bg-muted px-2 py-1 rounded-full text-xs">
-            Đã thanh toán
+          <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
+            Thành công
           </span>
         );
       case 'PENDING':
         return (
-          <span className="text-amber-600 bg-muted px-2 py-1 rounded-full text-xs">
+          <span className="text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full text-xs">
             Chờ thanh toán
           </span>
         );
       case 'FAILED':
         return (
-          <span className="text-destructive bg-destructive/10 px-2 py-1 rounded-full text-xs">Thất bại</span>
+          <span className="text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs">Thất bại</span>
+        );
+      case 'REFUNDED':
+        return (
+          <span className="text-blue-600 bg-blue-100 px-2 py-1 rounded-full text-xs">
+            Hoàn tiền
+          </span>
         );
       case 'CANCELED':
         return (
-          <span className="text-muted-foreground bg-muted px-2 py-1 rounded-full text-xs">Đã hủy</span>
+          <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded-full text-xs">Đã hủy</span>
         );
       default:
-        return null;
+        return (
+          <span className="text-gray-500 bg-gray-100 px-2 py-1 rounded-full text-xs">{status}</span>
+        );
     }
   };
 
-  if (authLoading)
+  if (authLoading) {
     return (
       <div className="p-8 flex justify-center">
         <Spinner />
       </div>
     );
+  }
   if (!isAdmin) return null;
 
   return (
@@ -103,7 +133,7 @@ export default function AdminOrdersPage() {
       <h1 className="text-2xl font-bold">Quản lý đơn hàng</h1>
       <div className="flex flex-wrap gap-4">
         <Input
-          placeholder="Tìm theo tên hoặc email..."
+          placeholder="Tìm theo mã đơn, người dùng hoặc khóa học..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-xs"
@@ -112,15 +142,17 @@ export default function AdminOrdersPage() {
           label="Trạng thái"
           options={[
             { label: 'Tất cả', value: '' },
+            { label: 'Thành công', value: 'COMPLETED' },
             { label: 'Chờ thanh toán', value: 'PENDING' },
-            { label: 'Đã thanh toán', value: 'PAID' },
             { label: 'Thất bại', value: 'FAILED' },
+            { label: 'Hoàn tiền', value: 'REFUNDED' },
             { label: 'Đã hủy', value: 'CANCELED' },
           ]}
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         />
       </div>
+
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -143,14 +175,14 @@ export default function AdminOrdersPage() {
                     <Spinner />
                   </TableCell>
                 </TableRow>
-              ) : orders.length === 0 ? (
+              ) : currentOrders.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-8">
                     Không có đơn hàng
                   </TableCell>
                 </TableRow>
               ) : (
-                orders.map((order) => (
+                currentOrders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell className="font-mono text-xs">{order.id.slice(0, 8)}</TableCell>
                     <TableCell>{order.user.fullName}</TableCell>
@@ -175,6 +207,7 @@ export default function AdminOrdersPage() {
           </Table>
         </CardContent>
       </Card>
+
       <Pagination
         currentPage={page}
         totalPages={totalPages}

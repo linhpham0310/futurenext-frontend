@@ -6,7 +6,6 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { studentApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Star } from 'lucide-react';
 import { toast } from 'sonner';
@@ -22,32 +21,38 @@ export default function CreateReviewPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async () => {
+    if (!user) {
+      toast.error('Vui lòng đăng nhập để đánh giá');
+      return;
+    }
     if (rating === 0) {
       toast.error('Vui lòng chọn số sao');
       return;
     }
-    if (!comment.trim()) {
-      toast.error('Vui lòng nhập nhận xét');
-      return;
-    }
+
     setSubmitting(true);
     try {
-      await studentApi.createReview(id as string, { rating, comment });
-      toast.success('Đánh giá thành công');
+      await studentApi.createReview(id as string, {
+        rating,
+        comment: comment.trim() || undefined, // comment là tùy chọn
+      });
+      toast.success('Cảm ơn bạn đã đánh giá!');
       router.push(`/courses/${id}`);
-    } catch {
-      toast.error('Đánh giá thất bại');
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || error?.message || 'Đánh giá thất bại';
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (authLoading)
+  if (authLoading) {
     return (
       <div className="flex justify-center py-12">
         <Spinner />
       </div>
     );
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -84,12 +89,15 @@ export default function CreateReviewPage() {
             </span>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Nhận xét</label>
-            <Textarea
+            <label className="block text-sm font-medium mb-1">
+              Nhận xét <span className="text-muted-foreground">(không bắt buộc)</span>
+            </label>
+            <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={4}
               placeholder="Chia sẻ trải nghiệm của bạn về khóa học..."
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
           <Button onClick={handleSubmit} disabled={submitting} className="w-full">

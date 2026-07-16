@@ -8,6 +8,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { BackButton } from '@/components/ui/back-button';
 import { BookOpen } from 'lucide-react';
@@ -25,7 +26,10 @@ interface OrderDetail {
     title: string;
     description: string | null;
     thumbnailUrl: string | null;
+    duration?: string;
+    students?: number;
   };
+  progress?: number; // thêm
 }
 
 export default function OrderDetailPage() {
@@ -39,7 +43,11 @@ export default function OrderDetailPage() {
     if (user && id) {
       studentApi
         .getOrderDetail(id as string)
-        .then((res) => setOrder(res.data))
+        .then((res) => {
+          // Giả định backend trả về progress
+          const data = res.data;
+          setOrder({ ...data, progress: data.progress || 0 });
+        })
         .catch(() => toast.error('Không thể tải chi tiết đơn hàng'))
         .finally(() => setLoading(false));
     }
@@ -120,12 +128,19 @@ export default function OrderDetailPage() {
                   <BookOpen className="h-6 w-6 text-muted-foreground" />
                 )}
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="font-medium">{order.course.title}</p>
                 {order.course.description && (
                   <p className="text-sm text-muted-foreground line-clamp-1">
                     {order.course.description}
                   </p>
+                )}
+                {order.progress !== undefined && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-muted-foreground">Tiến độ</span>
+                    <Progress value={order.progress} className="flex-1 max-w-32 h-2" />
+                    <span className="text-xs font-medium">{order.progress}%</span>
+                  </div>
                 )}
               </div>
             </div>

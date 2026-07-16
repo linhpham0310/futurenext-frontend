@@ -214,8 +214,13 @@ export const teacherProfilesApi = {
 
 // ==================== COURSE API ====================
 export const courseApi = {
-  getPublicCourses: (params?: { page?: number; limit?: number; search?: string; level?: string }) =>
-    apiClient.get('/courses/public', { params }),
+  getPublicCourses: (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    level?: string;
+    instructorId?: string;
+  }) => apiClient.get('/courses/public', { params }),
   getPublicCourseDetail: (id: string) => apiClient.get(`/courses/public/${id}`),
   getMyCourses: () => apiClient.get('/courses/my-courses'),
   getCourse: (id: string) => apiClient.get(`/courses/${id}`),
@@ -277,8 +282,8 @@ export const adminApi = {
   updateCourse: (id: string, data: any) => apiClient.put(`/admin/courses/${id}`, data),
   deleteCourse: (id: string) => apiClient.delete(`/admin/courses/${id}`),
   getRevenueStats: () => apiClient.get('/revenue/admin/stats'),
-  getTransactions: (limit?: number) =>
-    apiClient.get('/revenue/admin/transactions', { params: { limit } }),
+  getTransactions: (params?: { limit?: number; status?: string }) =>
+    apiClient.get('/revenue/admin/transactions', { params }),
   checkLastAdmin: (userId: string, newRole: string) =>
     apiClient.get(`/admin/users/${userId}/check-last-admin`, { params: { newRole } }),
   getNotifications: (params: { page: number; limit: number }) =>
@@ -300,6 +305,15 @@ export const adminApi = {
   revokeCertificate: (id: string) => apiClient.patch(`/admin/certificates/${id}/revoke`),
   getBroadcasts: () => apiClient.get('/admin/broadcasts'),
   createBroadcast: (data: any) => apiClient.post('/admin/broadcasts', data),
+  getCourseStudents: (courseId: string) => apiClient.get(`/admin/courses/${courseId}/students`),
+  // ===== PAYMENT ADMIN =====
+  getPaymentOverview: () => apiClient.get('/admin/payments/overview'),
+  getMonthlyRevenue: (params?: { year?: number }) =>
+    apiClient.get('/admin/payments/monthly-revenue', { params }),
+  getWithdrawalRequests: (params?: any) => apiClient.get('/admin/payments/withdrawals', { params }),
+  approveWithdrawal: (id: string) => apiClient.patch(`/admin/payments/withdrawals/${id}/approve`),
+  rejectWithdrawal: (id: string, reason: string) =>
+    apiClient.patch(`/admin/payments/withdrawals/${id}/reject`, { reason }),
 };
 
 // ==================== TEACHER API ====================
@@ -430,6 +444,17 @@ export const teacherApi = {
     apiClient.get(`/teacher/courses/${courseId}/questions`, { params }),
   answerQuestion: (courseId: string, questionId: string, answer: string) =>
     apiClient.post(`/teacher/courses/${courseId}/questions/${questionId}/answer`, { answer }),
+  // Thêm vào teacherApi
+  getPaymentAccounts: () => apiClient.get('/teacher/payment/accounts'),
+  createPaymentAccount: (data: {
+    type: string;
+    bankName?: string;
+    accountNumber: string;
+    accountHolder: string;
+  }) => apiClient.post('/teacher/payment/accounts', data),
+  deletePaymentAccount: (id: string) => apiClient.delete(`/teacher/payment/accounts/${id}`),
+  setDefaultPaymentAccount: (id: string) =>
+    apiClient.patch(`/teacher/payment/accounts/${id}/default`),
 };
 
 // ==================== STUDENT API ====================
@@ -455,6 +480,8 @@ export const studentApi = {
   updateReview: (reviewId: string, data: { rating: number; comment?: string }) =>
     apiClient.put(`/student/reviews/${reviewId}`, data),
   deleteReview: (reviewId: string) => apiClient.delete(`/student/reviews/${reviewId}`),
+  submitReview: (orderId: string, courseId: string, rating: number, comment?: string) =>
+    apiClient.post('/student/reviews', { courseId, rating, comment }),
   getCourseReviews: (courseId: string) => apiClient.get(`/courses/${courseId}/reviews`),
   getCourseQuestions: (courseId: string) => apiClient.get(`/courses/${courseId}/questions`),
 
@@ -509,10 +536,12 @@ export const studentApi = {
   createAnswer: (questionId: string, data: { content: string }) =>
     apiClient.post(`/questions/${questionId}/answers`, data),
 
-  createOrder: (data: { courseIds: string[]; paymentMethod: string }) =>
+  createOrder: (data: { courseIds: string[]; paymentMethod: string; couponCode?: string }) =>
     apiClient.post('/student/orders', data),
   getOrderStatus: (orderId: string) => apiClient.get(`/student/orders/${orderId}`),
   getQRCode: (orderId: string) => apiClient.get(`/payments/bankqr/${orderId}/qr`),
+  getMyReviews: () => apiClient.get('/student/reviews'),
+  applyCoupon: (code: string) => apiClient.post('/student/coupon/apply', { code }),
 };
 
 // ==================== COMMON API ====================

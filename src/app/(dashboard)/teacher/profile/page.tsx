@@ -11,13 +11,17 @@ import { toast } from 'sonner';
 import { Edit2, Save, X, Upload, Award, Users, BookOpen } from 'lucide-react';
 import { usersApi, teacherApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { supabase } from '@/lib/supabaseClient';
 import { TeacherProfileForm } from '@/components/features/profile/teacher-profile-form';
 
 export default function TeacherProfilePage() {
   const { user, setUser } = useAuth();
   const [profile, setProfile] = useState<any>(null);
-  const [teacherProfile, setTeacherProfile] = useState<any>(null);
+  const [teacherProfile, setTeacherProfile] = useState<any>(null); // hồ sơ giáo viên thực tế
+  const [teacherStats, setTeacherStats] = useState({
+    totalCourses: 0,
+    totalStudents: 0,
+    totalCertificates: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -31,10 +35,8 @@ export default function TeacherProfilePage() {
 
   const loadProfile = async () => {
     try {
-      const [userRes, teacherRes] = await Promise.all([
-        usersApi.getProfile(),
-        teacherApi.getProfile().catch(() => null),
-      ]);
+      // Lấy thông tin user cơ bản
+      const userRes = await usersApi.getProfile();
       const userData = userRes.data;
       setProfile(userData);
       setFormData({
@@ -43,9 +45,24 @@ export default function TeacherProfilePage() {
         bio: userData.bio || '',
         avatarUrl: userData.avatarUrl || '',
       });
-      if (teacherRes?.data?.data) {
-        setTeacherProfile(teacherRes.data.data);
+
+      // Lấy thông tin hồ sơ giảng viên (chứa bio, expertise, status)
+      let teacherData: any = null;
+      try {
+        const teacherRes = await teacherApi.getProfile();
+        teacherData = teacherRes.data?.data || teacherRes.data;
+      } catch {
+        teacherData = null;
       }
+      setTeacherProfile(teacherData);
+
+      // Lấy thống kê từ dashboard
+      const statsRes = await teacherApi.getDashboardStats();
+      setTeacherStats({
+        totalCourses: statsRes.data.totalCourses || 0,
+        totalStudents: statsRes.data.totalStudents || 0,
+        totalCertificates: statsRes.data.totalCertificates || 0,
+      });
     } catch (error) {
       toast.error('Không thể tải thông tin hồ sơ');
     } finally {
@@ -75,7 +92,7 @@ export default function TeacherProfilePage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await usersApi.uploadAvatar(formData); // gọi POST /users/me/avatar
+      const response = await usersApi.uploadAvatar(formData);
       const publicUrl = response.data.avatarUrl;
 
       setFormData((prev) => ({ ...prev, avatarUrl: publicUrl }));
@@ -150,7 +167,6 @@ export default function TeacherProfilePage() {
                     {getInitials(formData.fullName || user?.fullName || 'User')}
                   </AvatarFallback>
                 </Avatar>
-                {/* Nút upload avatar - GIỐNG Y HỆT STUDENT PROFILE */}
                 <label
                   htmlFor="avatar-upload"
                   className="absolute bottom-0 right-0 p-1.5 bg-primary rounded-full text-white cursor-pointer hover:bg-primary/90 transition shadow-md"
@@ -186,19 +202,19 @@ export default function TeacherProfilePage() {
                 <span className="text-muted-foreground flex items-center gap-2">
                   <BookOpen className="h-4 w-4" /> Khóa học
                 </span>
-                <span className="font-semibold">{teacherProfile?.totalCourses || 0}</span>
+                <span className="font-semibold">{teacherStats.totalCourses}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground flex items-center gap-2">
                   <Users className="h-4 w-4" /> Học viên
                 </span>
-                <span className="font-semibold">{teacherProfile?.totalStudents || 0}</span>
+                <span className="font-semibold">{teacherStats.totalStudents}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground flex items-center gap-2">
                   <Award className="h-4 w-4" /> Chứng chỉ
                 </span>
-                <span className="font-semibold">{teacherProfile?.totalCertificates || 0}</span>
+                <span className="font-semibold">{teacherStats.totalCertificates}</span>
               </div>
             </CardContent>
           </Card>

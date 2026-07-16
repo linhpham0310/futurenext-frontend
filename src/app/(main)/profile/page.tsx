@@ -9,13 +9,16 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
 import { Edit2, Save, X, Upload } from 'lucide-react';
-import { usersApi } from '@/lib/api';
+import { usersApi, studentApi } from '@/lib/api';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { supabase } from '@/lib/supabaseClient';
 
 export default function ProfilePage() {
   const { user, setUser } = useAuth();
   const [profile, setProfile] = useState<any>(null);
+  const [stats, setStats] = useState({
+    enrolledCourses: 0,
+    certificates: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -29,8 +32,14 @@ export default function ProfilePage() {
 
   const loadProfile = async () => {
     try {
-      const response = await usersApi.getProfile();
-      const profileData = response.data;
+      setIsLoading(true);
+      const [profileRes, coursesRes, certsRes] = await Promise.all([
+        usersApi.getProfile(),
+        studentApi.getMyCourses().catch(() => ({ data: [] })),
+        studentApi.getMyCertificates().catch(() => ({ data: [] })),
+      ]);
+
+      const profileData = profileRes.data;
       setProfile(profileData);
       setFormData({
         fullName: profileData.fullName || '',
@@ -38,7 +47,16 @@ export default function ProfilePage() {
         bio: profileData.bio || '',
         avatarUrl: profileData.avatarUrl || '',
       });
+
+      // Lấy số khóa học và chứng chỉ
+      const courses = coursesRes.data || [];
+      const certificates = certsRes.data || [];
+      setStats({
+        enrolledCourses: courses.length,
+        certificates: certificates.length,
+      });
     } catch (error) {
+      console.error('Lỗi tải profile:', error);
       toast.error('Không thể tải thông tin hồ sơ');
     } finally {
       setIsLoading(false);
@@ -67,7 +85,7 @@ export default function ProfilePage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await usersApi.uploadAvatar(formData); // gọi POST /users/me/avatar
+      const response = await usersApi.uploadAvatar(formData);
       const publicUrl = response.data.avatarUrl;
 
       setFormData((prev) => ({ ...prev, avatarUrl: publicUrl }));
@@ -124,7 +142,7 @@ export default function ProfilePage() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-slate-900">Hồ sơ của tôi</h1>
         </div>
-        <p className="text-muted-foreground mt-1">Quản lý thông tin cá nhân và tài khoản</p>
+        <p className="text-slate-500 mt-1">Quản lý thông tin cá nhân và tài khoản</p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Avatar & Stats */}
@@ -134,14 +152,13 @@ export default function ProfilePage() {
               <div className="relative inline-block">
                 <Avatar className="w-24 h-24 mx-auto mb-4 border-4 border-blue-100">
                   <AvatarImage src={formData.avatarUrl || profile?.avatarUrl || ''} />
-                  <AvatarFallback className="bg-muted text-foreground text-xl">
+                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white text-xl">
                     {getInitials(formData.fullName || user?.fullName || 'User')}
                   </AvatarFallback>
                 </Avatar>
-                {/* Nút upload avatar */}
                 <label
                   htmlFor="avatar-upload"
-                  className="absolute bottom-0 right-0 p-1.5 bg-primary rounded-full text-white cursor-pointer hover:bg-primary/90 transition shadow-md"
+                  className="absolute bottom-0 right-0 p-1.5 bg-blue-600 rounded-full text-white cursor-pointer hover:bg-blue-700 transition shadow-md"
                 >
                   <Upload className="h-4 w-4" />
                   <input
@@ -155,11 +172,11 @@ export default function ProfilePage() {
                   />
                 </label>
               </div>
-              {isUploading && <p className="text-xs text-foreground mt-1">Đang tải ảnh...</p>}
+              {isUploading && <p className="text-xs text-blue-600 mt-1">Đang tải ảnh...</p>}
               <h2 className="text-xl font-bold text-slate-900">
                 {formData.fullName || profile?.fullName || user?.fullName}
               </h2>
-              <p className="text-muted-foreground text-sm">{user?.email}</p>
+              <p className="text-slate-500 text-sm">{user?.email}</p>
             </CardContent>
           </Card>
 
@@ -169,12 +186,12 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Khóa học đã tham gia</span>
-                <span className="font-semibold">{profile?.enrolledCourses || 0}</span>
+                <span className="text-slate-500">Khóa học đã tham gia</span>
+                <span className="font-semibold">{stats.enrolledCourses}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Chứng chỉ đã đạt</span>
-                <span className="font-semibold">{profile?.certificates || 0}</span>
+                <span className="text-slate-500">Chứng chỉ đã đạt</span>
+                <span className="font-semibold">{stats.certificates}</span>
               </div>
             </CardContent>
           </Card>
@@ -222,8 +239,8 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <Label>Email</Label>
-                  <p className="mt-1 text-muted-foreground">{user?.email}</p>
-                  <p className="text-xs text-muted-foreground">Không thể thay đổi email</p>
+                  <p className="mt-1 text-slate-500">{user?.email}</p>
+                  <p className="text-xs text-slate-400">Không thể thay đổi email</p>
                 </div>
                 <div>
                   <Label>Số điện thoại</Label>
@@ -254,7 +271,7 @@ export default function ProfilePage() {
                     value={formData.bio}
                     onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                     placeholder="Giới thiệu ngắn về bản thân..."
-                    className="w-full mt-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="w-full mt-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     rows={3}
                   />
                 ) : (

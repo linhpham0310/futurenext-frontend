@@ -22,18 +22,10 @@ import { teacherApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Spinner } from '@/components/ui/spinner';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, X, ArrowLeft } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { BackButton } from '@/components/ui/back-button';
-
-interface LearningOutcome {
-  id: string;
-  title: string;
-  description?: string;
-}
 
 interface Lesson {
   id: string;
@@ -50,7 +42,6 @@ interface Section {
   title: string;
   orderIndex: number;
   lessons: Lesson[];
-  loMappings?: string[];
 }
 
 export default function CourseBuilderPage() {
@@ -58,7 +49,6 @@ export default function CourseBuilderPage() {
   const router = useRouter();
   const { isTeacher, isLoading: authLoading } = useAuth();
   const [sections, setSections] = useState<Section[]>([]);
-  const [outcomes, setOutcomes] = useState<LearningOutcome[]>([]);
   const [loading, setLoading] = useState(true);
   const [courseStatus, setCourseStatus] = useState('');
   const [showAddSection, setShowAddSection] = useState(false);
@@ -73,12 +63,10 @@ export default function CourseBuilderPage() {
     if (isTeacher && courseId) {
       Promise.all([
         teacherApi.getCourseBuilder(courseId as string),
-        teacherApi.getLearningOutcomes(courseId as string),
         teacherApi.getCourseDetail(courseId as string),
       ])
-        .then(([builderRes, outcomesRes, courseRes]) => {
+        .then(([builderRes, courseRes]) => {
           setSections(builderRes.data.sections || []);
-          setOutcomes(outcomesRes.data || []);
           setCourseStatus(courseRes.data.status);
         })
         .catch(() => toast.error('Không thể tải cấu trúc khóa học'))
@@ -147,31 +135,6 @@ export default function CourseBuilderPage() {
     }
   };
 
-  const handleToggleMapping = async (sectionId: string, outcomeId: string) => {
-    const section = sections.find((s) => s.id === sectionId);
-    if (!section) return;
-    const currentMappings = section.loMappings || [];
-    const isMapped = currentMappings.includes(outcomeId);
-    const newMappings = isMapped
-      ? currentMappings.filter((id) => id !== outcomeId)
-      : [...currentMappings, outcomeId];
-
-    setSections((prev) =>
-      prev.map((s) => (s.id === sectionId ? { ...s, loMappings: newMappings } : s))
-    );
-
-    try {
-      await teacherApi.updateSectionMapping(courseId as string, sectionId, {
-        loIds: newMappings,
-      });
-    } catch {
-      setSections((prev) =>
-        prev.map((s) => (s.id === sectionId ? { ...s, loMappings: currentMappings } : s))
-      );
-      toast.error('Cập nhật mapping thất bại');
-    }
-  };
-
   if (authLoading || loading) {
     return (
       <div className="flex justify-center py-12">
@@ -193,104 +156,53 @@ export default function CourseBuilderPage() {
         <h2 className="text-2xl font-bold">Chỉnh sửa cấu trúc khóa học</h2>
       </div>
 
-      <Tabs defaultValue="structure">
-        <TabsList>
-          <TabsTrigger value="structure">Chương & Bài học</TabsTrigger>
-          <TabsTrigger value="mapping">Ánh xạ Learning Outcomes</TabsTrigger>
-        </TabsList>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={onDragEnd}
+        modifiers={[restrictToVerticalAxis]}
+      >
+        <SortableContext items={sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+          {sections.map((section) => (
+            <SortableSectionItem
+              key={section.id}
+              id={section.id}
+              title={section.title}
+              courseId={courseId as string}
+              lessons={section.lessons}
+              onUpdateTitle={handleUpdateSectionTitle}
+              onDelete={handleDeleteSection}
+            />
+          ))}
+        </SortableContext>
+      </DndContext>
 
-        <TabsContent value="structure">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={onDragEnd}
-            modifiers={[restrictToVerticalAxis]}
-          >
-            <SortableContext
-              items={sections.map((s) => s.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              {sections.map((section) => (
-                <SortableSectionItem
-                  key={section.id}
-                  id={section.id}
-                  title={section.title}
-                  courseId={courseId as string}
-                  lessons={section.lessons}
-                  onUpdateTitle={handleUpdateSectionTitle}
-                  onDelete={handleDeleteSection}
-                  onToggleMapping={(outcomeId) => handleToggleMapping(section.id, outcomeId)}
-                  outcomes={outcomes}
-                  mappedOutcomes={section.loMappings || []}
-                />
-              ))}
-            </SortableContext>
-          </DndContext>
-
-          {showAddSection ? (
-            <div className="flex items-center gap-2 mt-4">
-              <Input
-                autoFocus
-                value={newSectionTitle}
-                onChange={(e) => setNewSectionTitle(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddSection()}
-                placeholder="Tên chương mới..."
-                className="flex-1"
-              />
-              <Button onClick={handleAddSection} disabled={isAddingSection}>
-                {isAddingSection ? 'Đang thêm...' : 'Thêm'}
-              </Button>
-              <Button variant="outline" onClick={() => setShowAddSection(false)}>
-                Hủy
-              </Button>
-            </div>
-          ) : (
-            <Button
-              variant="outline"
-              className="w-full mt-4 border-dashed"
-              onClick={() => setShowAddSection(true)}
-            >
-              <Plus className="h-4 w-4 mr-1" /> Thêm chương mới
-            </Button>
-          )}
-        </TabsContent>
-
-        <TabsContent value="mapping">
-          <Card>
-            <CardContent className="p-4 space-y-4">
-              <h3 className="font-semibold">Ánh xạ Learning Outcomes với Section</h3>
-              {sections.length === 0 ? (
-                <p className="text-muted-foreground">Chưa có section nào.</p>
-              ) : (
-                sections.map((section) => (
-                  <div key={section.id} className="border rounded p-3">
-                    <p className="font-medium">{section.title}</p>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {outcomes.map((outcome) => {
-                        const isMapped = (section.loMappings || []).includes(outcome.id);
-                        return (
-                          <button
-                            key={outcome.id}
-                            onClick={() => handleToggleMapping(section.id, outcome.id)}
-                            className={`px-2 py-1 text-xs rounded-full border ${
-                              isMapped
-                                ? 'bg-muted border-border text-foreground'
-                                : 'bg-muted/50 border-border text-muted-foreground hover:bg-muted'
-                            }`}
-                          >
-                            {isMapped ? '✓ ' : ''}
-                            {outcome.title}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {showAddSection ? (
+        <div className="flex items-center gap-2 mt-4">
+          <Input
+            autoFocus
+            value={newSectionTitle}
+            onChange={(e) => setNewSectionTitle(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleAddSection()}
+            placeholder="Tên chương mới..."
+            className="flex-1"
+          />
+          <Button onClick={handleAddSection} disabled={isAddingSection}>
+            {isAddingSection ? 'Đang thêm...' : 'Thêm'}
+          </Button>
+          <Button variant="outline" onClick={() => setShowAddSection(false)}>
+            Hủy
+          </Button>
+        </div>
+      ) : (
+        <Button
+          variant="outline"
+          className="w-full mt-4 border-dashed"
+          onClick={() => setShowAddSection(true)}
+        >
+          <Plus className="h-4 w-4 mr-1" /> Thêm chương mới
+        </Button>
+      )}
     </div>
   );
 }
