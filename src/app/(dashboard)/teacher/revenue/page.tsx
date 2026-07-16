@@ -24,6 +24,29 @@ interface Transaction {
   createdAt: string;
 }
 
+const statusMap: Record<string, { label: string; className: string }> = {
+  SUCCESS: {
+    label: 'Thành công',
+    className: 'text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs',
+  },
+  FAILED: {
+    label: 'Thất bại',
+    className: 'text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs',
+  },
+  PENDING: {
+    label: 'Đang xử lý',
+    className: 'text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full text-xs',
+  },
+  REFUNDED: {
+    label: 'Hoàn tiền',
+    className: 'text-blue-600 bg-blue-100 px-2 py-1 rounded-full text-xs',
+  },
+  COMPLETED: {
+    label: 'Hoàn tất',
+    className: 'text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs',
+  }, // fallback
+};
+
 export default function TeacherRevenuePage() {
   const { isTeacher, isLoading: authLoading } = useAuth();
   const router = useRouter();
@@ -35,8 +58,6 @@ export default function TeacherRevenuePage() {
   useEffect(() => {
     if (!authLoading && !isTeacher) router.push('/forbidden');
   }, [isTeacher, authLoading, router]);
-
-  // XÓA block useEffect .then() cũ ở đây
 
   const fetchStats = useCallback(async () => {
     setLoading(true);
@@ -135,15 +156,23 @@ export default function TeacherRevenuePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {transactions.map((tx) => (
-                  <TableRow key={tx.id}>
-                    <TableCell>{tx.userName}</TableCell>
-                    <TableCell>{tx.amount.toLocaleString('vi-VN')}đ</TableCell>
-                    <TableCell>{tx.type === 'PURCHASE' ? 'Mua khóa học' : 'Hoàn tiền'}</TableCell>
-                    <TableCell>{tx.status === 'SUCCESS' ? 'Thành công' : 'Thất bại'}</TableCell>
-                    <TableCell>{new Date(tx.createdAt).toLocaleString()}</TableCell>
-                  </TableRow>
-                ))}
+                {transactions.map((tx) => {
+                  const statusInfo = statusMap[tx.status] || {
+                    label: tx.status,
+                    className: 'bg-gray-100 text-gray-600',
+                  };
+                  return (
+                    <TableRow key={tx.id}>
+                      <TableCell>{tx.userName}</TableCell>
+                      <TableCell>{tx.amount.toLocaleString('vi-VN')}đ</TableCell>
+                      <TableCell>{tx.type === 'PURCHASE' ? 'Mua khóa học' : 'Hoàn tiền'}</TableCell>
+                      <TableCell>
+                        <span className={statusInfo.className}>{statusInfo.label}</span>
+                      </TableCell>
+                      <TableCell>{new Date(tx.createdAt).toLocaleString()}</TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}

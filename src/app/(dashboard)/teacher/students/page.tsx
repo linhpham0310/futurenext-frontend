@@ -172,8 +172,9 @@ export default function TeacherStudentsPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                students.map((student) => (
-                  <TableRow key={student.id}>
+                students.map((student, index) => (
+                  <TableRow key={`${student.id}-${index}`}>
+                    {' '}
                     <TableCell>
                       <div>
                         <p className="font-medium">{student.fullName}</p>
@@ -182,10 +183,10 @@ export default function TeacherStudentsPage() {
                     </TableCell>
                     <TableCell>{student.enrolledCourse}</TableCell>
                     <TableCell>
-                      <div className="w-full bg-muted rounded-full h-2">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-primary h-2 rounded-full"
-                          style={{ width: `${student.progress}%` }}
+                          className="bg-blue-600 h-2 rounded-full"
+                          style={{ width: `${Math.min(100, Math.max(0, student.progress))}%` }}
                         />
                       </div>
                       <span className="text-xs">{student.progress}%</span>
@@ -193,8 +194,8 @@ export default function TeacherStudentsPage() {
                     <TableCell>{formatDateSafe(student.joinedAt)}</TableCell>
                     <TableCell>
                       <Link
-                        href={`/teacher/courses/students/${student.id}`}
-                        className="text-foreground hover:underline text-sm"
+                        href={`/teacher/students/${student.id}`}
+                        className="text-blue-500 hover:underline text-sm"
                       >
                         Xem chi tiết
                       </Link>

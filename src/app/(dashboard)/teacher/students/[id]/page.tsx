@@ -13,7 +13,6 @@ import { getInitials } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { BackButton } from '@/components/ui/back-button';
 
-// Helper format ngày an toàn
 const formatDateSafe = (dateString?: string | null): string => {
   if (!dateString) return '--';
   const date = new Date(dateString);
@@ -46,9 +45,7 @@ export default function StudentDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading && !isTeacher) {
-      router.push('/forbidden');
-    }
+    if (!authLoading && !isTeacher) router.push('/forbidden');
   }, [isTeacher, authLoading, router]);
 
   useEffect(() => {
@@ -58,33 +55,40 @@ export default function StudentDetailPage() {
       teacherApi
         .getStudentDetail(id as string)
         .then((res) => {
-          console.log('📦 Raw student detail response:', res);
+          console.log('📦 Raw student detail:', res);
 
-          // Giả định response có thể ở các dạng:
-          // 1. { data: { ...student } }
-          // 2. { data: { data: { ...student } } }
-          // 3. { ...student }
           let rawData = res.data;
-          if (!rawData) {
-            throw new Error('Dữ liệu trả về rỗng');
-          }
+          if (!rawData) throw new Error('Dữ liệu trả về rỗng');
 
-          // Nếu rawData có data lồng thêm thì lấy ra
+          // Xử lý lồng data
           if (rawData.data && typeof rawData.data === 'object' && !Array.isArray(rawData.data)) {
             rawData = rawData.data;
           }
 
           console.log('📦 Processed student data:', rawData);
 
-          // Kiểm tra các trường bắt buộc
           if (!rawData.id || !rawData.fullName) {
-            throw new Error('Dữ liệu không có đủ thông tin cần thiết');
+            throw new Error('Dữ liệu không đủ thông tin');
           }
 
-          // Đảm bảo courseProgress là mảng
           const courseProgress = Array.isArray(rawData.courseProgress)
             ? rawData.courseProgress
             : [];
+
+          const courseProgressMapped: CourseProgress[] = courseProgress.map((cp: any) => ({
+            courseId: cp.courseId || '',
+            courseTitle: cp.courseTitle || cp.title || 'Không có tên',
+            progress: typeof cp.progress === 'number' ? cp.progress : 0,
+            lastActiveAt: cp.lastActiveAt || null,
+          }));
+
+          // Tính progress tổng quan từ courseProgress
+          const overallProgress = courseProgressMapped.length
+            ? Math.round(
+                courseProgressMapped.reduce((sum, cp) => sum + cp.progress, 0) /
+                  courseProgressMapped.length
+              )
+            : 0;
 
           const studentData: StudentDetail = {
             id: rawData.id,
@@ -92,19 +96,15 @@ export default function StudentDetailPage() {
             email: rawData.email || '',
             avatarUrl: rawData.avatarUrl || undefined,
             enrolledAt: rawData.enrolledAt || rawData.joinedAt || rawData.createdAt || '',
-            progress: typeof rawData.progress === 'number' ? rawData.progress : 0,
-            courseProgress: courseProgress.map((cp: any) => ({
-              courseId: cp.courseId || '',
-              courseTitle: cp.courseTitle || cp.title || 'Không có tên',
-              progress: typeof cp.progress === 'number' ? cp.progress : 0,
-              lastActiveAt: cp.lastActiveAt || null,
-            })),
+            // Ưu tiên rawData.progress nếu có, nếu không dùng overallProgress
+            progress: typeof rawData.progress === 'number' ? rawData.progress : overallProgress,
+            courseProgress: courseProgressMapped,
           };
 
           setStudent(studentData);
         })
         .catch((err) => {
-          console.error('❌ Error fetching student detail:', err);
+          console.error('❌ Error:', err);
           const msg =
             err?.response?.data?.message || err?.message || 'Không thể tải thông tin học viên';
           setError(msg);
@@ -121,9 +121,7 @@ export default function StudentDetailPage() {
       </div>
     );
   }
-
   if (!isTeacher) return null;
-
   if (error || !student) {
     return (
       <div className="p-8 max-w-4xl mx-auto">

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { studentApi } from '@/lib/api';
+import { commonApi } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,67 +19,85 @@ interface Notification {
   createdAt: string;
 }
 
-// Mẫu dữ liệu để hiển thị khi API chưa có
+// Dữ liệu mẫu khi không có API
 const MOCK_NOTIFICATIONS: Notification[] = [
   {
     id: '1',
     title: '🎉 Chào mừng bạn đến với FutureNext.ai',
-    description: 'Hãy bắt đầu hành trình học tập của bạn bằng cách khám phá các khóa học.',
-    link: '/courses',
+    description: 'Hãy bắt đầu hành trình giảng dạy của bạn.',
+    link: '/teacher/courses',
     isRead: false,
     createdAt: new Date().toISOString(),
   },
   {
     id: '2',
-    title: '📚 Khóa học mới: UI/UX Design Fundamentals',
-    description: 'Khóa học UI/UX Design Fundamentals vừa được cập nhật nội dung mới.',
-    link: '/courses/db12e4cf-dab7-4eff-a901-524d5d16514a',
+    title: '📚 Học viên mới đăng ký khóa học của bạn',
+    description: 'Nguyễn Văn A vừa đăng ký khóa học "UI/UX Design Fundamentals".',
+    link: '/teacher/courses',
     isRead: false,
-    createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 ngày trước
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
   },
   {
     id: '3',
-    title: '✅ Bạn đã hoàn thành bài học đầu tiên!',
-    description: 'Chúc mừng bạn đã hoàn thành bài học "Giới thiệu về UI/UX". Tiếp tục phát huy!',
-    link: '/my-courses',
+    title: '💰 Doanh thu tháng này đã đạt 10 triệu',
+    description: 'Chúc mừng bạn đã đạt mốc doanh thu 10 triệu trong tháng này!',
+    link: '/teacher/revenue',
     isRead: false,
-    createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 ngày trước
+    createdAt: new Date(Date.now() - 172800000).toISOString(),
   },
 ];
 
-export default function StudentNotificationsPage() {
+export default function TeacherNotificationsPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [useMock, setUseMock] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     const fetchNotifications = async () => {
       setLoading(true);
       try {
-        const res = await studentApi.getNotifications({ limit: 50 });
-        console.log('📦 Notifications response:', res.data);
-
-        let data = res.data;
-        if (data && data.data) {
-          data = data.data;
+        if (typeof commonApi.getNotifications !== 'function') {
+          console.warn('commonApi.getNotifications is not available, using mock');
+          setNotifications(MOCK_NOTIFICATIONS);
+          setUseMock(true);
+          setLoading(false);
+          return;
         }
+
+        const res = await commonApi.getNotifications({ limit: 50 });
+        console.log('📦 Notifications response:', res);
+
+        let data = res?.data;
+        if (!data) {
+          setNotifications(MOCK_NOTIFICATIONS);
+          setUseMock(true);
+          setLoading(false);
+          return;
+        }
+
+        if (data.data && Array.isArray(data.data)) {
+          data = data.data;
+        } else if (data.items && Array.isArray(data.items)) {
+          data = data.items;
+        }
+
         if (Array.isArray(data) && data.length > 0) {
           setNotifications(data);
           setUseMock(false);
         } else {
-          // Nếu API trả về mảng rỗng, dùng mock để demo
           setNotifications(MOCK_NOTIFICATIONS);
           setUseMock(true);
         }
       } catch (error) {
         console.error('❌ Lỗi fetch notifications:', error);
-        // Dùng mock khi API lỗi
         setNotifications(MOCK_NOTIFICATIONS);
         setUseMock(true);
-        // Không hiển thị toast lỗi để tránh làm phiền
       } finally {
         setLoading(false);
       }
@@ -89,15 +107,18 @@ export default function StudentNotificationsPage() {
   }, [user]);
 
   const markAsRead = async (id: string) => {
-    // Nếu đang dùng mock, chỉ cập nhật state local
     if (useMock) {
       setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
       return;
     }
 
     try {
-      await studentApi.markNotificationRead(id);
-      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
+      if (typeof commonApi.markNotificationRead === 'function') {
+        await commonApi.markNotificationRead(id);
+        setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
+      } else {
+        setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
+      }
     } catch {
       toast.error('Không thể đánh dấu đã đọc');
     }
@@ -111,9 +132,14 @@ export default function StudentNotificationsPage() {
     }
 
     try {
-      await studentApi.markAllNotificationsRead();
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-      toast.success('Đã đánh dấu tất cả là đã đọc');
+      if (typeof commonApi.markAllNotificationsRead === 'function') {
+        await commonApi.markAllNotificationsRead();
+        setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+        toast.success('Đã đánh dấu tất cả là đã đọc');
+      } else {
+        setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+        toast.success('Đã đánh dấu tất cả là đã đọc');
+      }
     } catch {
       toast.error('Không thể thực hiện');
     }
@@ -132,7 +158,7 @@ export default function StudentNotificationsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Thông báo</h1>
         <div className="flex gap-2">
-          {notifications.some((n) => !n.isRead) && (
+          {Array.isArray(notifications) && notifications.some((n) => !n.isRead) && (
             <Button variant="outline" size="sm" onClick={markAllAsRead}>
               Đánh dấu tất cả đã đọc
             </Button>
@@ -140,7 +166,8 @@ export default function StudentNotificationsPage() {
           <BackButton />
         </div>
       </div>
-      {notifications.length === 0 ? (
+
+      {!Array.isArray(notifications) || notifications.length === 0 ? (
         <div className="text-center py-12">
           <Bell className="h-12 w-12 mx-auto text-slate-300 mb-3" />
           <h2 className="text-xl font-semibold">Chưa có thông báo</h2>
@@ -180,17 +207,14 @@ export default function StudentNotificationsPage() {
                         Xem chi tiết
                       </a>
                     )}
-                    {useMock && (
-                      <span className="text-xs text-amber-500 mt-1 inline-block ml-2"></span>
-                    )}
                   </div>
                 </div>
               </CardContent>
             </Card>
           ))}
           {useMock && (
-            <p className="text-xs text-muted-foreground text-center mt-2">
-              💡 Đây là dữ liệu mẫu. Thông báo thực tế sẽ xuất hiện khi có dữ liệu từ server.
+            <p className="text-xs text-amber-500 text-center mt-2">
+              💡 Dữ liệu mẫu. Thông báo thực tế sẽ hiển thị khi có dữ liệu từ server.
             </p>
           )}
         </div>
