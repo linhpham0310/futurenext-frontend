@@ -37,7 +37,6 @@ export const AdminSidebar = () => {
   ];
 
   const financeMenus = [
-    { icon: DollarSign, label: 'Quản lý thanh toán', href: '/admin/payments' },
     { icon: DollarSign, label: 'Doanh thu', href: '/admin/revenue' },
     { icon: CreditCard, label: 'Đơn hàng', href: '/admin/orders' },
   ];
