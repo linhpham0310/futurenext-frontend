@@ -259,7 +259,7 @@ export default function AdminCourseDetailPage() {
                   <ul className="space-y-1 pl-4">
                     {section.lessons.map((lesson) => (
                       <li key={lesson.id} className="text-sm">
-                        • {lesson.title} ({lesson.type}) - Topics: {lesson.mainTopics?.join(', ')}
+                        • {lesson.title} ({lesson.type}) {lesson.mainTopics?.join(', ')}
                       </li>
                     ))}
                   </ul>
